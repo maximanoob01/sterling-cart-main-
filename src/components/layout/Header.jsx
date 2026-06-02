@@ -1,13 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, ChevronDown, Gift, Heart, IndianRupee, Menu, PackageSearch, Search, ShoppingCart, TrendingDown, TrendingUp, User, X, Moon, Sun } from 'lucide-react';
+import { ShoppingCart, Heart, Search, User, Menu, X, ChevronDown, IndianRupee, Sun, Moon, PackageSearch, Gift, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useTheme } from '../../context/ThemeContext';
 import { products } from '../../data/products';
 import { formatPrice } from '../../utils/formatPrice';
+
+const announcements = [
+  "Free shipping above Rs. 1,999 | Easy 7-day returns",
+  "Use code SILVER10 for 10% off your first order!",
+  "New arrivals are here ✨ Shop the latest 925 silver trends",
+  "Hallmarked authenticity with every piece you buy"
+];
 
 const categoryLinks = [
   ['Rings', 'rings'],
@@ -36,6 +43,15 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(true);
+  const [announcementIndex, setAnnouncementIndex] = useState(0);
+
+  useEffect(() => {
+    if (!showAnnouncement) return;
+    const interval = setInterval(() => {
+      setAnnouncementIndex((prev) => (prev + 1) % announcements.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [showAnnouncement]);
   const [isSilverPriceOpen, setIsSilverPriceOpen] = useState(false);
   const [isCartAnimating, setIsCartAnimating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -90,7 +106,18 @@ export default function Header() {
             className="relative flex h-[34px] items-center overflow-hidden bg-[radial-gradient(circle_at_center,_#1a3682_0%,_#0d1e4b_100%)] text-white"
           >
             <p className="w-full px-10 text-center text-[11px] tracking-[0.4px] sm:text-[12px]">
-              Free shipping above Rs. 1,999 | Easy 7-day returns
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={announcementIndex}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="inline-block"
+                >
+                  {announcements[announcementIndex]}
+                </motion.span>
+              </AnimatePresence>
             </p>
             <button
               onClick={() => setShowAnnouncement(false)}
@@ -149,7 +176,7 @@ export default function Header() {
             <button
               type="button"
               onClick={toggleTheme}
-              className="hidden sm:block"
+              className="block"
               aria-label="Toggle dark mode"
             >
               <HeaderIcon label={isDarkMode ? 'Light' : 'Dark'} text={isDarkMode ? 'Light' : 'Dark'}>
@@ -168,7 +195,7 @@ export default function Header() {
                 <HeaderIcon label="Wishlist" text="Wishlist" count={wishlistItems.length}><Heart size={18} /></HeaderIcon>
               </button>
             )}
-            <Link to="/cart">
+            <Link to="/cart" className="hidden sm:block">
               <HeaderIcon label="Cart" text="Cart" count={totalItems} attention={isCartAnimating}><ShoppingCart size={18} /></HeaderIcon>
             </Link>
             {isAuthenticated ? (
@@ -216,22 +243,47 @@ export default function Header() {
           </AnimatePresence>
         </nav>
 
-        <AnimatePresence>
-          {isSearchOpen && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="absolute left-0 top-full w-full overflow-hidden border-t border-border-main bg-bg-surface shadow-form">
-              <div className="mx-auto max-w-[900px] px-4 py-4 lg:hidden">
-                <ProductSearch
-                  query={searchQuery}
-                  setQuery={setSearchQuery}
-                  navigate={navigate}
-                  onClose={() => setIsSearchOpen(false)}
-                  autoFocus
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
+
+      {/* Mobile Search Overlay — fixed so it overlays hero/page content */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[90] bg-black/40 lg:hidden"
+              onClick={() => setIsSearchOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.2 }}
+              className="fixed left-0 right-0 top-0 z-[100] bg-bg-surface shadow-modal px-4 pt-4 pb-5 lg:hidden"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[13px] font-semibold text-text-main tracking-wide">Search</span>
+                <button
+                  onClick={() => setIsSearchOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-silver-100 text-text-muted"
+                  aria-label="Close search"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              <ProductSearch
+                query={searchQuery}
+                setQuery={setSearchQuery}
+                navigate={navigate}
+                onClose={() => setIsSearchOpen(false)}
+                autoFocus
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {isSilverPriceOpen && <SilverPriceModal onClose={() => setIsSilverPriceOpen(false)} />}
@@ -266,7 +318,7 @@ export default function Header() {
                   <div key={link.name}>
                     <Link to={link.path} onClick={() => setIsMobileMenuOpen(false)} className="text-[15px] font-medium">{link.name}</Link>
                     {link.name === 'All Jewellery' && (
-                      <div className="mt-3 grid grid-cols-2 gap-2 border-l border-[#FFE4EE] pl-3">
+                      <div className="mt-3 grid grid-cols-2 gap-2 border-l border-[#FFF0F5] pl-3">
                         {categoryLinks.map(([name, id]) => <Link key={id} to={`/shop?category=${id}`} onClick={() => setIsMobileMenuOpen(false)} className="text-[13px] text-text-muted">{name}</Link>)}
                       </div>
                     )}
@@ -278,6 +330,39 @@ export default function Header() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Floating Bottom Nav for Mobile */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-border-main bg-bg-surface/95 px-2 py-2 pb-[calc(env(safe-area-inset-bottom)+8px)] shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-xl sm:hidden">
+        <Link to="/track-order" className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
+          <PackageSearch size={20} />
+          <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Track</span>
+        </Link>
+        <Link to="/dashboard?tab=wishlist" className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
+          <span className="relative">
+            <Heart size={20} />
+            {wishlistItems.length > 0 && <span className="absolute -right-2 -top-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full bg-[#D4527A] px-1 text-[8px] font-bold text-white">{wishlistItems.length}</span>}
+          </span>
+          <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Wishlist</span>
+        </Link>
+        <Link to="/cart" className={`flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A] ${isCartAnimating ? 'cart-attention' : ''}`}>
+          <span className="relative">
+            <ShoppingCart size={20} />
+            {totalItems > 0 && <span className="absolute -right-2 -top-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full bg-[#D4527A] px-1 text-[8px] font-bold text-white">{totalItems}</span>}
+          </span>
+          <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Cart</span>
+        </Link>
+        {isAuthenticated ? (
+          <Link to={isAdmin ? '/admin' : '/dashboard'} className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
+            <User size={20} />
+            <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Profile</span>
+          </Link>
+        ) : (
+          <button type="button" onClick={useAuth().openAuthModal} className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
+            <User size={20} />
+            <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Profile</span>
+          </button>
+        )}
+      </nav>
     </>
   );
 }
@@ -323,7 +408,7 @@ function SilverPriceModal({ onClose }) {
             <h2 id="silver-price-title" className="mt-1 font-serif text-[28px] text-text-main sm:text-[32px]">Silver price today</h2>
             <p className="mt-1 text-[12px] text-[#888]">{dateLabel} · Indicative retail reference</p>
           </div>
-          <button type="button" onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F8F5F4] text-text-muted transition-colors hover:bg-[#FFF0F5] hover:text-[#B94B68]" aria-label="Close silver price tracker">
+          <button type="button" onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F8F5F4] text-text-muted transition-colors hover:bg-pink-50 hover:text-[#B94B68]" aria-label="Close silver price tracker">
             <X size={18} />
           </button>
         </div>
@@ -490,7 +575,7 @@ function ProductSearch({ query, setQuery, navigate, onClose, autoFocus = false }
             {suggestions.length > 0 ? (
               <div className="max-h-[370px] overflow-y-auto p-2">
                 {suggestions.map((product) => (
-                  <button key={product.id} type="button" onClick={() => openProduct(product.slug)} className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-[#FFF7F8]">
+                  <button key={product.id} type="button" onClick={() => openProduct(product.slug)} className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-pink-50">
                     <img src={product.images[0]} alt="" className="h-12 w-12 shrink-0 rounded-lg bg-bg-alt object-cover" />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13px] font-medium text-text-main">{product.name}</span>
@@ -507,7 +592,7 @@ function ProductSearch({ query, setQuery, navigate, onClose, autoFocus = false }
               </div>
             )}
             {normalizedQuery && suggestions.length > 0 && (
-              <button type="button" onClick={submitSearch} className="flex w-full items-center justify-center gap-2 border-t border-[#F0ECEA] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.8px] text-[#B94B68] hover:bg-[#FFF7F8]">
+              <button type="button" onClick={submitSearch} className="flex w-full items-center justify-center gap-2 border-t border-[#F0ECEA] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.8px] text-[#B94B68] hover:bg-pink-50">
                 View all results for "{query.trim()}"
               </button>
             )}
@@ -542,12 +627,12 @@ function MegaMenu({ activeDropdown, onClose }) {
         <MegaColumn title="Shop by category" className="border-r border-[#EEEAE8]">
           <div className="grid grid-cols-2 gap-x-7 gap-y-1">
             {categoryLinks.map(([name, id]) => (
-              <Link key={id} to={`/shop?category=${id}`} onClick={onClose} className="rounded-md px-2 py-2 text-[13px] text-text-muted transition-colors hover:bg-[#FFF7F8] hover:text-[#B94B68]">
+              <Link key={id} to={`/shop?category=${id}`} onClick={onClose} className="rounded-md px-2 py-2 text-[13px] text-text-muted transition-colors hover:bg-pink-50 hover:text-[#B94B68]">
                 {name}
               </Link>
             ))}
           </div>
-          <Link to="/shop" onClick={onClose} className="mt-4 block rounded-lg border border-border-main px-3 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.7px] text-[#B94B68] hover:bg-[#FFF7F8]">
+          <Link to="/shop" onClick={onClose} className="mt-4 block rounded-lg border border-border-main px-3 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.7px] text-[#B94B68] hover:bg-pink-50">
             View all jewellery
           </Link>
         </MegaColumn>
@@ -603,35 +688,35 @@ function GiftMegaMenu({ onClose }) {
       <div className="mx-auto grid max-w-[1420px] grid-cols-[0.9fr_0.85fr_1fr_1.35fr]">
         <MegaColumn title="Gifts by occasion" className="border-r border-[#EEEAE8]">
           {[
-            ['Birthday gifts', 'birthday'],
-            ['Anniversary gifts', 'anniversary'],
-            ['Wedding gifts', 'wedding'],
-            ['Festive gifting', 'festivals'],
-            ['Just because', 'everyday'],
-          ].map(([name, giftOccasion]) => <MegaLink key={name} to={`/shop?occasion=gifting&giftOccasion=${giftOccasion}`} onClick={onClose}>{name}</MegaLink>)}
-          <Link to="/shop?occasion=gifting" onClick={onClose} className="mt-4 block rounded-lg border border-border-main px-3 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.7px] text-[#B94B68] hover:bg-[#FFF7F8]">
+            ['Birthday gifts', '#festivals'],
+            ['Anniversary gifts', ''],
+            ['Wedding gifts', ''],
+            ['Festive gifting', '#festivals'],
+            ['Just because', ''],
+          ].map(([name, hash]) => <MegaLink key={name} to={`/gifting${hash}`} onClick={onClose}>{name}</MegaLink>)}
+          <Link to="/gifting" onClick={onClose} className="mt-4 block rounded-lg border border-border-main px-3 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.7px] text-[#B94B68] hover:bg-pink-50">
             View all gifts
           </Link>
         </MegaColumn>
 
         <MegaColumn title="Shop by budget" className="border-r border-[#EEEAE8] bg-bg-primary">
           {[
-            ['Under Rs. 1,000', '1000'],
-            ['Under Rs. 2,000', '2000'],
-            ['Under Rs. 3,000', '3000'],
-            ['Under Rs. 5,000', '5000'],
-            ['Premium picks', '10000'],
-          ].map(([name, max]) => <MegaLink key={max} to={`/shop?occasion=gifting&maxPrice=${max}`} onClick={onClose}>{name}</MegaLink>)}
+            ['Under Rs. 1,000', ''],
+            ['Under Rs. 2,000', ''],
+            ['Under Rs. 3,000', ''],
+            ['Under Rs. 5,000', ''],
+            ['Premium picks', ''],
+          ].map(([name, hash]) => <MegaLink key={name} to={`/gifting${hash}`} onClick={onClose}>{name}</MegaLink>)}
         </MegaColumn>
 
         <MegaColumn title="Gifts for someone special" className="border-r border-[#EEEAE8]">
           {[
-            ['For her', 'her'],
-            ['For him', 'him'],
-            ['For sister', 'sister'],
-            ['For mother', 'mother'],
-            ['For friends', 'friends'],
-          ].map(([name, recipient]) => <MegaLink key={name} to={`/shop?occasion=gifting&recipient=${recipient}`} onClick={onClose}>{name}</MegaLink>)}
+            ['For her', '#for-her'],
+            ['For him', '#for-him'],
+            ['For sister', '#for-sister'],
+            ['For mother', '#for-mother'],
+            ['For friends', '#for-friends'],
+          ].map(([name, hash]) => <MegaLink key={name} to={`/gifting${hash}`} onClick={onClose}>{name}</MegaLink>)}
           <p className="mt-5 border-t border-[#EEEAE8] pt-4 text-[11px] font-semibold uppercase tracking-[1px] text-[#B94B68]">Gift-ready packaging</p>
           <p className="mt-1 text-[12px] leading-5 text-[#888]">Beautifully packed and ready to make their day.</p>
         </MegaColumn>
@@ -643,7 +728,7 @@ function GiftMegaMenu({ onClose }) {
               eyebrow="First order"
               title="10% off"
               text="A little welcome gift for your first Sterling Cart order."
-              to="/shop?occasion=gifting"
+              to="/gifting"
               tone="pink"
               onClose={onClose}
             />
@@ -651,7 +736,7 @@ function GiftMegaMenu({ onClose }) {
               eyebrow="Most loved"
               title="Gift picks"
               text="Discover bestselling pieces chosen for special moments."
-              to="/shop?occasion=gifting&badge=Bestseller"
+              to="/gifting"
               tone="dark"
               onClose={onClose}
             />
@@ -708,7 +793,7 @@ function MegaColumn({ title, children, className = '' }) {
 }
 
 function MegaLink({ children, to, onClick }) {
-  return <Link to={to} onClick={onClick} className="block rounded-md px-2 py-2 text-[13px] text-text-muted transition-colors hover:bg-[#FFF7F8] hover:text-[#B94B68]">{children}</Link>;
+  return <Link to={to} onClick={onClick} className="block rounded-md px-2 py-2 text-[13px] text-text-muted transition-colors hover:bg-pink-50 hover:text-[#B94B68]">{children}</Link>;
 }
 
 function HeaderIcon({ children, count, label, onClick, text, attention = false }) {
@@ -724,14 +809,14 @@ function HeaderIcon({ children, count, label, onClick, text, attention = false }
 
   if (onClick) {
     return (
-      <button onClick={onClick} className="relative flex h-10 min-w-10 flex-col items-center justify-center gap-1 rounded-lg px-1 text-text-main transition-colors hover:bg-[#FFF0F5] hover:text-[#D4527A] xl:h-12" aria-label={label}>
+      <button onClick={onClick} className="relative flex h-10 min-w-10 flex-col items-center justify-center gap-1 rounded-lg px-1 text-text-main transition-colors hover:bg-pink-50 hover:text-[#D4527A] xl:h-12" aria-label={label}>
         {content}
       </button>
     );
   }
 
   return (
-    <span className="relative flex h-10 min-w-10 flex-col items-center justify-center gap-1 rounded-lg px-1 text-text-main transition-colors hover:bg-[#FFF0F5] hover:text-[#D4527A] xl:h-12" aria-label={label}>
+    <span className="relative flex h-10 min-w-10 flex-col items-center justify-center gap-1 rounded-lg px-1 text-text-main transition-colors hover:bg-pink-50 hover:text-[#D4527A] xl:h-12" aria-label={label}>
       {content}
     </span>
   );

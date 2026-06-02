@@ -57,14 +57,14 @@ const AboutPage = () => {
       return;
     }
     toast.success('Thank you for subscribing! 💌', {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
     setEmail('');
   };
 
   return (
-    <div className="min-h-screen bg-bg-surface">
+    <div className="min-h-screen bg-bg-surface pb-20 sm:pb-0">
       {/* Breadcrumb */}
       <div className="bg-pink-50 border-b border-pink-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
@@ -183,7 +183,7 @@ const AboutPage = () => {
                   variants={fadeInUp}
                   custom={index}
                 >
-                  <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mx-auto mb-6">
+                  <div className="w-16 h-16 rounded-full bg-pink-50 flex items-center justify-center mx-auto mb-6">
                     <IconComponent size={28} className="text-pink-400" />
                   </div>
                   <h3 className="text-xl font-serif text-charcoal mb-3">{value.title}</h3>

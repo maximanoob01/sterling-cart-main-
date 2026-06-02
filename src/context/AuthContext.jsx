@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
       setUser(safeUser);
       closeAuthModal();
       toast.success(`Welcome back, ${found.name}!`, {
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
         iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
       });
       return { success: true, user: safeUser };
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     setUser(newUser);
     closeAuthModal();
     toast.success(`Welcome to Sterling Cart, ${name}!`, {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
     return { success: true, user: newUser };
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     setUser(null);
     toast.success('Logged out successfully', {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
   }, []);
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = useCallback((updates) => {
     setUser(prev => ({ ...prev, ...updates }));
     toast.success('Profile updated successfully', {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
   }, []);

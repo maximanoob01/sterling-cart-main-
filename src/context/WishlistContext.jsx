@@ -11,13 +11,13 @@ export const WishlistProvider = ({ children }) => {
       const exists = prev.find(item => item.id === product.id);
       if (exists) {
         toast.success(`${product.name} removed from wishlist`, {
-          style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+          style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
           iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
         });
         return prev.filter(item => item.id !== product.id);
       } else {
         toast.success(`${product.name} added to wishlist ♡`, {
-          style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+          style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
           iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
         });
         return [...prev, product];

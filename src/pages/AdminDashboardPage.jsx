@@ -75,7 +75,7 @@ export default function AdminDashboardPage() {
             <p className="font-sans text-[13px] text-text-muted mb-[4px]">Revenue Today</p>
             <h3 className="font-sans text-[24px] font-bold text-text-main">{formatPrice(adminStats.revenueToday)}</h3>
           </div>
-          <div className="w-[48px] h-[48px] bg-[#FFF0F5] text-[#D4527A] rounded-[12px] flex items-center justify-center"><TrendingUp size={24} /></div>
+          <div className="w-[48px] h-[48px] bg-pink-50 text-[#D4527A] rounded-[12px] flex items-center justify-center"><TrendingUp size={24} /></div>
         </div>
         <div className="bg-bg-surface rounded-[16px] p-[24px] shadow-product flex items-center justify-between border-none">
           <div>
@@ -150,7 +150,7 @@ export default function AdminDashboardPage() {
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[#FFF0F5]">
+            <tr className="bg-pink-50">
               <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Order ID</th>
               <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Date</th>
               <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Customer</th>
@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[#FFF0F5]">
+            <tr className="bg-pink-50">
               <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Product</th>
               <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">SKU</th>
               <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Category</th>

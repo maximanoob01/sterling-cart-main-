@@ -20,14 +20,14 @@ export default function ContactPage() {
       return;
     }
     toast.success('Message sent successfully! We\'ll get back to you soon.', {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
     setFormData({ name: '', email: '', phone: '', orderId: '', message: '' });
   };
 
   return (
-    <div className="min-h-screen bg-bg-surface">
+    <div className="min-h-screen bg-bg-surface pb-20 sm:pb-0">
       {/* Breadcrumb */}
       <div className="bg-pink-50 py-4">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -48,10 +48,10 @@ export default function ContactPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-charcoal mb-4">
+          <h1 className="font-serif text-[30px] md:text-4xl lg:text-5xl font-bold text-charcoal mb-3 md:mb-4">
             Get in Touch
           </h1>
-          <p className="text-silver-500 text-lg max-w-2xl mx-auto">
+          <p className="text-silver-500 text-[14px] md:text-lg max-w-2xl mx-auto">
             Have a question, feedback, or need help with your order? We'd love to hear from you.
           </p>
         </motion.div>
@@ -145,7 +145,7 @@ export default function ContactPage() {
           >
             <div className="bg-pink-50 rounded-2xl p-6">
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center flex-shrink-0">
                   <MapPin size={18} className="text-pink-400" />
                 </div>
                 <div>
@@ -158,7 +158,7 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center flex-shrink-0">
                   <Phone size={18} className="text-pink-400" />
                 </div>
                 <div>
@@ -168,7 +168,7 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center flex-shrink-0">
                   <Mail size={18} className="text-pink-400" />
                 </div>
                 <div>
@@ -178,7 +178,7 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center flex-shrink-0">
                   <Clock size={18} className="text-pink-400" />
                 </div>
                 <div>

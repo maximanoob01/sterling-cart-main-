@@ -110,16 +110,16 @@ function ProductCard({ product }) {
           <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]" loading="lazy" />
         </Link>
       </div>
-      <div className="p-4">
-        <Link to={`/product/${product.slug}`} className="block min-h-[42px] text-[14px] font-medium leading-5 text-text-main transition-colors hover:text-[#D4527A]">{product.name}</Link>
-        <div className="mt-2 flex items-center gap-2">
-          <StarRating rating={product.rating} size={12} />
-          <span className="text-[11px] text-text-muted">({product.reviewCount})</span>
+      <div className="p-3 md:p-4">
+        <Link to={`/product/${product.slug}`} className="block min-h-[38px] md:min-h-[42px] text-[12px] md:text-[14px] font-medium leading-tight md:leading-5 text-text-main transition-colors hover:text-[#D4527A]">{product.name}</Link>
+        <div className="mt-1.5 md:mt-2 flex items-center gap-1.5 md:gap-2">
+          <StarRating rating={product.rating} size={11} />
+          <span className="text-[10px] md:text-[11px] text-text-muted">({product.reviewCount})</span>
         </div>
-        <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="text-[15px] font-semibold">{formatPrice(product.price)}</span>
-          {product.mrp > product.price && <span className="text-[12px] text-text-muted line-through">{formatPrice(product.mrp)}</span>}
-          {discount > 0 && <span className="text-[10px] font-semibold text-[#B94B68]">{discount}% off</span>}
+        <div className="mt-2.5 md:mt-3 flex flex-wrap items-baseline gap-x-1.5 md:gap-x-2 gap-y-0.5 md:gap-y-1">
+          <span className="text-[13px] md:text-[15px] font-semibold">{formatPrice(product.price)}</span>
+          {product.mrp > product.price && <span className="text-[10px] md:text-[12px] text-text-muted line-through">{formatPrice(product.mrp)}</span>}
+          {discount > 0 && <span className="text-[9px] md:text-[10px] font-semibold text-[#B94B68]">{discount}% off</span>}
         </div>
         <MagneticButton className="w-full mt-5">
           <button onClick={() => addItem(product)} className="group flex h-11 w-full items-center justify-center gap-2 rounded-full border-[1.5px] border-[#1C1C2E] bg-transparent text-[11px] font-bold uppercase tracking-[1.2px] text-[#1C1C2E] transition-all hover:bg-[#1C1C2E] hover:text-white shadow-sm">
@@ -258,7 +258,7 @@ export default function HomePage() {
           <p className="font-serif text-[15px] uppercase tracking-[1px] text-text-main">Sterling Kart</p>
           <p className="mt-0.5 text-[7px] font-bold uppercase tracking-[2px] text-text-muted">925 Silver Jewels</p>
         </div>
-        <div className="relative mx-auto w-full max-w-[1320px] px-5 py-12 md:px-8 md:py-16">
+        <div className="relative mx-auto w-full max-w-[1320px] px-5 py-8 md:py-12 md:px-8 md:py-16">
           <AnimatePresence mode="wait">
             <motion.div
               key={heroIndex}
@@ -270,9 +270,9 @@ export default function HomePage() {
               aria-live="polite"
             >
               <p className="mb-3 text-[10px] font-semibold uppercase tracking-[3px] text-[#B94B68]">{activeHeroSlide.eyebrow}</p>
-              <h1 className="font-serif text-[38px] leading-[1.08] tracking-[-1px] text-text-main sm:text-[46px]">{activeHeroSlide.title}</h1>
-              <p className="mt-5 max-w-[420px] text-[15px] leading-7 text-text-muted">{activeHeroSlide.description}</p>
-              <div className="mt-7 flex flex-wrap gap-3">
+              <h1 className="font-serif text-[30px] leading-[1.08] tracking-[-1px] text-text-main sm:text-[46px]">{activeHeroSlide.title}</h1>
+              <p className="mt-4 md:mt-5 max-w-[420px] text-[13px] md:text-[15px] leading-6 md:leading-7 text-text-muted">{activeHeroSlide.description}</p>
+              <div className="mt-6 md:mt-7 flex flex-wrap gap-2 md:gap-3">
                 <MagneticButton>
                   <Link to="/shop" className="btn-primary inline-flex text-[12px] py-2.5 px-6">Shop the collection</Link>
                 </MagneticButton>
@@ -289,7 +289,7 @@ export default function HomePage() {
         <button type="button" onClick={showNextHero} className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-bg-surface/80 text-text-main shadow-sm backdrop-blur-sm transition hover:bg-bg-surface focus:outline-none focus:ring-2 focus:ring-[#D4527A] focus:ring-offset-2 md:right-7" aria-label="Show next hero image">
           <ChevronRight size={21} />
         </button>
-        <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/60 bg-bg-surface/75 px-3 py-2 shadow-sm backdrop-blur-sm md:bottom-7">
+        <div className="absolute bottom-5 left-1/2 z-20 hidden md:flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/60 bg-bg-surface/75 px-3 py-2 shadow-sm backdrop-blur-sm md:bottom-7">
           {heroSlides.map((slide, index) => (
             <button key={slide.image} type="button" onClick={() => setHeroIndex(index)} className={`h-2 rounded-full transition-all ${index === heroIndex ? 'w-6 bg-[#B94B68]' : 'w-2 bg-[#B8AEAA] hover:bg-[#8F8581]'}`} aria-label={`Show hero image ${index + 1}`} aria-current={index === heroIndex ? 'true' : undefined} />
           ))}
@@ -299,7 +299,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-bg-surface px-5 py-16 md:px-8 md:py-20">
+      <section className="bg-bg-surface px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20">
         <SectionHeading eyebrow="Find your favourites" title="Shop by category" />
         <div className="mx-auto grid max-w-[1320px] grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {categories.map((category) => (
@@ -312,7 +312,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-[#EEE8E5] bg-bg-alt px-5 py-16 md:px-8 md:py-20">
+      <section className="border-y border-[#EEE8E5] bg-bg-alt px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20">
         <SectionHeading eyebrow="Most loved" title="Customer favourites" />
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="mx-auto grid max-w-[1320px] grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
           {bestsellers.map((product) => <ProductCard key={product.id} product={product} />)}
@@ -341,7 +341,7 @@ export default function HomePage() {
       </section>
 
       {/* Curated Collage Section */}
-      <section className="bg-bg-surface px-5 py-16 md:px-8 md:py-24" ref={collageRef}>
+      <section className="bg-bg-surface px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-24" ref={collageRef}>
         <div className="mx-auto max-w-[1320px]">
           <SectionHeading eyebrow="The Edit" title="Curated for you" align="center" />
           
@@ -428,7 +428,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-t border-[#EEE8E5] bg-bg-primary px-5 py-16 md:px-8 md:py-20">
+      <section className="border-t border-[#EEE8E5] bg-bg-primary px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20">
         <div className="mx-auto max-w-[1320px]">
           <div className="mb-8 flex items-end justify-between gap-4">
             <SectionHeading eyebrow="Kind words" title="Loved by our customers" align="left" />
@@ -450,7 +450,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[#1C1C2E] px-5 py-14 text-white md:px-8">
+      <section className="bg-[#1C1C2E] px-5 py-8 md:py-14 text-white md:px-8">
         <div className="mx-auto flex max-w-[920px] flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[2px] text-[#E7BCC5]">A little something extra</p>

@@ -35,9 +35,9 @@ export const categories = [
 
 export const occasions = [
   { id: 'everyday', name: 'Everyday Wear', color: 'bg-pink-50' },
-  { id: 'wedding', name: 'Wedding', color: 'bg-pink-100' },
+  { id: 'wedding', name: 'Wedding', color: 'bg-pink-50' },
   { id: 'festivals', name: 'Festivals', color: 'bg-pink-50' },
-  { id: 'gifting', name: 'Gifting', color: 'bg-pink-100' },
+  { id: 'gifting', name: 'Gifting', color: 'bg-pink-50' },
   { id: 'office', name: 'Office Wear', color: 'bg-pink-50' },
 ];
 

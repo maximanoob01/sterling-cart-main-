@@ -89,8 +89,8 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      <div className="border-b border-[#F1E7E9] bg-[#FFF7F8] px-4 py-3 md:px-8">
+    <div className="min-h-screen bg-bg-primary pb-20 sm:pb-0">
+      <div className="border-b border-[#F1E7E9] bg-pink-50 px-4 py-3 md:px-8">
         <div className="mx-auto flex max-w-[1320px] flex-wrap items-center gap-2 text-[12px] text-text-muted">
           <Link to="/" className="flex items-center gap-1 hover:text-[#B94B68]"><Home size={13} /> Home</Link>
           <ChevronRight size={12} />
@@ -122,7 +122,7 @@ export default function ProductDetailPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 {product.badge && <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#B94B68]">{product.badge}</p>}
-                <h1 className="mt-2 font-serif text-[34px] leading-tight text-text-main md:text-[40px]">{product.name}</h1>
+                <h1 className="mt-2 font-serif text-[26px] md:text-[34px] lg:text-[40px] leading-tight text-text-main">{product.name}</h1>
                 <p className="mt-2 text-[12px] text-text-muted">Design code: {product.sku}</p>
               </div>
               <button onClick={shareProduct} className="flex shrink-0 items-center gap-1.5 rounded-full border border-border-main px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.6px] text-text-muted hover:text-[#B94B68]"><Share2 size={15} /> Share</button>
@@ -138,7 +138,7 @@ export default function ProductDetailPage() {
               <span className="text-[28px] font-semibold text-text-main">{formatPrice(product.price)}</span>
               {discount > 0 && <>
                 <span className="mb-1 text-[15px] text-text-muted line-through">{formatPrice(product.mrp)}</span>
-                <span className="mb-1 rounded-full bg-[#FFF0F5] px-2.5 py-1 text-[11px] font-bold text-[#B94B68]">{discount}% off</span>
+                <span className="mb-1 rounded-full bg-pink-50 px-2.5 py-1 text-[11px] font-bold text-[#B94B68]">{discount}% off</span>
               </>}
             </div>
 
@@ -172,7 +172,7 @@ export default function ProductDetailPage() {
 
             <div className="mt-4 flex gap-3">
               <button onClick={addToCart} className="btn-primary h-[50px] flex-1"><ShoppingCart size={17} /> Add to cart</button>
-              <button onClick={() => toggleItem(product)} className={`flex h-[50px] w-[50px] items-center justify-center rounded-full border ${isWished ? 'border-[#D4527A] bg-[#FFF0F5]' : 'border-[#DDD6D3] bg-bg-surface'}`} aria-label="Toggle wishlist">
+              <button onClick={() => toggleItem(product)} className={`flex h-[50px] w-[50px] items-center justify-center rounded-full border ${isWished ? 'border-[#D4527A] bg-pink-50' : 'border-[#DDD6D3] bg-bg-surface'}`} aria-label="Toggle wishlist">
                 <Heart size={18} className={isWished ? 'fill-[#D4527A] text-[#D4527A]' : 'text-text-muted'} />
               </button>
             </div>
@@ -188,7 +188,7 @@ export default function ProductDetailPage() {
               {deliveryMessage && <p className={`mt-2 text-[12px] ${deliveryMessage.startsWith('Delivery') ? 'text-[#43835D]' : 'text-[#B94B68]'}`}>{deliveryMessage}</p>}
             </div>
 
-            <div className="mt-4 rounded-xl border border-[#F1D8DE] bg-[#FFF7F8] p-4">
+            <div className="mt-4 rounded-xl border border-[#F1D8DE] bg-pink-50 p-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.8px] text-[#B94B68]">Available offer</p>
               <div className="mt-2 flex items-center justify-between gap-4">
                 <div>
@@ -201,10 +201,10 @@ export default function ProductDetailPage() {
           </div>
         </section>
 
-        <section className="relative mt-14 grid clear-both gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="relative mt-10 md:mt-14 grid clear-both gap-5 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-2xl border border-[#EEEAE8] bg-bg-surface p-5 md:p-6">
             <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#B94B68]">Customer confidence</p>
-            <h2 className="mt-2 font-serif text-[28px] text-text-main">What our customers love</h2>
+            <h2 className="mt-2 font-serif text-[20px] md:text-[28px] text-text-main">What our customers love</h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {loveMetrics.map(([label, score]) => (
                 <div key={label}>
@@ -217,7 +217,7 @@ export default function ProductDetailPage() {
 
           <div className="rounded-2xl border border-[#EEEAE8] bg-bg-surface p-5 md:p-6">
             <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#B94B68]">The Sterling Kart standard</p>
-            <h2 className="mt-2 font-serif text-[28px] text-text-main">Our promises</h2>
+            <h2 className="mt-2 font-serif text-[20px] md:text-[28px] text-text-main">Our promises</h2>
             <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
               {promises.map(([Icon, title, text]) => <div key={title} className="flex gap-2.5"><Icon size={18} className="shrink-0 text-[#B94B68]" /><div><p className="text-[12px] font-semibold text-[#444]">{title}</p><p className="mt-1 text-[11px] leading-4 text-text-muted">{text}</p></div></div>)}
             </div>
@@ -226,7 +226,7 @@ export default function ProductDetailPage() {
 
         <section className="mt-5 rounded-2xl border border-[#EEEAE8] bg-bg-surface p-5 md:p-7">
           <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#B94B68]">Explore the story</p>
-          <h2 className="mt-2 font-serif text-[28px] text-text-main">Product details</h2>
+          <h2 className="mt-2 font-serif text-[20px] md:text-[28px] text-text-main">Product details</h2>
           <p className="mt-4 max-w-[1000px] text-[14px] leading-7 text-[#666]">{product.description}</p>
           <div className="mt-6 grid gap-6 border-t border-[#EEEAE8] pt-6 md:grid-cols-3">
             <DetailGroup title="General" items={[['Design code', product.sku], ['Category', product.category], ['Occasion', product.occasion], ['Style', product.style]]} />
@@ -238,7 +238,7 @@ export default function ProductDetailPage() {
         {relatedProducts.length > 0 && (
           <section className="mt-14">
             <div className="flex items-end justify-between">
-              <div><p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#B94B68]">More to discover</p><h2 className="mt-2 font-serif text-[28px] text-text-main">You may also like</h2></div>
+              <div><p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#B94B68]">More to discover</p><h2 className="mt-2 font-serif text-[20px] md:text-[28px] text-text-main">You may also like</h2></div>
               <Link to={`/shop?category=${product.category}`} className="text-[11px] font-bold uppercase tracking-[0.7px] text-[#B94B68]">View category</Link>
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5">
@@ -268,9 +268,9 @@ function RingSizeGuide({ onClose }) {
   return (
     <ModalShell title="Find your ring size" onClose={onClose}>
       <p className="text-[13px] leading-6 text-[#666]">Wrap a strip of paper around the base of your finger, mark where it overlaps, then measure the length. Match that circumference to the guide below. Measure at the end of the day for a comfortable fit.</p>
-      <div className="mt-4 overflow-hidden rounded-xl border border-[#EEEAE8]">
+      <div className="mt-4 overflow-x-auto rounded-xl border border-[#EEEAE8]">
         <table className="w-full text-left text-[12px]">
-          <thead className="bg-[#FFF7F8] text-[#B94B68]"><tr><th className="p-3">Ring size</th><th className="p-3">Circumference</th><th className="p-3">Diameter</th></tr></thead>
+          <thead className="bg-pink-50 text-[#B94B68]"><tr><th className="p-3">Ring size</th><th className="p-3">Circumference</th><th className="p-3">Diameter</th></tr></thead>
           <tbody>{[[5, 44.2, 14.1], [7, 46.8, 14.9], [9, 49.3, 15.7], [11, 51.9, 16.5], [13, 54.4, 17.3], [15, 57, 18.1]].map(([size, circumference, diameter]) => <tr key={size} className="border-t border-[#EEEAE8]"><td className="p-3 font-semibold">{size}</td><td className="p-3">{circumference} mm</td><td className="p-3">{diameter} mm</td></tr>)}</tbody>
         </table>
       </div>

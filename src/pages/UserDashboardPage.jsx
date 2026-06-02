@@ -121,7 +121,7 @@ const OrdersTab = () => {
                     )}
                     <button
                       onClick={() => toast.success('Invoice download started!', {
-                        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+                        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
                         iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
                       })}
                       className="text-silver-500 hover:text-charcoal transition-colors p-1.5 rounded-lg hover:bg-silver-100"
@@ -181,7 +181,7 @@ const OrdersTab = () => {
                 )}
                 <button
                   onClick={() => toast.success('Invoice download started!', {
-                    style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+                    style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
                     iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
                   })}
                   className="text-silver-500 p-1.5"
@@ -311,7 +311,7 @@ const ProfileTab = () => {
       return;
     }
     toast.success('Password updated successfully!', {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
     setPasswords({ current: '', newPassword: '', confirm: '' });
@@ -446,14 +446,14 @@ const AddressesTab = () => {
     if (editingId) {
       newAddresses = addresses.map(a => (a.id === editingId ? { ...form, id: editingId } : a));
       toast.success('Address updated!', {
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
         iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
       });
     } else {
       const newAddr = { ...form, id: Date.now(), isDefault: addresses.length === 0 };
       newAddresses = [...addresses, newAddr];
       toast.success('Address added!', {
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
         iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
       });
     }
@@ -465,7 +465,7 @@ const AddressesTab = () => {
     const newAddresses = addresses.filter(a => a.id !== id);
     updateProfile({ addresses: newAddresses });
     toast.success('Address removed', {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
   };
@@ -554,7 +554,7 @@ const AddressesTab = () => {
           {addresses.map((addr) => (
             <div key={addr.id} className="bg-bg-surface border border-silver-200 rounded-xl p-5 relative">
               {addr.isDefault && (
-                <span className="absolute top-3 right-3 bg-pink-100 text-pink-400 text-xs font-semibold px-2.5 py-0.5 rounded-full font-sans">
+                <span className="absolute top-3 right-3 bg-pink-50 text-pink-400 text-xs font-semibold px-2.5 py-0.5 rounded-full font-sans">
                   Default
                 </span>
               )}
@@ -633,7 +633,7 @@ const UserDashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-silver-100">
+    <div className="min-h-screen pb-20 sm:pb-0 bg-silver-100">
       {/* Breadcrumb */}
       <div className="bg-pink-50 border-b border-pink-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
@@ -680,7 +680,7 @@ const UserDashboardPage = () => {
                       key={tab.id}
                       onClick={() => handleTabClick(tab)}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-sans transition-colors ${
-                        isActive ? 'bg-pink-100 text-pink-400 border-l-3 border-pink-300' : 'text-silver-600 hover:bg-pink-50'
+                        isActive ? 'bg-pink-50 text-pink-400 border-l-3 border-pink-300' : 'text-silver-600 hover:bg-pink-50'
                       }`}
                     >
                       <Icon size={18} />
@@ -726,7 +726,7 @@ const UserDashboardPage = () => {
                       onClick={() => handleTabClick(tab)}
                       className={`w-full flex items-center gap-3 px-5 py-3 text-sm font-sans transition-all ${
                         isActive
-                          ? 'bg-pink-100 text-pink-400 border-l-[3px] border-pink-300 font-medium'
+                          ? 'bg-pink-50 text-pink-400 border-l-[3px] border-pink-300 font-medium'
                           : 'text-silver-600 hover:bg-pink-50 hover:text-charcoal border-l-[3px] border-transparent'
                       }`}
                     >

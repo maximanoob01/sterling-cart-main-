@@ -58,7 +58,7 @@ export const CartProvider = ({ children }) => {
       payload: { ...product, selectedSize, quantity },
     });
     toast.success(`${product.name} added to cart`, {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
   }, []);
@@ -66,7 +66,7 @@ export const CartProvider = ({ children }) => {
   const removeItem = useCallback((id, selectedSize = null) => {
     dispatch({ type: 'REMOVE_ITEM', payload: { id, selectedSize } });
     toast.success('Item removed from cart', {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
   }, []);

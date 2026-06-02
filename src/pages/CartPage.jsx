@@ -79,7 +79,7 @@ const ProductCard = ({ product }) => {
             )}
           </div>
           {product.mrp > product.price && (
-            <span className="text-[11px] font-medium bg-[#FFF0F5] text-[#D4527A] px-[6px] py-[2px] rounded-[4px] font-sans">
+            <span className="text-[11px] font-medium bg-pink-50 text-[#D4527A] px-[6px] py-[2px] rounded-[4px] font-sans">
               {discount}% OFF
             </span>
           )}
@@ -117,8 +117,8 @@ export default function CartPage() {
     }
   };  if (items.length === 0) {
     return (
-      <div className="min-h-[70vh] bg-[#FFFAF9] flex flex-col items-center justify-center p-4">
-        <div className="w-[80px] h-[80px] bg-[#FFF0F5] rounded-full flex items-center justify-center mb-[24px]">
+      <div className="min-h-[70vh] bg-pink-50 flex flex-col items-center justify-center p-4">
+        <div className="w-[80px] h-[80px] bg-pink-50 rounded-full flex items-center justify-center mb-[24px]">
           <ShoppingBag size={32} className="text-[#F4A0B0]" />
         </div>
         <h2 className="font-serif text-[32px] font-bold text-text-main mb-[16px]">Your cart is empty</h2>
@@ -132,9 +132,9 @@ export default function CartPage() {
   const recommendedProducts = products.slice(0, 4);
 
   return (
-    <div className="bg-[#FFFAF9] min-h-screen pb-[80px]">
+    <div className="bg-pink-50 min-h-screen pb-[80px]">
       {/* Breadcrumb */}
-      <div className="bg-[#FFF0F5] py-[16px] px-4 md:px-10 lg:px-20 text-[13px] font-sans text-text-main mb-[40px]">
+      <div className="bg-pink-50 py-[16px] px-4 md:px-10 lg:px-20 text-[13px] font-sans text-text-main mb-[40px]">
         <div className="max-w-[1440px] mx-auto flex items-center gap-[8px]">
           <Link to="/" className="flex items-center gap-1 hover:text-[#F4A0B0] transition-colors">
              <Home size={14} /> Home
@@ -145,24 +145,23 @@ export default function CartPage() {
       </div>
 
       <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-20">
-        <h1 className="font-serif text-[40px] font-bold text-text-main mb-[40px]">Shopping Cart</h1>
+        <h1 className="font-serif text-[28px] md:text-[40px] font-bold text-text-main mb-[24px] md:mb-[40px]">Shopping Cart</h1>
         
         <div className="flex flex-col lg:flex-row gap-[48px]">
           {/* Cart Items */}
           <div className="lg:w-2/3">
-            <div className="bg-bg-surface rounded-[16px] p-[24px] border border-border-main shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
+            <div className="bg-bg-surface rounded-[16px] p-[16px] md:p-[24px] border border-border-main shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
               {items.map((item, index) => (
-                <div key={`${item.id}-${item.selectedSize}-${index}`} className="flex gap-[24px] py-[24px] border-b border-border-main last:border-b-0 last:pb-0 first:pt-0 relative group">
-                  
-                  <Link to={`/product/${item.id}`} className="w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] shrink-0 bg-[#FAFAFA] rounded-[12px] overflow-hidden">
+                <div key={`${item.id}-${item.selectedSize}-${index}`} className="flex gap-[16px] py-[20px] border-b border-border-main last:border-b-0 last:pb-0 first:pt-0 relative group">
+                                    <Link to={`/product/${item.id}`} className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] md:w-[120px] md:h-[120px] shrink-0 bg-[#FAFAFA] rounded-[10px] md:rounded-[12px] overflow-hidden">
                     <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-400" />
                   </Link>
                   
                   <div className="flex-1 flex flex-col justify-between">
                     <div className="flex justify-between items-start gap-4">
                       <div className="min-w-0">
-                        <Link to={`/product/${item.id}`} className="font-sans text-[16px] font-medium text-text-main hover:text-[#F4A0B0] transition-colors leading-[1.4] line-clamp-2">{item.name}</Link>
-                        <p className="mt-1 line-clamp-2 max-w-[520px] text-[12px] leading-5 text-[#888]">{item.shortDescription}</p>
+                        <Link to={`/product/${item.id}`} className="font-sans text-[13px] md:text-[16px] font-medium text-text-main hover:text-[#F4A0B0] transition-colors leading-[1.4] line-clamp-2">{item.name}</Link>
+                        <p className="mt-1 line-clamp-2 max-w-[520px] text-[11px] md:text-[12px] leading-5 text-[#888]">{item.shortDescription}</p>
                         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-text-muted">
                           <span>{item.metal}</span>
                           {item.stoneType && item.stoneType !== 'No Stone' && <span>Stone: {item.stoneType}</span>}
@@ -170,7 +169,7 @@ export default function CartPage() {
                         </div>
                         <p className="font-sans text-[13px] text-text-muted mt-[4px]">{formatPrice(item.price)} each</p>
                       </div>
-                      <div className="font-sans font-semibold text-text-main text-[18px]">
+                      <div className="font-sans font-semibold text-text-main text-[15px] md:text-[18px] shrink-0">
                         {formatPrice(item.price * item.quantity)}
                       </div>
                     </div>
@@ -183,7 +182,7 @@ export default function CartPage() {
                       </div>
                       <button
                         onClick={() => setItemToRemove(item)}
-                        className="flex h-[40px] w-[40px] items-center justify-center rounded-full border border-border-main text-text-muted transition-colors hover:border-[#E7BCC5] hover:bg-[#FFF0F5] hover:text-[#D4527A]"
+                        className="flex h-[40px] w-[40px] items-center justify-center rounded-full border border-border-main text-text-muted transition-colors hover:border-[#E7BCC5] hover:bg-pink-50 hover:text-[#D4527A]"
                         aria-label={`Remove ${item.name} from cart`}
                         title="Remove item"
                       >
@@ -199,7 +198,7 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div className="lg:w-1/3">
-            <div className="bg-[#FFF0F5] rounded-[16px] p-[24px] sticky top-[100px] shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
+            <div className="bg-pink-50 rounded-[16px] p-[24px] sticky top-[100px] shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
               <h3 className="font-serif text-[24px] font-bold text-text-main mb-[24px]">Order Summary</h3>
               
               {/* Coupon Code */}
@@ -275,9 +274,9 @@ export default function CartPage() {
         </div>
 
         {/* You Might Also Like */}
-        <div className="mt-[80px] pt-[80px] border-t border-border-main">
-          <h2 className="font-serif text-[32px] font-bold text-text-main mb-[40px]">You Might Also Like</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-[24px]">
+        <div className="mt-[40px] pt-[40px] md:mt-[80px] md:pt-[80px] border-t border-border-main">
+          <h2 className="font-serif text-[22px] md:text-[32px] font-bold text-text-main mb-[24px] md:mb-[40px]">You Might Also Like</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-[16px] md:gap-[24px]">
             {recommendedProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -294,7 +293,7 @@ export default function CartPage() {
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                 className="bg-bg-surface rounded-[24px] p-6 sm:p-8 max-w-sm w-full shadow-2xl relative text-center"
               >
-                <div className="w-16 h-16 bg-[#FFF0F5] rounded-full flex items-center justify-center mx-auto mb-4 text-[#D4527A]">
+                <div className="w-16 h-16 bg-pink-50 rounded-full flex items-center justify-center mx-auto mb-4 text-[#D4527A]">
                   <Heart size={32} />
                 </div>
                 <h3 className="font-serif text-[24px] font-bold text-text-main mb-2">Move to Wishlist?</h3>

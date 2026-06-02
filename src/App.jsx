@@ -25,6 +25,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage';
+import GiftingPage from './pages/GiftingPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -50,6 +51,7 @@ function AnimatedRoutes() {
         <Route path="/admin" element={<PageTransition><AdminDashboardPage /></PageTransition>} />
         <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
         <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
+        <Route path="/gifting" element={<PageTransition><GiftingPage /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFoundPage /></PageTransition>} />
       </Routes>
     </AnimatePresence>
@@ -90,7 +92,7 @@ function App() {
               
               <LoginPage />
               
-              <Toaster position="bottom-right" toastOptions={{ className: 'toast-custom', duration: 4000 }} />
+              <Toaster position="bottom-right" containerClassName="toast-container" toastOptions={{ className: 'toast-custom', duration: 4000 }} />
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>

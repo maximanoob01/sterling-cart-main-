@@ -60,7 +60,7 @@ const ProductCard = ({ product }) => {
       {/* Info */}
       <div className="p-[14px] sm:p-[16px] flex flex-col flex-1">
         <Link to={`/product/${product.slug || product.id}`}>
-          <h3 className="font-sans text-[15px] font-medium text-text-main mb-1 line-clamp-2 leading-[1.4] tracking-[0.1px]">
+          <h3 className="font-sans text-[12px] sm:text-[15px] font-medium text-text-main mb-1 line-clamp-2 leading-[1.4] tracking-[0.1px]">
             {product.name}
           </h3>
         </Link>
@@ -71,14 +71,14 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div className="flex items-center justify-between mt-2">
-          <div className="flex items-baseline gap-2">
-            <span className="font-sans font-semibold text-text-main text-[16px]">{formatPrice(product.price)}</span>
+          <div className="flex items-baseline gap-1 md:gap-2">
+            <span className="font-sans font-semibold text-text-main text-[13px] md:text-[16px]">{formatPrice(product.price)}</span>
             {product.mrp > product.price && (
-              <span className="text-[13px] text-[#A8A8A8] line-through font-sans">{formatPrice(product.mrp)}</span>
+              <span className="text-[11px] md:text-[13px] text-[#A8A8A8] line-through font-sans">{formatPrice(product.mrp)}</span>
             )}
           </div>
           {product.mrp > product.price && (
-            <span className="text-[11px] font-medium bg-[#FFF0F5] text-[#D4527A] px-[6px] py-[2px] rounded-[4px] font-sans">
+            <span className="text-[11px] font-medium bg-pink-50 text-[#D4527A] px-[6px] py-[2px] rounded-[4px] font-sans">
               {discount}% OFF
             </span>
           )}
@@ -249,7 +249,7 @@ export default function ShopPage() {
   return (
     <div className="bg-bg-primary min-h-screen pb-[80px]">
       {/* Breadcrumb */}
-      <div className="bg-[#FFF0F5] py-[16px] px-4 md:px-10 lg:px-20 text-[13px] font-sans text-text-main">
+      <div className="bg-pink-50 py-[16px] px-4 md:px-10 lg:px-20 text-[13px] font-sans text-text-main">
         <div className="max-w-[1440px] mx-auto flex items-center gap-[8px]">
           <Link to="/" className="flex items-center gap-1 hover:text-[#F4A0B0] transition-colors">
             <Home size={14} /> Home
@@ -260,11 +260,11 @@ export default function ShopPage() {
       </div>
 
       {/* Page Header */}
-      <div className="max-w-[1320px] mx-auto px-4 md:px-8 py-[36px]">
-        <h1 className="font-serif text-[40px] text-text-main mb-[8px]">
+      <div className="max-w-[1320px] mx-auto px-4 md:px-8 py-[20px] md:py-[36px]">
+        <h1 className="font-serif text-[28px] md:text-[40px] text-text-main mb-[6px] md:mb-[8px]">
           {searchQuery ? `Search results for "${searchQuery}"` : 'Shop All'}
         </h1>
-        <p className="font-sans text-[15px] text-text-muted">
+        <p className="font-sans text-[13px] md:text-[15px] text-text-muted">
           {searchQuery ? `${filteredProducts.length} matching products found.` : 'Discover our full collection of premium silver jewellery.'}
         </p>
       </div>
@@ -473,7 +473,7 @@ export default function ShopPage() {
               {isLoadingMore && visibleCount < filteredProducts.length && (
                 <div className="flex justify-center items-center py-10 w-full mt-4">
                   <div className="relative flex flex-col items-center justify-center">
-                    <div className="w-8 h-8 border-2 border-[#FFE4EE] rounded-full border-t-[#D4527A] animate-spin"></div>
+                    <div className="w-8 h-8 border-2 border-[#FFF0F5] rounded-full border-t-[#D4527A] animate-spin"></div>
                     <span className="text-[9px] font-bold text-[#B94B68] uppercase tracking-[2px] mt-4">Loading more</span>
                   </div>
                 </div>

@@ -107,7 +107,7 @@ const CheckoutPage = () => {
       clearCart();
       toast.success('Order placed successfully! 🎉', {
         duration: 4000,
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFE4EE' },
+        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
         iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
       });
       navigate('/track-order', { state: { orderId } });
@@ -130,9 +130,9 @@ const CheckoutPage = () => {
     }`;
 
   return (
-    <div className="min-h-screen bg-[#FFFAF9] pb-[80px]">
+    <div className="min-h-screen bg-pink-50 pb-[80px]">
       {/* Breadcrumb */}
-      <div className="bg-[#FFF0F5] border-b border-[#F4A0B0]/30 py-[16px]">
+      <div className="bg-pink-50 border-b border-[#F4A0B0]/30 py-[16px]">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-20 text-[13px] font-sans text-text-main">
           <nav className="flex items-center gap-[8px]">
             <Link to="/" className="flex items-center gap-1 hover:text-[#F4A0B0] transition-colors">
@@ -146,7 +146,7 @@ const CheckoutPage = () => {
         </div>
       </div>
 
-      <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-20 py-[40px] md:py-[56px]">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-10 lg:px-20 py-[28px] md:py-[40px] md:py-[56px]">
         {/* Progress Bar */}
         <div className="mb-[48px] max-w-3xl mx-auto">
           <div className="flex items-center justify-between">
@@ -197,7 +197,7 @@ const CheckoutPage = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-bg-surface rounded-[16px] border border-border-main p-[32px] shadow-[0_2px_16px_rgba(0,0,0,0.04)]"
+                className="bg-bg-surface rounded-[16px] border border-border-main p-[20px] md:p-[32px] shadow-[0_2px_16px_rgba(0,0,0,0.04)]"
               >
                 <h2 className="font-serif text-[24px] font-bold text-text-main mb-[24px]">Delivery Details</h2>
 
@@ -367,7 +367,7 @@ const CheckoutPage = () => {
                 className="space-y-[24px]"
               >
                 {/* Delivery Address */}
-                <div className="bg-bg-surface rounded-[16px] border border-border-main p-[32px] shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+                <div className="bg-bg-surface rounded-[16px] border border-border-main p-[16px] sm:p-[24px] md:p-[32px] shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
                   <div className="flex items-center justify-between mb-[16px]">
                     <h2 className="font-serif text-[20px] font-bold text-text-main">Delivery Address</h2>
                     <button
@@ -390,7 +390,7 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Order Items */}
-                <div className="bg-bg-surface rounded-[16px] border border-border-main p-[32px] shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+                <div className="bg-bg-surface rounded-[16px] border border-border-main p-[16px] sm:p-[24px] md:p-[32px] shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
                   <h2 className="font-serif text-[20px] font-bold text-text-main mb-[16px]">
                     Order Items ({totalItems})
                   </h2>
@@ -444,7 +444,7 @@ const CheckoutPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-[24px]"
               >
-                <div className="bg-bg-surface rounded-[16px] border border-border-main p-[32px] shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+                <div className="bg-bg-surface rounded-[16px] border border-border-main p-[16px] sm:p-[24px] md:p-[32px] shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
                   <h2 className="font-serif text-[20px] font-bold text-text-main mb-[24px]">Select Payment Method</h2>
 
                   <div className="space-y-[16px]">
@@ -542,7 +542,7 @@ const CheckoutPage = () => {
           {/* Order Summary Sidebar */}
           <div className="w-full lg:w-[320px] shrink-0">
             <div className="lg:sticky lg:top-[100px]">
-              <div className="bg-[#FFF0F5] rounded-[16px] p-[24px] shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
+              <div className="bg-pink-50 rounded-[16px] p-[24px] shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
                 <h3 className="font-serif text-[18px] font-bold text-text-main mb-[16px] pb-[16px] border-b border-[#F4A0B0]/30">
                   Order Summary
                 </h3>

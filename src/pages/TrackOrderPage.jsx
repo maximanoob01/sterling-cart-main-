@@ -33,7 +33,7 @@ export default function TrackOrderPage() {
   };
 
   return (
-    <div className="bg-bg-surface min-h-screen pb-16">
+    <div className="bg-bg-surface min-h-screen pb-20 sm:pb-0 pb-16">
       {/* Breadcrumb */}
       <div className="bg-pink-50 py-3 px-4 md:px-8 lg:px-16 text-sm text-charcoal mb-8">
         <div className="max-w-7xl mx-auto flex items-center gap-2">
@@ -146,7 +146,7 @@ export default function TrackOrderPage() {
                     <div key={idx} className="flex gap-4">
                       <div className="w-16 h-16 bg-silver-100 rounded-lg overflow-hidden flex-shrink-0">
                          {/* Placeholder image approach since we don't have direct access to image imports here, assuming it's in public or we use a fallback */}
-                         <div className="w-full h-full bg-pink-100 flex items-center justify-center text-pink-300">
+                         <div className="w-full h-full bg-pink-50 flex items-center justify-center text-pink-300">
                            <Package size={24} />
                          </div>
                       </div>

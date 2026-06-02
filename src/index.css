@@ -96,7 +96,7 @@ a {
 /* Typography Scale */
 h1 {
   font-family: var(--font-serif);
-  font-size: 56px;
+  font-size: 36px;
   font-weight: 400;
   letter-spacing: -0.5px;
   line-height: 1.15;
@@ -104,7 +104,7 @@ h1 {
 
 h2 {
   font-family: var(--font-serif);
-  font-size: 40px;
+  font-size: 28px;
   font-weight: 400;
   letter-spacing: -0.3px;
   line-height: 1.2;
@@ -112,10 +112,16 @@ h2 {
 
 h3 {
   font-family: var(--font-serif);
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
   letter-spacing: 0;
   line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+  h1 { font-size: 56px; }
+  h2 { font-size: 40px; }
+  h3 { font-size: 24px; }
 }
 }
 
@@ -210,26 +216,16 @@ h3 {
   height: 40px;
   border-radius: 50%;
   background: transparent;
-  border: 1px solid #E8E8E8;
+  border: 1px solid var(--theme-border-main);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #C0C0C0;
-}
-
-@media (max-width: 640px) {
-  h1 {
-    font-size: 42px;
-  }
-
-  h2 {
-    font-size: 32px;
-  }
+  color: var(--theme-text-muted);
 }
 .btn-icon:hover {
-  background: #FFF0F5;
+  background: var(--theme-bg-alt);
   border-color: #F4A0B0;
   color: #F4A0B0;
 }
@@ -354,6 +350,17 @@ input[type="range"]::-webkit-slider-thumb {
   padding: 16px 24px !important;
   box-shadow: 0 8px 32px rgba(0,0,0,0.1) !important;
   border: 1px solid #E8E8E8 !important;
+}
+
+@media (max-width: 640px) {
+  .toast-container {
+    bottom: 80px !important;
+  }
+  .toast-custom {
+    font-size: 12px !important;
+    padding: 10px 16px !important;
+    border-radius: 8px !important;
+  }
 }
 
 .toast-custom[data-type="success"] {
