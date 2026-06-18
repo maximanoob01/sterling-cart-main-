@@ -100,32 +100,34 @@ function ProductCard({ product }) {
   const discount = calculateDiscount(product.price, product.mrp);
 
   return (
-    <motion.article variants={fadeIn} className="group overflow-hidden rounded-xl border border-border-main bg-bg-surface transition-shadow hover:shadow-product">
-      <div className="relative overflow-hidden bg-bg-alt">
-        {product.badge && <span className="absolute left-3 top-3 z-10 rounded-full bg-[#1C1C2E] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.8px] text-white">{product.badge}</span>}
-        <button onClick={() => toggleItem(product)} className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-bg-surface/90 text-text-muted shadow-sm transition-colors hover:text-[#D4527A]" aria-label="Toggle wishlist">
-          <Heart size={15} className={wishlisted ? 'fill-[#D4527A] text-[#D4527A]' : ''} />
-        </button>
-        <Link to={`/product/${product.slug}`} className="block aspect-square">
-          <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]" loading="lazy" />
-        </Link>
+    <motion.article variants={fadeIn} className="group overflow-hidden rounded-[20px] glass-card transition-all duration-500 hover:-translate-y-1 hover:shadow-product">
+      <div className="relative overflow-hidden bg-transparent p-2 md:p-2.5">
+        <div className="relative overflow-hidden rounded-[14px]">
+          {product.badge && <span className="absolute left-3 top-3 z-10 rounded-full glass-dark px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[1px] text-white shadow-sm">{product.badge}</span>}
+          <button onClick={() => toggleItem(product)} className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full glass text-text-main shadow-sm transition-all hover:bg-white hover:text-[#D4527A]" aria-label="Toggle wishlist">
+            <Heart size={16} className={wishlisted ? 'fill-[#D4527A] text-[#D4527A]' : ''} />
+          </button>
+          <Link to={`/product/${product.slug}`} className="block aspect-[4/5]">
+            <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]" loading="lazy" />
+          </Link>
+        </div>
       </div>
-      <div className="p-3 md:p-4">
-        <Link to={`/product/${product.slug}`} className="block min-h-[38px] md:min-h-[42px] text-[12px] md:text-[14px] font-medium leading-tight md:leading-5 text-text-main transition-colors hover:text-[#D4527A]">{product.name}</Link>
-        <div className="mt-1.5 md:mt-2 flex items-center gap-1.5 md:gap-2">
-          <StarRating rating={product.rating} size={11} />
-          <span className="text-[10px] md:text-[11px] text-text-muted">({product.reviewCount})</span>
+      <div className="p-4 md:p-5 pt-1 md:pt-2">
+        <Link to={`/product/${product.slug}`} className="block min-h-[42px] text-[13px] md:text-[15px] font-serif tracking-wide leading-tight text-text-main transition-colors hover:text-[#D4527A]">{product.name}</Link>
+        <div className="mt-2 flex items-center gap-2">
+          <StarRating rating={product.rating} size={12} />
+          <span className="text-[11px] text-text-muted font-medium">({product.reviewCount})</span>
         </div>
-        <div className="mt-2.5 md:mt-3 flex flex-wrap items-baseline gap-x-1.5 md:gap-x-2 gap-y-0.5 md:gap-y-1">
-          <span className="text-[13px] md:text-[15px] font-semibold">{formatPrice(product.price)}</span>
-          {product.mrp > product.price && <span className="text-[10px] md:text-[12px] text-text-muted line-through">{formatPrice(product.mrp)}</span>}
-          {discount > 0 && <span className="text-[9px] md:text-[10px] font-semibold text-[#B94B68]">{discount}% off</span>}
+        <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span className="text-[15px] md:text-[17px] font-serif font-medium">{formatPrice(product.price)}</span>
+          {product.mrp > product.price && <span className="text-[12px] text-text-muted line-through">{formatPrice(product.mrp)}</span>}
+          {discount > 0 && <span className="text-[10px] font-semibold uppercase tracking-wider text-[#D4527A]">{discount}% off</span>}
         </div>
-        <MagneticButton className="w-full mt-5">
-          <button onClick={() => addItem(product)} className="group flex h-11 w-full items-center justify-center gap-2 rounded-full border-[1.5px] border-[#1C1C2E] bg-transparent text-[11px] font-bold uppercase tracking-[1.2px] text-[#1C1C2E] transition-all hover:bg-[#1C1C2E] hover:text-white shadow-sm">
+        <div className="mt-5">
+          <button onClick={() => addItem(product)} className="group flex h-[42px] w-full items-center justify-center gap-2 rounded-full glass-dark text-[11px] font-bold uppercase tracking-[1.5px] text-white transition-all hover:bg-[#1A1A1A] hover:shadow-lg">
             <ShoppingCart size={15} className="transition-transform group-hover:scale-110" /> Add to cart
           </button>
-        </MagneticButton>
+        </div>
       </div>
     </motion.article>
   );
@@ -133,35 +135,37 @@ function ProductCard({ product }) {
 
 function CategorySlideCard({ category, slideIndex }) {
   return (
-    <div 
-      className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-bg-alt"
-    >
-      <div 
-        className="absolute inset-0 h-full transition-transform duration-700 ease-in-out"
-        style={{ width: '300%', transform: `translateX(-${(slideIndex * 100) / 3}%)` }}
-      >
-        <img 
-          src={category.image} 
-          alt={category.name} 
-          className="h-full w-full object-cover" 
-          loading="lazy" 
-        />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-transparent pointer-events-none transition-opacity duration-300 group-hover:opacity-90" />
-      
-      <div className="absolute bottom-3 left-3 pointer-events-none flex flex-col items-start">
-        <span className="text-[15px] font-bold tracking-wide text-white">{category.name}</span>
-        <div className="mt-1 flex gap-1 pointer-events-none">
-          {[0, 1, 2].map((idx) => (
-            <div key={idx} className={`h-[3px] rounded-full transition-all duration-300 ${idx === slideIndex ? 'w-4 bg-[#D4527A]' : 'w-2 bg-bg-surface/40'}`} />
-          ))}
+    <Link to={`/shop?category=${category.id}`} className="group flex flex-col items-center p-2">
+      {/* Circular Image Container with Liquid Glass Ring */}
+      <div className="relative aspect-square w-full max-w-[200px] overflow-hidden rounded-full bg-bg-alt shadow-sm ring-[4px] ring-white/60 group-hover:ring-[#D4527A]/20 group-hover:shadow-[0_8px_30px_rgba(212,82,122,0.15)] transition-all duration-700 mb-6">
+        {/* Subtle glass overlay border */}
+        <div className="absolute inset-0 rounded-full border border-white/40 z-10 pointer-events-none" />
+        
+        <div 
+          className="absolute inset-0 h-full transition-transform duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)]"
+          style={{ width: '300%', transform: `translateX(-${(slideIndex * 100) / 3}%)` }}
+        >
+          <img 
+            src={category.image} 
+            alt={category.name} 
+            className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.15]" 
+            loading="lazy" 
+          />
         </div>
       </div>
+
+      {/* Typography & Indicators below the circle */}
+      <h3 className="font-serif text-[17px] md:text-[20px] tracking-wide text-text-main group-hover:text-[#D4527A] transition-colors duration-300 text-center">
+        {category.name}
+      </h3>
       
-      <Link to={`/shop?category=${category.id}`} aria-label={`Shop ${category.name}`} className="shop-link absolute bottom-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-bg-surface/20 text-white backdrop-blur-md transition-all hover:bg-bg-surface hover:text-[#B94B68]">
-        <ArrowRight size={14} />
-      </Link>
-    </div>
+      {/* Elegant slide indicators */}
+      <div className="mt-3 flex gap-1.5 pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity">
+        {[0, 1, 2].map((idx) => (
+          <div key={idx} className={`h-[2px] rounded-full transition-all duration-500 ${idx === slideIndex ? 'w-4 bg-[#D4527A]' : 'w-1.5 bg-[#A8A8A8]'}`} />
+        ))}
+      </div>
+    </Link>
   );
 }
 
@@ -213,7 +217,9 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', updateCount);
   }, []);
 
-  const bestsellers = products.filter((product) => product.badge === 'Bestseller').slice(0, 8);
+  const bestsellers = products
+    .filter((product) => product.badge === 'Bestseller' || product.rating >= 4.6)
+    .slice(0, 12);
   const activeHeroSlide = heroSlides[heroIndex];
   const visibleTestimonials = testimonials.slice(testimonialIndex, testimonialIndex + testimonialCount);
   const maxIndex = Math.max(0, testimonials.length - testimonialCount);
@@ -227,10 +233,10 @@ export default function HomePage() {
   };
 
   return (
-    <div className="overflow-x-hidden bg-bg-primary">
+    <div className="overflow-x-hidden bg-bg-primary bg-pattern-diamond">
       <section
         ref={heroRef}
-        className="relative isolate flex min-h-[450px] items-center overflow-hidden bg-[#E8DDD5] md:min-h-[500px]"
+        className="relative isolate flex min-h-[85vh] items-center overflow-hidden bg-bg-alt md:min-h-[90vh]"
         aria-label="Sterling Kart jewellery collections"
         aria-roledescription="carousel"
         onMouseEnter={() => setIsHeroHovered(true)}
@@ -246,60 +252,61 @@ export default function HomePage() {
             src={activeHeroSlide.image}
             alt={activeHeroSlide.alt}
             className="absolute inset-0 h-full w-full object-cover"
-            initial={{ opacity: 0, scale: 1.15 }}
-            animate={{ opacity: 1, scale: 1.15 }}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1.1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.65, ease: 'easeOut' }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
             style={{ y: heroY }}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,252,251,0.94)_0%,rgba(255,252,251,0.85)_35%,rgba(255,252,251,0)_100%)] md:bg-[linear-gradient(90deg,rgba(255,252,251,0.94)_0%,rgba(255,252,251,0.72)_42%,rgba(255,252,251,0.08)_100%)]" />
-        <div className="absolute bottom-4 right-4 z-10 rounded-lg border border-white/60 bg-bg-surface/75 px-3 py-1.5 text-right shadow-sm backdrop-blur-sm md:bottom-6 md:right-8">
-          <p className="font-serif text-[15px] uppercase tracking-[1px] text-text-main">Sterling Kart</p>
-          <p className="mt-0.5 text-[7px] font-bold uppercase tracking-[2px] text-text-muted">925 Silver Jewels</p>
+        <div className="absolute inset-0 bg-black/15 transition-colors duration-700" />
+        <div className="absolute bottom-6 right-6 z-10 glass-panel rounded-xl px-5 py-3 text-right shadow-lg backdrop-blur-xl md:bottom-10 md:right-10 border-white/40 hidden md:block">
+          <p className="font-serif text-[17px] uppercase tracking-[1.5px] text-text-main drop-shadow-sm">Sterling Cart</p>
+          <p className="mt-1 text-[8px] font-bold uppercase tracking-[2.5px] text-text-muted">925 Silver Jewels</p>
         </div>
-        <div className="relative mx-auto w-full max-w-[1320px] px-5 py-8 md:py-12 md:px-8 md:py-16">
+        <div className="relative mx-auto w-full max-w-[1320px] px-5 py-8 md:py-12 md:px-8 md:py-16 z-10">
           <AnimatePresence mode="wait">
             <motion.div
               key={heroIndex}
-              className="max-w-[480px]"
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.45, ease: 'easeOut' }}
+              className="max-w-[540px] glass-panel p-8 md:p-12 rounded-[32px] border-white/50 shadow-2xl backdrop-blur-xl"
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
               aria-live="polite"
             >
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[3px] text-[#B94B68]">{activeHeroSlide.eyebrow}</p>
-              <h1 className="font-serif text-[30px] leading-[1.08] tracking-[-1px] text-text-main sm:text-[46px]">{activeHeroSlide.title}</h1>
-              <p className="mt-4 md:mt-5 max-w-[420px] text-[13px] md:text-[15px] leading-6 md:leading-7 text-text-muted">{activeHeroSlide.description}</p>
-              <div className="mt-6 md:mt-7 flex flex-wrap gap-2 md:gap-3">
+              <p className="mb-4 text-[10px] font-semibold uppercase tracking-[4px] text-text-muted">{activeHeroSlide.eyebrow}</p>
+              <h1 className="font-serif text-[38px] leading-[1.15] tracking-[-1px] text-text-main sm:text-[52px] drop-shadow-sm">{activeHeroSlide.title}</h1>
+              <p className="mt-5 max-w-[420px] text-[14px] md:text-[16px] leading-relaxed text-text-muted">{activeHeroSlide.description}</p>
+              <div className="mt-8 flex flex-wrap gap-4">
                 <MagneticButton>
-                  <Link to="/shop" className="btn-primary inline-flex text-[12px] py-2.5 px-6">Shop the collection</Link>
+                  <Link to="/shop" className="btn-dark inline-flex text-[12px] py-3.5 px-8 tracking-widest shadow-lg">Shop the collection</Link>
                 </MagneticButton>
                 <MagneticButton>
-                  <Link to="/shop?badge=New" className="btn-secondary inline-flex text-[12px] py-2.5 px-6">See new arrivals</Link>
+                  <Link to="/shop?badge=New" className="btn-secondary glass inline-flex text-[12px] py-3.5 px-8 tracking-widest hover:bg-white border-white/40">See new arrivals</Link>
                 </MagneticButton>
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
-        <button type="button" onClick={showPreviousHero} className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-bg-surface/80 text-text-main shadow-sm backdrop-blur-sm transition hover:bg-bg-surface focus:outline-none focus:ring-2 focus:ring-[#D4527A] focus:ring-offset-2 md:left-7" aria-label="Show previous hero image">
-          <ChevronLeft size={21} />
+        <button type="button" onClick={showPreviousHero} className="absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full glass text-text-main shadow-md transition-all hover:scale-105 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#1A1A1A] md:left-8 border-white/40" aria-label="Show previous hero image">
+          <ChevronLeft size={24} strokeWidth={1.5} />
         </button>
-        <button type="button" onClick={showNextHero} className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-bg-surface/80 text-text-main shadow-sm backdrop-blur-sm transition hover:bg-bg-surface focus:outline-none focus:ring-2 focus:ring-[#D4527A] focus:ring-offset-2 md:right-7" aria-label="Show next hero image">
-          <ChevronRight size={21} />
+        <button type="button" onClick={showNextHero} className="absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full glass text-text-main shadow-md transition-all hover:scale-105 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#1A1A1A] md:right-8 border-white/40" aria-label="Show next hero image">
+          <ChevronRight size={24} strokeWidth={1.5} />
         </button>
-        <div className="absolute bottom-5 left-1/2 z-20 hidden md:flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/60 bg-bg-surface/75 px-3 py-2 shadow-sm backdrop-blur-sm md:bottom-7">
+        <div className="absolute bottom-6 left-1/2 z-20 hidden md:flex -translate-x-1/2 items-center gap-4 rounded-full glass-panel px-6 py-4 shadow-md border-white/40 md:bottom-10">
           {heroSlides.map((slide, index) => (
-            <button key={slide.image} type="button" onClick={() => setHeroIndex(index)} className={`h-2 rounded-full transition-all ${index === heroIndex ? 'w-6 bg-[#B94B68]' : 'w-2 bg-[#B8AEAA] hover:bg-[#8F8581]'}`} aria-label={`Show hero image ${index + 1}`} aria-current={index === heroIndex ? 'true' : undefined} />
+            <button key={slide.image} type="button" onClick={() => setHeroIndex(index)} className={`h-[3px] rounded-full transition-all duration-500 ${index === heroIndex ? 'w-10 bg-[#1A1A1A]' : 'w-4 bg-[#1A1A1A]/30 hover:bg-[#1A1A1A]/60'}`} aria-label={`Show hero image ${index + 1}`} aria-current={index === heroIndex ? 'true' : undefined} />
           ))}
-          <button type="button" onClick={() => setIsHeroPaused((isPaused) => !isPaused)} className="ml-1 flex h-6 w-6 items-center justify-center rounded-full text-text-muted transition hover:bg-bg-surface hover:text-[#B94B68] focus:outline-none focus:ring-2 focus:ring-[#D4527A]" aria-label={isHeroPaused ? 'Play hero slideshow' : 'Pause hero slideshow'}>
+          <div className="w-[1px] h-5 bg-[#1A1A1A]/20 mx-1"></div>
+          <button type="button" onClick={() => setIsHeroPaused((isPaused) => !isPaused)} className="flex h-8 w-8 items-center justify-center rounded-full text-text-main transition hover:bg-white/50 focus:outline-none" aria-label={isHeroPaused ? 'Play hero slideshow' : 'Pause hero slideshow'}>
             {isHeroPaused ? <Play size={12} fill="currentColor" /> : <Pause size={12} fill="currentColor" />}
           </button>
         </div>
       </section>
 
-      <section className="bg-bg-surface px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20">
+      <section className="bg-bg-surface px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20 bg-pattern-diamond">
         <SectionHeading eyebrow="Find your favourites" title="Shop by category" />
         <div className="mx-auto grid max-w-[1320px] grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {categories.map((category) => (
@@ -312,15 +319,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-[#EEE8E5] bg-bg-alt px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20">
+      <section className="border-y border-[#EEE8E5] bg-[#F7E1E8] px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20 bg-pattern-diamond">
         <SectionHeading eyebrow="Most loved" title="Customer favourites" />
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="mx-auto grid max-w-[1320px] grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="mx-auto grid max-w-[1320px] grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
           {bestsellers.map((product) => <ProductCard key={product.id} product={product} />)}
         </motion.div>
         <div className="mt-9 text-center"><Link to="/shop" className="btn-secondary">View all jewellery</Link></div>
       </section>
 
-      <section className="bg-bg-surface px-5 py-8 md:px-8">
+      <section className="bg-bg-surface px-5 py-8 md:px-8 bg-pattern-diamond">
         <div className="mx-auto grid max-w-[1320px] grid-cols-2 gap-4 md:gap-5 md:grid-cols-4">
           {promises.map((promise, idx) => {
             const Icon = promise.icon;
@@ -341,46 +348,51 @@ export default function HomePage() {
       </section>
 
       {/* Curated Collage Section */}
-      <section className="bg-bg-surface px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-24" ref={collageRef}>
-        <div className="mx-auto max-w-[1320px]">
+      <section className="bg-bg-surface px-5 py-12 md:py-16 md:px-8 md:py-24 relative overflow-hidden bg-pattern-diamond" ref={collageRef}>
+        <div className="absolute top-1/2 left-0 w-96 h-96 bg-pink-100/40 rounded-full blur-[120px] -translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+        <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-slate-100/60 rounded-full blur-[100px] translate-x-1/3 pointer-events-none" />
+        
+        <div className="mx-auto max-w-[1320px] relative z-10">
           <SectionHeading eyebrow="The Edit" title="Curated for you" align="center" />
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-12 auto-rows-[220px] md:auto-rows-[280px]">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-12 auto-rows-[240px] md:auto-rows-[300px]">
             
-            <div className="col-span-2 row-span-2 relative group overflow-hidden rounded-xl bg-bg-alt">
-              <motion.img style={{ y: ySlow, scale: 1.25 }} src={c1} alt="Curated style 1" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.3]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute bottom-6 left-6 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
-                <span className="text-[11px] font-semibold uppercase tracking-[2px]">Signature Series</span>
-                <h3 className="text-2xl font-serif mt-1">Elegance Defined</h3>
+            <div className="col-span-2 row-span-2 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+              <motion.img style={{ y: ySlow, scale: 1.2 }} src={c1} alt="Curated style 1" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-80" />
+              <div className="absolute bottom-6 left-6 right-6 glass-dark rounded-2xl p-6 text-white transition-all duration-500 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 border-white/20">
+                <span className="text-[11px] font-semibold uppercase tracking-[3px] text-white/80">Signature Series</span>
+                <h3 className="text-[28px] font-serif mt-2 mb-1">Elegance Defined</h3>
+                <p className="text-[13px] text-white/70 max-w-[80%]">Discover pieces that elevate your everyday presence.</p>
               </div>
             </div>
 
-            <div className="col-span-1 row-span-1 relative group overflow-hidden rounded-xl bg-bg-alt">
-              <motion.img style={{ y: yFast, scale: 1.25 }} src={c2} alt="Curated style 2" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.3]" />
+            <div className="col-span-1 row-span-1 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+              <motion.img style={{ y: yFast, scale: 1.2 }} src={c2} alt="Curated style 2" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500" />
             </div>
 
-            <div className="col-span-1 row-span-2 relative group overflow-hidden rounded-xl bg-bg-alt">
-              <motion.img style={{ y: ySlow, scale: 1.25 }} src={c3} alt="Curated style 3" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.3]" />
+            <div className="col-span-1 row-span-2 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+              <motion.img style={{ y: ySlow, scale: 1.2 }} src={c3} alt="Curated style 3" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
             </div>
 
-            <div className="col-span-1 row-span-1 relative group overflow-hidden rounded-xl bg-bg-alt">
-              <motion.img style={{ y: yFast, scale: 1.25 }} src={c4} alt="Curated style 4" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.3]" />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
-                <span className="text-white font-serif text-lg tracking-wide drop-shadow-md">Details</span>
+            <div className="col-span-1 row-span-1 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+              <motion.img style={{ y: yFast, scale: 1.2 }} src={c4} alt="Curated style 4" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
+              <div className="absolute inset-0 glass-dark opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center border-none">
+                <span className="text-white font-serif text-[20px] tracking-wide drop-shadow-md">Details</span>
               </div>
             </div>
 
-            <div className="col-span-2 relative group overflow-hidden rounded-xl bg-bg-alt">
-              <motion.img style={{ y: ySlow, scale: 1.25 }} src={c5} alt="Curated style 5" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.3]" />
+            <div className="col-span-2 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+              <motion.img style={{ y: ySlow, scale: 1.2 }} src={c5} alt="Curated style 5" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
             </div>
 
-            <div className="col-span-2 relative group overflow-hidden rounded-xl bg-bg-alt">
-              <motion.img style={{ y: yFast, scale: 1.25 }} src={c6} alt="Curated style 6" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.3]" />
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[2px]">
-                <span className="text-white font-serif text-2xl">Modern Classics</span>
-                <MagneticButton className="mt-3">
-                  <Link to="/shop" className="inline-block text-[11px] font-semibold uppercase tracking-widest text-white border-b border-white pb-1 hover:text-[#F4A0B0] hover:border-[#F4A0B0] transition-colors">Shop The Look</Link>
+            <div className="col-span-2 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+              <motion.img style={{ y: yFast, scale: 1.2 }} src={c6} alt="Curated style 6" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center glass-dark opacity-0 group-hover:opacity-100 transition-all duration-500 border-none">
+                <span className="text-white font-serif text-[26px]">Modern Classics</span>
+                <MagneticButton className="mt-4">
+                  <Link to="/shop" className="inline-block text-[11px] font-semibold uppercase tracking-[2px] text-white border-b border-white/50 pb-1 hover:text-white hover:border-white transition-all">Shop The Look</Link>
                 </MagneticButton>
               </div>
             </div>
@@ -428,38 +440,46 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-t border-[#EEE8E5] bg-bg-primary px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20">
-        <div className="mx-auto max-w-[1320px]">
-          <div className="mb-8 flex items-end justify-between gap-4">
+      <section className="bg-bg-alt px-5 py-12 md:py-20 md:px-8 relative overflow-hidden bg-pattern-diamond">
+        <div className="mx-auto max-w-[1320px] relative z-10">
+          <div className="mb-10 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
             <SectionHeading eyebrow="Kind words" title="Loved by our customers" align="left" />
-            <div className="flex gap-2">
-              <button onClick={() => setTestimonialIndex(Math.max(0, testimonialIndex - 1))} disabled={testimonialIndex === 0} className="h-10 w-10 rounded-full border border-border-main text-text-muted disabled:opacity-30">←</button>
-              <button onClick={() => setTestimonialIndex(Math.min(maxIndex, testimonialIndex + 1))} disabled={testimonialIndex === maxIndex} className="h-10 w-10 rounded-full border border-border-main text-text-muted disabled:opacity-30">→</button>
+            <div className="flex gap-3 mb-2">
+              <button onClick={() => setTestimonialIndex(Math.max(0, testimonialIndex - 1))} disabled={testimonialIndex === 0} className="flex h-12 w-12 items-center justify-center rounded-full glass text-text-main shadow-sm disabled:opacity-40 transition-all hover:scale-105 hover:bg-white"><ChevronLeft size={20} strokeWidth={1.5} /></button>
+              <button onClick={() => setTestimonialIndex(Math.min(maxIndex, testimonialIndex + 1))} disabled={testimonialIndex === maxIndex} className="flex h-12 w-12 items-center justify-center rounded-full glass text-text-main shadow-sm disabled:opacity-40 transition-all hover:scale-105 hover:bg-white"><ChevronRight size={20} strokeWidth={1.5} /></button>
             </div>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
             {visibleTestimonials.map((testimonial) => (
-              <article key={testimonial.id} className="rounded-xl border border-border-main bg-bg-surface p-6">
-                <StarRating rating={testimonial.rating} />
-                <p className="mt-4 text-[14px] leading-6 text-text-muted">{testimonial.text}</p>
-                <p className="mt-5 text-[13px] font-semibold text-text-main">{testimonial.name}</p>
-                <p className="text-[12px] text-text-muted">{testimonial.city}</p>
+              <article key={testimonial.id} className="rounded-[24px] glass-card p-8 transition-transform duration-500 hover:-translate-y-1">
+                <StarRating rating={testimonial.rating} size={14} />
+                <p className="mt-6 text-[15px] leading-relaxed text-text-main font-serif italic tracking-wide">"{testimonial.text}"</p>
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="h-11 w-11 rounded-full bg-[#E8DDD5] flex items-center justify-center text-[13px] font-serif text-text-main">{testimonial.name.charAt(0)}</div>
+                  <div>
+                    <p className="text-[13px] font-semibold text-text-main uppercase tracking-widest">{testimonial.name}</p>
+                    <p className="text-[11px] text-text-muted tracking-wide mt-0.5">{testimonial.city}</p>
+                  </div>
+                </div>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-[#1C1C2E] px-5 py-8 md:py-14 text-white md:px-8">
-        <div className="mx-auto flex max-w-[920px] flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[2px] text-[#E7BCC5]">A little something extra</p>
-            <h2 className="mt-2 font-serif text-[32px]">Get 10% off your first order.</h2>
-            <p className="mt-2 text-[13px] text-white/60">New launches, thoughtful offers, no inbox clutter.</p>
+      <section className="relative px-5 py-16 md:py-24 text-text-main md:px-8 overflow-hidden bg-bg-surface bg-pattern-diamond">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,160,176,0.1)_0%,transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(232,221,213,0.3)_0%,transparent_50%)]" />
+        
+        <div className="relative z-10 mx-auto flex max-w-[1040px] flex-col items-center justify-between gap-10 text-center md:flex-row md:text-left glass-panel p-10 md:p-14 rounded-[40px] border-white/60 shadow-xl">
+          <div className="max-w-[420px]">
+            <p className="text-[11px] font-semibold uppercase tracking-[3px] text-[#B94B68]">A little something extra</p>
+            <h2 className="mt-3 font-serif text-[38px] leading-[1.1] tracking-[-0.5px]">Get 10% off your first order.</h2>
+            <p className="mt-4 text-[15px] text-text-muted leading-relaxed">Join our inner circle for new launches, thoughtful offers, and exclusive early access.</p>
           </div>
-          <form onSubmit={handleSubscribe} className="flex w-full max-w-[390px] rounded-full bg-bg-surface p-1">
-            <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" required placeholder="Your email address" className="min-w-0 flex-1 rounded-full border-0 px-4 text-[13px] text-text-main outline-none" />
-            <button className="rounded-full bg-[#D4527A] px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.6px] text-white">Subscribe</button>
+          <form onSubmit={handleSubscribe} className="flex w-full max-w-[420px] rounded-full glass bg-white/70 p-1.5 shadow-sm border border-white">
+            <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" required placeholder="Your email address" className="min-w-0 flex-1 bg-transparent border-0 px-6 text-[14px] text-text-main outline-none placeholder:text-text-muted/60" />
+            <button className="rounded-full bg-[#1A1A1A] px-7 py-4 text-[11px] font-bold uppercase tracking-[1px] text-white hover:bg-[#2A2A2A] transition-all hover:scale-[1.02]">Subscribe</button>
           </form>
         </div>
       </section>

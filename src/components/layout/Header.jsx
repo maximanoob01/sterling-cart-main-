@@ -103,7 +103,7 @@ export default function Header() {
           <motion.div
             initial={{ height: 34, opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="relative flex h-[34px] items-center overflow-hidden bg-[radial-gradient(circle_at_center,_#1a3682_0%,_#0d1e4b_100%)] text-white"
+            className="relative flex h-[36px] items-center overflow-hidden bg-[#121212] text-white"
           >
             <p className="w-full px-10 text-center text-[11px] tracking-[0.4px] sm:text-[12px]">
               <AnimatePresence mode="wait">
@@ -130,10 +130,10 @@ export default function Header() {
         )}
       </AnimatePresence>
 
-      <header className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      <header className={`sticky top-0 z-50 w-full transition-all duration-500 ${
         isScrolled
-          ? 'bg-bg-surface/95 shadow-[0_4px_18px_rgba(0,0,0,0.06)] backdrop-blur-[12px]'
-          : 'bg-bg-surface'
+          ? 'glass-panel shadow-md border-b border-white/60'
+          : 'bg-white/70 backdrop-blur-xl border-b border-white/20'
       }`}>
         <div className="mx-auto flex min-h-[74px] max-w-[1420px] items-center justify-between gap-5 px-4 md:px-8">
           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 lg:hidden" aria-label="Open menu">
@@ -210,7 +210,7 @@ export default function Header() {
           </div>
         </div>
 
-        <nav className="hidden bg-[radial-gradient(circle_at_center,_#1a3682_0%,_#0d1e4b_100%)] lg:block" onMouseLeave={() => setActiveDropdown(null)}>
+        <nav className="hidden bg-[#1A1A1A]/95 backdrop-blur-xl border-t border-white/10 lg:block" onMouseLeave={() => setActiveDropdown(null)}>
           <div className="mx-auto flex min-h-[48px] max-w-[1420px] items-center justify-between gap-5 px-8">
             <div className="flex items-center gap-1 xl:gap-3">
               {navLinks.map((link) => (
@@ -620,8 +620,8 @@ function MegaMenu({ activeDropdown, onClose }) {
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -4 }}
-      transition={{ duration: 0.18 }}
-      className="absolute left-0 right-0 top-full border-b border-border-main bg-bg-surface shadow-modal"
+      transition={{ duration: 0.2 }}
+      className="absolute left-0 right-0 top-full border-b border-white/60 glass-panel shadow-2xl"
     >
       <div className="mx-auto grid max-w-[1420px] grid-cols-[1.15fr_0.9fr_0.9fr_1.45fr]">
         <MegaColumn title="Shop by category" className="border-r border-[#EEEAE8]">
@@ -682,8 +682,8 @@ function GiftMegaMenu({ onClose }) {
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -4 }}
-      transition={{ duration: 0.18 }}
-      className="absolute left-0 right-0 top-full border-b border-border-main bg-bg-surface shadow-modal"
+      transition={{ duration: 0.2 }}
+      className="absolute left-0 right-0 top-full border-b border-white/60 glass-panel shadow-2xl"
     >
       <div className="mx-auto grid max-w-[1420px] grid-cols-[0.9fr_0.85fr_1fr_1.35fr]">
         <MegaColumn title="Gifts by occasion" className="border-r border-[#EEEAE8]">
@@ -749,7 +749,7 @@ function GiftMegaMenu({ onClose }) {
 
 function OffersMegaMenu({ onClose }) {
   return (
-    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }} className="absolute left-0 right-0 top-full border-b border-border-main bg-bg-surface shadow-modal">
+    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.2 }} className="absolute left-0 right-0 top-full border-b border-white/60 glass-panel shadow-2xl">
       <div className="mx-auto grid max-w-[1420px] grid-cols-[0.8fr_1.6fr]">
         <MegaColumn title="Explore offers" className="border-r border-[#EEEAE8]">
           <MegaLink to="/shop?badge=Bestseller" onClick={onClose}>Bestselling deals</MegaLink>

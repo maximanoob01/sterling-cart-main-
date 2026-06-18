@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { MapPin, Phone } from 'lucide-react';
+import { MapPin, Phone, Mail } from 'lucide-react';
 
 const InstagramIcon = ({ size = 24, className = "" }) => (
   <svg
@@ -9,7 +9,7 @@ const InstagramIcon = ({ size = 24, className = "" }) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
     className={className}
@@ -25,81 +25,87 @@ export default function Footer() {
   if (location.pathname.startsWith('/admin')) return null;
 
   return (
-    <footer className="bg-[radial-gradient(circle_at_center,_#1a3682_0%,_#0d1e4b_100%)] px-6 py-14 text-white md:px-10">
-      <div className="mx-auto max-w-[1320px]">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          
-          {/* Brand Info */}
-          <div>
-            <Link to="/" className="flex flex-col items-start leading-none mb-5">
-              <span className="whitespace-nowrap font-[var(--font-logo)] text-[24px] font-semibold uppercase tracking-[0.7px] text-white">
+    <footer className="bg-[#0A0A0A] pt-20 pb-10 text-white relative overflow-hidden border-t border-white/10">
+      {/* Decorative Blur */}
+      <div className="absolute top-0 left-1/2 w-full max-w-[1000px] h-[300px] bg-[#D4527A]/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+
+      <div className="mx-auto max-w-[1320px] px-6 md:px-10 relative z-10">
+        
+        {/* Top Section: Brand & Newsletter */}
+        <div className="grid gap-12 lg:grid-cols-12 mb-16 border-b border-white/10 pb-16">
+          <div className="lg:col-span-5">
+            <Link to="/" className="inline-flex flex-col items-start leading-none mb-6">
+              <span className="whitespace-nowrap font-[var(--font-logo)] text-[28px] font-semibold uppercase tracking-[1px] text-white">
                 Sterling Kart
               </span>
-              <span className="mt-1.5 whitespace-nowrap font-sans text-[8px] font-bold uppercase tracking-[2.2px] text-white/80">
+              <span className="mt-1.5 whitespace-nowrap font-sans text-[9px] font-bold uppercase tracking-[3px] text-white/60">
                 925 Silver Jewels
               </span>
             </Link>
-            <div className="space-y-3 text-[13px] leading-relaxed text-white/65">
-              <p className="font-semibold text-white/90">Jewelry / Watches</p>
-              <p className="text-[12px] font-bold tracking-widest text-[#F4A0B0] uppercase">A Unit of @palgems</p>
-              <ul className="space-y-1.5 mt-2">
-                <li>• Your LUXURY 925 Sterling Silver Shop!</li>
-                <li>• Bespoke & specially created Silver Jewels</li>
-                <li>• Shop Online</li>
-              </ul>
+            <p className="text-[14px] leading-relaxed text-white/60 max-w-[380px] font-serif italic">
+              Elevating everyday elegance with bespoke 925 sterling silver jewelry. Crafted with passion, designed for luxury.
+            </p>
+            <div className="mt-8 flex items-center gap-4">
+              <a 
+                href="https://www.instagram.com/sterling.kart/" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="flex items-center justify-center w-11 h-11 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-500"
+                aria-label="Instagram"
+              >
+                <InstagramIcon size={18} />
+              </a>
+              <a 
+                href="mailto:contact@sterlingkart.com" 
+                className="flex items-center justify-center w-11 h-11 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-500"
+                aria-label="Email Us"
+              >
+                <Mail size={18} strokeWidth={1.5} />
+              </a>
             </div>
           </div>
 
-          {/* Explore Links */}
-          <FooterLinks title="Explore" links={[
-            ['Shop all', '/shop'],
-            ['New arrivals', '/shop?sort=new'],
-            ['About us', '/about'],
-            ['Contact', '/contact'],
-          ]} />
+          <div className="lg:col-span-7 grid gap-8 sm:grid-cols-3">
+            <FooterLinks title="Explore" links={[
+              ['Shop All', '/shop'],
+              ['New Arrivals', '/shop?sort=new'],
+              ['Our Story', '/about'],
+              ['Gifting', '/shop?occasion=gifting'],
+            ]} />
 
-          {/* Help Links */}
-          <FooterLinks title="Help" links={[
-            ['Track order', '/track-order'],
-            ['Shipping and returns', '#'],
-            ['Privacy policy', '#'],
-            ['Terms of service', '#'],
-          ]} />
+            <FooterLinks title="Client Care" links={[
+              ['Track Order', '/track-order'],
+              ['Shipping Policy', '#'],
+              ['Returns & Exchanges', '#'],
+              ['Contact Us', '/contact'],
+            ]} />
 
-          {/* Contact Details */}
-          <div>
-            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[1.5px] text-white/45">Reach Us</h4>
-            <ul className="flex flex-col gap-4 text-[13px] text-white/65">
-              <li className="flex items-start gap-3">
-                <MapPin size={16} className="text-[#F4A0B0] shrink-0 mt-0.5" />
-                <span>B.T. Ganj | Civil Lines, Roorkee</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Phone size={16} className="text-[#F4A0B0] shrink-0 mt-0.5" />
-                <span>9911773307 | 7011028085</span>
-              </li>
-              <li className="pt-2">
-                <a 
-                  href="https://www.instagram.com/sterling.kart/" 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-bg-surface/5 hover:bg-bg-surface/10 border border-white/10 rounded-lg text-white/90 hover:text-white transition-all duration-300 group"
-                >
-                  <InstagramIcon size={16} className="group-hover:scale-110 transition-transform" />
-                  <span className="font-medium tracking-wide text-[12px]">@sterling.kart</span>
-                </a>
-              </li>
-            </ul>
+            <div>
+              <h4 className="mb-6 text-[10px] font-semibold uppercase tracking-[2px] text-white/40">Visit Us</h4>
+              <ul className="flex flex-col gap-4 text-[13px] text-white/60">
+                <li className="flex items-start gap-3 group">
+                  <MapPin size={16} className="text-white/40 shrink-0 mt-0.5 group-hover:text-white transition-colors" />
+                  <span className="leading-relaxed">B.T. Ganj | Civil Lines<br/>Roorkee</span>
+                </li>
+                <li className="flex items-start gap-3 group">
+                  <Phone size={16} className="text-white/40 shrink-0 mt-0.5 group-hover:text-white transition-colors" />
+                  <span className="leading-relaxed">9911773307<br/>7011028085</span>
+                </li>
+              </ul>
+            </div>
           </div>
-
         </div>
-        
+
         {/* Bottom Bar */}
-        <div className="mt-14 flex flex-col gap-3 border-t border-white/10 pt-6 text-[12px] text-white/45 sm:flex-row sm:items-center sm:justify-between">
-          <p>Copyright © {new Date().getFullYear()} Sterling Kart. All rights reserved.</p>
-          <p className="flex items-center gap-1.5">
-            Built by <a href="#" className="font-semibold text-white/70 hover:text-white transition-colors">hypenbloom</a>
-          </p>
+        <div className="flex flex-col gap-4 text-[11px] font-medium tracking-wide text-white/40 sm:flex-row sm:items-center sm:justify-between uppercase">
+          <p>© {new Date().getFullYear()} Sterling Kart. All rights reserved.</p>
+          <div className="flex items-center gap-4">
+            <Link to="#" className="hover:text-white transition-colors">Privacy</Link>
+            <Link to="#" className="hover:text-white transition-colors">Terms</Link>
+            <span className="flex items-center gap-1 ml-4 border-l border-white/10 pl-8">
+              Designed by <a href="#" className="text-white/70 hover:text-white transition-colors">hypenbloom</a>
+            </span>
+          </div>
         </div>
       </div>
     </footer>
@@ -109,9 +115,21 @@ export default function Footer() {
 function FooterLinks({ title, links }) {
   return (
     <div>
-      <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-[1.5px] text-white/45">{title}</h4>
-      <ul className="flex flex-col gap-3">
-        {links.map(([name, path]) => <li key={name}><Link to={path} className="text-[13px] text-white/65 transition-colors hover:text-white">{name}</Link></li>)}
+      <h4 className="mb-6 text-[10px] font-semibold uppercase tracking-[2px] text-white/40">{title}</h4>
+      <ul className="flex flex-col gap-3.5">
+        {links.map(([name, path]) => (
+          <li key={name}>
+            <Link 
+              to={path} 
+              className="group flex items-center text-[13px] text-white/60 transition-colors hover:text-white"
+            >
+              <span className="relative overflow-hidden">
+                <span className="block transition-transform duration-300 group-hover:-translate-y-full">{name}</span>
+                <span className="absolute inset-0 block translate-y-full transition-transform duration-300 group-hover:translate-y-0">{name}</span>
+              </span>
+            </Link>
+          </li>
+        ))}
       </ul>
     </div>
   );

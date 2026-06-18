@@ -3,35 +3,64 @@ import { motion } from 'framer-motion';
 export default function LoadingScreen() {
   return (
     <motion.div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-bg-primary"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0A0A0A] overflow-hidden"
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.8, ease: 'easeInOut' } }}
+      exit={{ opacity: 0, transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1] } }}
     >
-      <div className="flex flex-col items-center">
-        <motion.h1
-          className="font-serif text-[32px] md:text-[42px] uppercase tracking-[0.2em] text-text-main"
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-        >
-          Sterling Cart
-        </motion.h1>
+      {/* Ambient animated background blur */}
+      <motion.div 
+        className="absolute w-[60vw] h-[60vw] max-w-[600px] max-h-[600px] bg-gradient-to-tr from-[#1A1A1A] to-[#111111] rounded-full blur-[80px] pointer-events-none"
+        animate={{ 
+          scale: [1, 1.1, 1],
+          opacity: [0.5, 0.8, 0.5]
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      />
+      
+      <div className="relative flex flex-col items-center z-10 p-10">
         
+        {/* Luxury Morphing Liquid Ring (UI UX Pro Max - Liquid Glass style) */}
         <motion.div
-          className="mt-6 h-[1px] bg-[#D4527A]"
-          initial={{ width: 0 }}
-          animate={{ width: "80px" }}
-          transition={{ duration: 1, ease: 'easeInOut', delay: 0.4 }}
+          className="absolute inset-0 -m-10 blur-[15px] opacity-40 mix-blend-screen pointer-events-none"
+          style={{ background: 'conic-gradient(from 0deg at 50% 50%, rgba(212,82,122,0.4), rgba(212,82,122,0.1), rgba(255,255,255,0.2), rgba(212,82,122,0.4))' }}
+          animate={{
+            rotate: 360,
+            borderRadius: ["40% 60% 70% 30%", "60% 40% 50% 50%", "50% 50% 40% 60%", "40% 60% 70% 30%"],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
         />
         
-        <motion.p
-          className="mt-6 text-[10px] md:text-[11px] font-semibold uppercase tracking-[3px] text-[#B94B68]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
+        <motion.div 
+          className="relative glass-dark px-14 py-12 rounded-3xl flex flex-col items-center border border-white/10 shadow-2xl backdrop-blur-2xl"
+          initial={{ y: 20, opacity: 0, scale: 0.95 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
         >
-          925 Silver Jewels
-        </motion.p>
+          <motion.h1
+            className="font-serif text-[32px] md:text-[42px] uppercase tracking-[0.2em] text-white/90 drop-shadow-lg"
+            initial={{ opacity: 0, filter: "blur(10px)" }}
+            animate={{ opacity: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1.5, ease: 'easeOut', delay: 0.2 }}
+          >
+            Sterling Kart
+          </motion.h1>
+          
+          <motion.div
+            className="mt-6 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: "140px", opacity: 1 }}
+            transition={{ duration: 1.5, ease: 'easeInOut', delay: 0.6 }}
+          />
+          
+          <motion.p
+            className="mt-6 text-[11px] md:text-[12px] font-medium uppercase tracking-[4px] text-white/50"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 1 }}
+          >
+            925 Silver Jwells
+          </motion.p>
+        </motion.div>
       </div>
     </motion.div>
   );

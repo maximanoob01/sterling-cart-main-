@@ -32,12 +32,12 @@
 
 @layer base {
 :root {
-  --theme-bg-primary: #FFFCFB;
+  --theme-bg-primary: #FCFBFB;
   --theme-bg-surface: #FFFFFF;
-  --theme-bg-alt: #F6F2F0;
-  --theme-text-main: #1A1A1A;
+  --theme-bg-alt: #F7F5F4;
+  --theme-text-main: #121212;
   --theme-text-muted: #6B6B6B;
-  --theme-border-main: #ECE8E6;
+  --theme-border-main: rgba(26, 26, 26, 0.06);
 }
 
 .dark {
@@ -128,16 +128,46 @@ h3 {
 @layer components {
 /* Shadows */
 .shadow-product {
-  box-shadow: 0 8px 24px rgba(55, 35, 35, 0.07);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
 }
 .shadow-product:hover {
-  box-shadow: 0 12px 30px rgba(55, 35, 35, 0.1);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.08);
 }
 .shadow-modal {
-  box-shadow: 0 16px 48px rgba(0,0,0,0.12);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.1);
 }
 .shadow-form {
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+/* Glassmorphism Utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+}
+.glass-dark {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+.glass-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+}
+.glass-panel {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.5) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
 }
 
 /* Buttons */
@@ -314,6 +344,7 @@ input:focus, textarea:focus, select:focus {
 /* Range Slider */
 input[type="range"] {
   -webkit-appearance: none;
+  appearance: none;
   height: 3px;
   border-radius: 100px;
   background: #F0F0F0;
@@ -321,6 +352,7 @@ input[type="range"] {
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -377,4 +409,11 @@ input[type="range"]::-webkit-slider-thumb {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
 }
+}
+
+@layer utilities {
+  .bg-pattern-diamond {
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40 Z' fill='none' stroke='%23D4527A' stroke-opacity='0.08' stroke-width='1.5'/%3E%3Cpath d='M40 20 L60 40 L40 60 L20 40 Z' fill='none' stroke='%23D4527A' stroke-opacity='0.08' stroke-width='1.5'/%3E%3Cpath d='M0 0 L20 20 L0 40 M80 0 L60 20 L80 40 M0 80 L20 60 L0 40 M80 80 L60 60 L80 40' fill='none' stroke='%23D4527A' stroke-opacity='0.08' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-size: 80px 80px;
+  }
 }
