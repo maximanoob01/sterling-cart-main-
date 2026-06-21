@@ -170,7 +170,7 @@ export default function CartPage() {
       </div>
 
       <div className="relative z-10 max-w-[1320px] mx-auto px-5 md:px-10 lg:px-20">
-        <h1 className="font-serif text-[36px] md:text-[48px] text-text-main mb-[30px] md:mb-[50px]">Shopping Cart</h1>
+        <h1 className="font-serif text-[28px] md:text-[36px] text-text-main mb-[30px] md:mb-[50px]">Shopping Cart</h1>
         
         <div className="flex flex-col lg:flex-row gap-[40px] lg:gap-[60px]">
           {/* Cart Items */}
@@ -181,54 +181,59 @@ export default function CartPage() {
                 <FreeDeliveryBar subtotal={subtotal} threshold={2499} />
               </div>
               {items.map((item, index) => (
-                <div key={`${item.id}-${item.selectedSize}-${index}`} className="flex gap-[20px] md:gap-[28px] py-[28px] border-b border-[#E8DDD5] last:border-b-0 last:pb-0 first:pt-0 relative group">
-                  <Link to={`/product/${item.id}`} className="w-[90px] h-[90px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px] shrink-0 bg-[#F7F5F4] rounded-[20px] overflow-hidden border border-white/50 shadow-sm">
-                    <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700" />
+                <div key={`${item.id}-${item.selectedSize}-${index}`} className="flex gap-[16px] md:gap-[24px] py-[20px] border-b border-[#E8DDD5]/60 last:border-b-0 last:pb-0 first:pt-0 relative group items-start">
+                  <Link to={`/product/${item.id}`} className="w-[80px] h-[80px] md:w-[100px] md:h-[100px] shrink-0 bg-[#F7F5F4] rounded-[16px] overflow-hidden shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-white/60">
+                    <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   </Link>
                   
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4">
-                      <div className="min-w-0 pr-4">
-                        <Link to={`/product/${item.id}`} className="font-serif text-[17px] md:text-[20px] text-text-main hover:text-[#D4527A] transition-colors leading-[1.3] line-clamp-2">{item.name}</Link>
-                        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] font-medium text-text-muted uppercase tracking-[0.5px]">
-                          <span>{item.metal}</span>
-                          {item.stoneType && item.stoneType !== 'No Stone' && <span className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-[#D4527A]/40"/> {item.stoneType}</span>}
-                          {item.selectedSize && <span className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-[#D4527A]/40"/> Size: {item.selectedSize}</span>}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="pr-2">
+                        <Link to={`/product/${item.id}`} className="font-serif text-[15px] md:text-[17px] text-text-main hover:text-[#D4527A] transition-colors leading-[1.3] line-clamp-2 mb-1">
+                          {item.name}
+                        </Link>
+                        
+                        <div className="text-[12px] text-text-muted flex items-center gap-2 flex-wrap mb-1.5 font-medium tracking-[0.2px]">
+                          {item.metal && <span>{item.metal}</span>}
+                          {item.stoneType && item.stoneType !== 'No Stone' && <><span className="w-1 h-1 bg-[#D9D0C8] rounded-full"></span><span>{item.stoneType}</span></>}
+                          {item.selectedSize && <><span className="w-1 h-1 bg-[#D9D0C8] rounded-full"></span><span>Size: {item.selectedSize}</span></>}
                         </div>
-                        {item.pricingType === 'weight' ? (
-                          <div className="mt-2 space-y-0.5">
-                            <p className="text-[12px] text-text-muted italic flex items-center gap-1">
-                              <Scale size={11} className="text-[#D4527A]" />
-                              Weight-based: {item.weightGrams}g silver + making charges
-                            </p>
-                            <p className="text-[12px] font-semibold text-[#D4527A]">{formatPrice(getItemPrice(item))} each <span className="text-[10px] font-normal text-text-muted">(+3% GST at checkout)</span></p>
+
+                        {item.pricingType === 'weight' && (
+                          <div className="text-[11px] text-[#A8A8A8] italic flex items-center gap-1 mb-2">
+                            <Scale size={10} className="text-[#D4527A]" />
+                            {item.weightGrams}g + making
                           </div>
-                        ) : (
-                          <p className="font-sans text-[14px] text-text-muted mt-[8px] italic">{formatPrice(getItemPrice(item))} each <span className="text-[10px]">(+3% GST at checkout)</span></p>
                         )}
+                        
+                        <div className="font-sans font-semibold text-text-main text-[14px] md:text-[15px]">
+                          {formatPrice(getItemPrice(item))}
+                          <span className="text-[10px] font-normal text-text-muted ml-1 italic tracking-[0.5px]">(+3% GST)</span>
+                        </div>
                       </div>
-                      <div className="font-sans font-semibold text-text-main text-[18px] md:text-[22px] shrink-0 sm:text-right">
-                        {formatPrice(getItemPrice(item) * item.quantity)}
+                      
+                      {/* Price x Qty = Total and Remove */}
+                      <div className="flex flex-col items-end gap-3 shrink-0">
+                        <div className="font-sans font-bold text-text-main text-[16px] md:text-[18px]">
+                          {formatPrice(getItemPrice(item) * item.quantity)}
+                        </div>
+                        <button
+                          onClick={() => setItemToRemove(item)}
+                          className="w-[30px] h-[30px] md:w-[34px] md:h-[34px] rounded-full bg-white/60 border border-white shadow-sm flex items-center justify-center text-[#A8A8A8] hover:text-[#D4527A] hover:bg-white hover:scale-105 transition-all"
+                          aria-label={`Remove ${item.name} from cart`}
+                        >
+                          <Trash2 size={14} strokeWidth={1.5} />
+                        </button>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between sm:justify-start gap-5 mt-[24px]">
-                      <div className="flex items-center glass rounded-full h-[44px] w-[120px] overflow-hidden border border-white shadow-sm">
-                        <button onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity - 1)} className="flex-1 h-full flex items-center justify-center text-text-muted hover:bg-white transition-colors"><Minus size={15} strokeWidth={1.5} /></button>
-                        <span className="font-sans text-[14px] font-semibold text-text-main w-[28px] text-center">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity + 1)} className="flex-1 h-full flex items-center justify-center text-text-muted hover:bg-white transition-colors"><Plus size={15} strokeWidth={1.5} /></button>
-                      </div>
-                      <button
-                        onClick={() => setItemToRemove(item)}
-                        className="flex h-[44px] items-center justify-center gap-2 px-4 rounded-full border border-[#E8DDD5] text-text-muted transition-all hover:border-[#D4527A] hover:text-[#D4527A] hover:bg-white"
-                        aria-label={`Remove ${item.name} from cart`}
-                      >
-                        <Trash2 size={16} strokeWidth={1.5} />
-                        <span className="text-[11px] font-bold uppercase tracking-[1px] hidden sm:block">Remove</span>
-                      </button>
+                    {/* Quantity */}
+                    <div className="mt-4 inline-flex items-center glass rounded-full h-[36px] overflow-hidden border border-white/60 shadow-sm bg-white/40">
+                      <button onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity - 1)} className="w-[36px] h-full flex items-center justify-center text-text-muted hover:bg-white hover:text-text-main transition-colors"><Minus size={14} strokeWidth={1.5} /></button>
+                      <span className="font-sans text-[13px] font-semibold text-text-main w-[28px] text-center">{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity + 1)} className="w-[36px] h-full flex items-center justify-center text-text-muted hover:bg-white hover:text-text-main transition-colors"><Plus size={14} strokeWidth={1.5} /></button>
                     </div>
                   </div>
-                  
                 </div>
               ))}
             </div>
