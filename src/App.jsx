@@ -6,6 +6,7 @@ import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { CurrencyProvider } from './context/CurrencyContext';
 
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -73,28 +74,30 @@ function App() {
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <ScrollToTop />
-              
-              <AnimatePresence>
-                {isLoading && <LoadingScreen key="loading" />}
-              </AnimatePresence>
+          <CurrencyProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <ScrollToTop />
+                
+                <AnimatePresence>
+                  {isLoading && <LoadingScreen key="loading" />}
+                </AnimatePresence>
 
-              <div className="flex flex-col min-h-screen">
-                <Header />
-                <main className="flex-1">
-                  <AnimatedRoutes />
-                </main>
-                <Footer />
-                <BackToTop />
-              </div>
-              
-              <LoginPage />
-              
-              <Toaster position="bottom-right" containerClassName="toast-container" toastOptions={{ className: 'toast-custom', duration: 4000 }} />
-            </WishlistProvider>
-          </CartProvider>
+                <div className="flex flex-col min-h-screen">
+                  <Header />
+                  <main className="flex-1">
+                    <AnimatedRoutes />
+                  </main>
+                  <Footer />
+                  <BackToTop />
+                </div>
+                
+                <LoginPage />
+                
+                <Toaster position="bottom-right" containerClassName="toast-container" toastOptions={{ className: 'toast-custom', duration: 4000 }} />
+              </WishlistProvider>
+            </CartProvider>
+          </CurrencyProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft } from 'lucide-react';
+import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { formatPrice } from '../utils/formatPrice';
+import { useCurrency } from '../context/CurrencyContext';
+import { getItemPrice } from '../context/CartContext';
 import { generateOrderId } from '../utils/formatPrice';
 import toast from 'react-hot-toast';
+import FreeDeliveryBar from '../components/cart/FreeDeliveryBar';
+import { VisaLogo, MastercardLogo, AmexLogo, RazorpayLogo } from '../components/ui/PaymentLogos';
 
 const indianStates = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -38,11 +41,21 @@ const CheckoutPage = () => {
     totalItems,
     clearCart,
   } = useCart();
+  const { formatPrice, currency } = useCurrency();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedPayment, setSelectedPayment] = useState('upi');
   const [errors, setErrors] = useState({});
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
+  const [orderSuccessData, setOrderSuccessData] = useState(null);
+  const [isGiftWrapped, setIsGiftWrapped] = useState(false);
+  const [giftNote, setGiftNote] = useState('');
+  const [isGiftDetailsOpen, setIsGiftDetailsOpen] = useState(false);
+
+  const codFee = selectedPayment === 'cod' ? 9 : 0;
+  const giftWrapFee = isGiftWrapped ? 49 : 0;
+  const finalTotalAmount = totalAmount + codFee + giftWrapFee;
 
   const [form, setForm] = useState({
     fullName: '',
@@ -57,10 +70,20 @@ const CheckoutPage = () => {
   });
 
   useEffect(() => {
-    if (items.length === 0 && !isPlacingOrder) {
+    if (items.length === 0 && !isPlacingOrder && !orderSuccessData) {
       navigate('/cart');
     }
-  }, [items, navigate, isPlacingOrder]);
+  }, [items, navigate, isPlacingOrder, orderSuccessData]);
+
+  // Auto-redirect to shop after 4 seconds of celebration
+  useEffect(() => {
+    if (orderSuccessData) {
+      const timer = setTimeout(() => {
+        navigate('/shop', { state: { showTrackOrderPointer: true } });
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [orderSuccessData, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -105,12 +128,8 @@ const CheckoutPage = () => {
 
     setTimeout(() => {
       clearCart();
-      toast.success('Order placed successfully! 🎉', {
-        duration: 4000,
-        style: { background: '#1A1A1A', color: '#FFF', border: '1px solid #333' },
-        iconTheme: { primary: '#D4527A', secondary: '#FFF' },
-      });
-      navigate('/track-order', { state: { orderId } });
+      setIsPlacingOrder(false);
+      setOrderSuccessData({ orderId });
     }, 2000);
   };
 
@@ -119,6 +138,102 @@ const CheckoutPage = () => {
     { number: 2, label: 'Review' },
     { number: 3, label: 'Payment' },
   ];
+
+  if (orderSuccessData) {
+    return (
+      <div className="fixed inset-0 z-50 bg-[#1A1A1A] flex flex-col items-center justify-center p-6 overflow-hidden">
+        {/* Background Particles */}
+        {[...Array(30)].map((_, i) => (
+          <motion.div
+            key={i}
+            className={`absolute rounded-full ${i % 3 === 0 ? 'bg-[#D4527A]' : i % 3 === 1 ? 'bg-[#F4A0B0]' : 'bg-white'}`}
+            style={{
+              width: Math.random() * 10 + 5 + 'px',
+              height: Math.random() * 10 + 5 + 'px',
+              top: '50%',
+              left: '50%',
+            }}
+            initial={{ 
+              x: 0, 
+              y: 0, 
+              opacity: 1,
+              scale: 0
+            }}
+            animate={{ 
+              x: (Math.random() - 0.5) * (typeof window !== 'undefined' ? window.innerWidth : 800) * 1.5,
+              y: (Math.random() - 0.5) * (typeof window !== 'undefined' ? window.innerHeight : 800) * 1.5,
+              opacity: 0,
+              scale: Math.random() * 1.5 + 0.5,
+              rotate: Math.random() * 360
+            }}
+            transition={{ 
+              duration: Math.random() * 2 + 1.5, 
+              ease: "easeOut",
+            }}
+          />
+        ))}
+
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", duration: 0.8, bounce: 0.4 }}
+          className="relative z-10 glass-panel bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-[32px] text-center max-w-md w-full shadow-2xl"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", delay: 0.2, duration: 0.6 }}
+            className="w-24 h-24 bg-[#D4527A] rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_60px_rgba(212,82,122,0.6)] relative"
+          >
+            <Check size={48} strokeWidth={3} className="text-white" />
+            <motion.div 
+              animate={{ rotate: 360 }} 
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 border-[4px] border-dashed border-white/40 rounded-full" 
+            />
+          </motion.div>
+
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <h1 className="font-serif text-[32px] md:text-[40px] text-white mb-2 flex items-center justify-center gap-3">
+              <Sparkles className="text-[#F4A0B0]" size={28} />
+              Success!
+              <Sparkles className="text-[#F4A0B0]" size={28} />
+            </h1>
+            <p className="font-sans text-[14px] text-white/70 mb-8 max-w-[280px] mx-auto leading-relaxed">
+              Your order is confirmed. We're packing it with care and getting it ready for delivery.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-8"
+          >
+            <p className="font-sans text-[11px] uppercase tracking-[2px] font-bold text-[#D4527A] mb-1">Order Number</p>
+            <p className="font-sans text-[20px] font-bold tracking-[1.5px] text-white">{orderSuccessData.orderId}</p>
+          </motion.div>
+
+          <motion.button
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ delay: 0.6 }}
+            onClick={() => navigate('/shop', { state: { showTrackOrderPointer: true } })}
+            className="w-full h-[54px] bg-white text-[#1A1A1A] rounded-full font-bold text-[13px] tracking-[1.5px] uppercase flex items-center justify-center gap-2 hover:bg-[#D4527A] hover:text-white transition-all duration-300 shadow-lg"
+          >
+            Continue Shopping
+            <ArrowRight size={18} strokeWidth={2.5} />
+          </motion.button>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (items.length === 0 && !isPlacingOrder) return null;
 
@@ -185,9 +300,27 @@ const CheckoutPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-[24px] lg:gap-[40px]">
+        <div className="flex flex-col lg:flex-row gap-[20px] lg:gap-[40px] items-start">
+          
+          {/* Mobile Order Summary Toggle */}
+          <div className="w-full block lg:hidden relative z-20">
+            <button 
+              onClick={() => setIsMobileSummaryOpen(!isMobileSummaryOpen)}
+              className="w-full flex items-center justify-between glass-panel bg-white/70 p-[16px] rounded-[16px] border border-white/60 shadow-sm transition-all active:scale-[0.99]"
+            >
+              <span className="flex items-center gap-2 font-serif text-[16px] text-text-main">
+                <ShoppingCart size={16} className="text-[#D4527A]" />
+                {isMobileSummaryOpen ? 'Hide' : 'Show'} Order Summary
+              </span>
+              <div className="flex items-center gap-3">
+                <span className="font-sans text-[16px] font-bold text-text-main">{formatPrice(finalTotalAmount)}</span>
+                <ChevronDown size={18} className={`text-text-muted transition-transform duration-300 ${isMobileSummaryOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
+          </div>
+
           {/* Main Content */}
-          <div className="flex-1">
+          <div className="flex-1 w-full order-2 lg:order-1">
             <AnimatePresence mode="wait">
               {/* Step 1: Delivery Details */}
               {currentStep === 1 && (
@@ -400,11 +533,11 @@ const CheckoutPage = () => {
                     </h2>
                     <div className="space-y-[16px] relative z-10">
                       {items.map((item) => (
-                        <div key={`${item.id}-${item.selectedSize}`} className="flex gap-[16px] items-center py-[12px] border-b border-white last:border-b-0 last:pb-0">
+                        <div key={`${item.id}-${item.selectedSize}`} className="flex gap-[16px] items-start py-[12px] border-b border-white last:border-b-0 last:pb-0">
                           <img
                             src={item.images?.[0]}
                             alt={item.name}
-                            className="w-[60px] h-[60px] object-cover rounded-[12px] bg-[#F7F5F4] border border-white/50 shadow-sm"
+                            className="w-[60px] h-[60px] object-cover rounded-[12px] bg-[#F7F5F4] border border-white/50 shadow-sm shrink-0"
                           />
                           <div className="flex-1 min-w-0 pr-4">
                             <p className="font-serif text-[15px] text-text-main line-clamp-1 leading-[1.3]">{item.name}</p>
@@ -414,9 +547,14 @@ const CheckoutPage = () => {
                               )}
                               <p className="font-sans text-[11px] uppercase tracking-[0.5px] font-medium text-text-muted">Qty: {item.quantity}</p>
                             </div>
+                            {item.pricingType === 'weight' && (
+                              <p className="font-sans text-[11px] text-[#D4527A] mt-1 flex items-center gap-1">
+                                <Scale size={10} /> {item.weightGrams}g silver + making charges
+                              </p>
+                            )}
                           </div>
                           <p className="font-sans text-[16px] font-semibold text-text-main shrink-0">
-                            {formatPrice(item.price * item.quantity)}
+                            {formatPrice(getItemPrice(item) * item.quantity)}
                           </p>
                         </div>
                       ))}
@@ -458,50 +596,52 @@ const CheckoutPage = () => {
                     <h2 className="font-serif text-[22px] text-text-main mb-[20px] relative z-10">Select Payment Method</h2>
 
                     <div className="space-y-[12px] relative z-10">
-                      {paymentMethods.map((method) => {
-                        const Icon = method.icon;
-                        return (
-                          <label
-                            key={method.id}
-                            className={`flex items-center gap-[16px] p-[16px] rounded-[16px] border-2 cursor-pointer transition-all duration-300 ${
-                              selectedPayment === method.id
-                                ? 'border-[#1A1A1A] bg-white/80 shadow-md transform scale-[1.01]'
-                                : 'border-white/60 glass bg-white/40 hover:bg-white/60'
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name="payment"
-                              value={method.id}
-                              checked={selectedPayment === method.id}
-                              onChange={(e) => setSelectedPayment(e.target.value)}
-                              className="sr-only"
-                            />
-                            <div
-                              className={`w-[20px] h-[20px] rounded-full border-[2px] flex items-center justify-center shrink-0 transition-colors ${
-                                selectedPayment === method.id ? 'border-[#1A1A1A]' : 'border-[#C0C0C0] bg-white/50'
+                      <div className="grid grid-cols-1 gap-[12px]">
+                        {paymentMethods.map((method) => {
+                          const Icon = method.icon;
+                          return (
+                            <label
+                              key={method.id}
+                              className={`flex items-center gap-[16px] p-[16px] rounded-[16px] border-2 cursor-pointer transition-all duration-300 ${
+                                selectedPayment === method.id
+                                  ? 'border-[#1A1A1A] bg-white/80 shadow-md transform scale-[1.01]'
+                                  : 'border-white/60 glass bg-white/40 hover:bg-white/60'
                               }`}
                             >
-                              {selectedPayment === method.id && (
-                                <motion.div 
-                                  initial={{ scale: 0 }} 
-                                  animate={{ scale: 1 }} 
-                                  className="w-[10px] h-[10px] rounded-full bg-[#1A1A1A]" 
-                                />
-                              )}
-                            </div>
-                            <div className={`w-[40px] h-[40px] rounded-[12px] flex items-center justify-center shrink-0 transition-colors ${
-                              selectedPayment === method.id ? 'bg-[#1A1A1A] text-white shadow-md' : 'bg-white border border-white shadow-sm text-text-muted'
-                            }`}>
-                              <Icon size={20} strokeWidth={selectedPayment === method.id ? 2 : 1.5} />
-                            </div>
-                            <div>
-                              <p className="font-sans text-[14px] font-semibold text-text-main">{method.name}</p>
-                              <p className="font-sans text-[12px] text-[#A8A8A8] mt-[2px] italic">{method.description}</p>
-                            </div>
-                          </label>
-                        );
-                      })}
+                              <input
+                                type="radio"
+                                name="payment"
+                                value={method.id}
+                                checked={selectedPayment === method.id}
+                                onChange={(e) => setSelectedPayment(e.target.value)}
+                                className="sr-only"
+                              />
+                              <div
+                                className={`w-[20px] h-[20px] rounded-full border-[2px] flex items-center justify-center shrink-0 transition-colors ${
+                                  selectedPayment === method.id ? 'border-[#1A1A1A]' : 'border-[#C0C0C0] bg-white/50'
+                                }`}
+                              >
+                                {selectedPayment === method.id && (
+                                  <motion.div 
+                                    initial={{ scale: 0 }} 
+                                    animate={{ scale: 1 }} 
+                                    className="w-[10px] h-[10px] rounded-full bg-[#1A1A1A]" 
+                                  />
+                                )}
+                              </div>
+                              <div className={`w-[40px] h-[40px] rounded-[12px] flex items-center justify-center shrink-0 transition-colors ${
+                                selectedPayment === method.id ? 'bg-[#1A1A1A] text-white shadow-md' : 'bg-white border border-white shadow-sm text-text-muted'
+                              }`}>
+                                <Icon size={20} strokeWidth={selectedPayment === method.id ? 2 : 1.5} />
+                              </div>
+                              <div>
+                                <p className="font-sans text-[14px] font-semibold text-text-main">{method.name}</p>
+                                <p className="font-sans text-[12px] text-[#A8A8A8] mt-[2px] italic">{method.description}</p>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
 
@@ -516,6 +656,23 @@ const CheckoutPage = () => {
                         Bank-Grade Security
                       </p>
                       <p className="font-sans text-[11px] text-[#15803D] opacity-80">Your payment information is encrypted with 256-bit SSL technology.</p>
+                    </div>
+                  </div>
+
+                  {/* International Checkout Notice */}
+                  <div className="glass-panel bg-[#FFF0F5]/30 border border-[#F4A0B0]/30 rounded-[20px] p-[16px] shadow-sm">
+                    <p className="font-sans text-[13px] font-semibold text-text-main flex items-center gap-2 mb-2">
+                      <span className="text-[16px]">🌍</span> Secure International Checkout
+                    </p>
+                    <p className="font-sans text-[11px] text-text-muted leading-relaxed mb-3">
+                      Payments processed safely through <span className="font-bold text-text-main">Razorpay</span>. We accept Visa, Mastercard, American Express, and other major international cards.
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <VisaLogo />
+                      <MastercardLogo />
+                      <AmexLogo />
+                      <div className="w-[1px] h-4 bg-[#F0E8EA] mx-1"></div>
+                      <RazorpayLogo />
                     </div>
                   </div>
 
@@ -543,7 +700,7 @@ const CheckoutPage = () => {
                         </>
                       ) : (
                         <>
-                          Pay {formatPrice(totalAmount)}
+                          Pay {formatPrice(finalTotalAmount)}
                           <Lock size={14} strokeWidth={2.5} />
                         </>
                       )}
@@ -555,7 +712,7 @@ const CheckoutPage = () => {
           </div>
 
           {/* Order Summary Sidebar */}
-          <div className="w-full lg:w-[320px] shrink-0">
+          <div className={`w-full lg:w-[320px] shrink-0 order-1 lg:order-2 ${isMobileSummaryOpen ? 'block' : 'hidden lg:block'}`}>
             <div className="lg:sticky lg:top-[100px]">
               <div className="glass-panel rounded-[24px] p-[24px] shadow-xl border border-white/60 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-[#D4527A]/10 rounded-full blur-[30px] pointer-events-none" />
@@ -572,9 +729,9 @@ const CheckoutPage = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-text-muted">Shipping</span>
                     {shipping === 0 ? (
-                      <span className="text-[#D4527A] font-medium uppercase tracking-[1px] text-[10px]">Complimentary</span>
+                      <span className="text-[#D4527A] font-semibold text-[12px] uppercase tracking-[0.5px]">FREE ✓</span>
                     ) : (
-                      <span className="text-text-main font-medium">{formatPrice(shipping)}</span>
+                      <span className="text-text-main font-medium">{formatPrice(shipping)} <span className="text-[11px] text-text-muted">(free above ₹2,499)</span></span>
                     )}
                   </div>
                   {discount > 0 && (
@@ -584,15 +741,90 @@ const CheckoutPage = () => {
                     </div>
                   )}
                   <div className="flex justify-between items-center">
-                    <span className="text-text-muted">GST (18%)</span>
+                    <span className="text-text-muted">GST (3%)</span>
                     <span className="text-text-main font-medium">{formatPrice(gst)}</span>
+                  </div>
+                  {selectedPayment === 'cod' && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-text-muted">Handling Fee (COD)</span>
+                      <span className="text-text-main font-medium">{formatPrice(codFee)}</span>
+                    </div>
+                  )}
+                  {isGiftWrapped && (
+                    <div className="flex justify-between items-center text-[#D4527A]">
+                      <span className="flex items-center gap-1.5"><Gift size={12} /> Gift Packing</span>
+                      <span className="font-medium">{formatPrice(giftWrapFee)}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Free Delivery Progress */}
+                <div className="mt-[20px] relative z-10">
+                  <FreeDeliveryBar subtotal={subtotal} threshold={2499} compact />
+                </div>
+
+                {/* Gift Wrapping Option */}
+                <div className="mt-[20px] pt-[20px] border-t border-white/40 relative z-10">
+                  <div className="flex items-start gap-3">
+                    <div className="relative flex items-center justify-center mt-0.5">
+                      <input 
+                        type="checkbox" 
+                        id="giftWrap" 
+                        checked={isGiftWrapped} 
+                        onChange={(e) => setIsGiftWrapped(e.target.checked)}
+                        className="peer appearance-none w-4 h-4 border border-text-muted/50 rounded-sm bg-white/50 checked:bg-[#D4527A] checked:border-[#D4527A] cursor-pointer transition-colors"
+                      />
+                      <Check size={12} strokeWidth={3} className="absolute text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="flex-1">
+                      <label htmlFor="giftWrap" className="font-semibold text-[13px] text-text-main cursor-pointer flex items-center justify-between">
+                        <span className="flex items-center gap-1.5"><Gift size={14} className="text-[#D4527A]" /> Add Gift Packing (₹49)</span>
+                        <button onClick={(e) => { e.preventDefault(); setIsGiftDetailsOpen(!isGiftDetailsOpen); }} className="text-[#D4527A] hover:underline flex items-center gap-0.5 text-[11px]">
+                          Details <ChevronDown size={14} className={`transition-transform duration-300 ${isGiftDetailsOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                      </label>
+                      
+                      <AnimatePresence>
+                        {isGiftDetailsOpen && (
+                          <motion.div 
+                            initial={{ height: 0, opacity: 0 }} 
+                            animate={{ height: 'auto', opacity: 1 }} 
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <p className="text-[11px] text-text-muted mt-2 bg-white/40 p-2.5 rounded-xl border border-white/50 leading-relaxed shadow-sm">
+                              Make it special! Includes a premium wrapped box, a personalized handwritten note, and a Sterling Kart gift bag.
+                            </p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      <AnimatePresence>
+                        {isGiftWrapped && (
+                          <motion.div 
+                            initial={{ height: 0, opacity: 0 }} 
+                            animate={{ height: 'auto', opacity: 1 }} 
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden mt-3"
+                          >
+                            <textarea 
+                              placeholder="Write your gift message (optional)..." 
+                              value={giftNote}
+                              onChange={(e) => setGiftNote(e.target.value)}
+                              className="w-full text-[12px] p-3 rounded-xl border border-white/60 bg-white/50 outline-none focus:border-[#D4527A] focus:bg-white resize-none shadow-sm transition-colors"
+                              rows={2}
+                            />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
 
                 <div className="border-t border-white mt-[20px] pt-[20px] relative z-10">
                   <div className="flex justify-between items-end">
                     <span className="font-serif text-[18px] text-text-main">Total</span>
-                    <span className="font-sans text-[22px] font-bold text-text-main">{formatPrice(totalAmount)}</span>
+                    <span className="font-sans text-[22px] font-bold text-text-main">{formatPrice(finalTotalAmount)}</span>
                   </div>
                 </div>
 

@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Award, ChevronLeft, ChevronRight, Heart, Pause, Play, RotateCcw, Shield, ShoppingCart, Star, Truck } from 'lucide-react';
 import MagneticButton from '../components/ui/MagneticButton';
+import CircularGallery from '../components/ui/CircularGallery';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { categories, products } from '../data/products';
 import { testimonials } from '../data/orders';
-import { calculateDiscount, formatPrice } from '../utils/formatPrice';
+import { calculateDiscount } from '../utils/formatPrice';
+import { useCurrency } from '../context/CurrencyContext';
 import heroLifestyle1 from '../assets/images/hero_lifestyle_1.png';
 import heroLifestyle2 from '../assets/images/hero_lifestyle_2.png';
 import heroLifestyle3 from '../assets/images/hero_lifestyle_3.png';
@@ -24,6 +26,12 @@ import promise1 from '../assets/images/promise_1.png';
 import promise2 from '../assets/images/promise_2.png';
 import promise3 from '../assets/images/promise_3.png';
 import promise4 from '../assets/images/promise_4.png';
+import weddingCampaign1 from '../assets/images/wedding_campaign_1.png';
+import weddingCampaign2 from '../assets/images/wedding_campaign_2.png';
+import productRing1 from '../assets/images/product_ring_1.png';
+import productNecklace1 from '../assets/images/product_necklace_1.png';
+import productEarring1 from '../assets/images/product_earring_1.png';
+import productBangle1 from '../assets/images/product_bangle_1.png';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 18 },
@@ -96,6 +104,7 @@ function StarRating({ rating, size = 13 }) {
 function ProductCard({ product }) {
   const { addItem } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
+  const { formatPrice } = useCurrency();
   const wishlisted = isWishlisted(product.id);
   const discount = calculateDiscount(product.price, product.mrp);
 
@@ -137,7 +146,7 @@ function CategorySlideCard({ category, slideIndex }) {
   return (
     <Link to={`/shop?category=${category.id}`} className="group flex flex-col items-center p-2">
       {/* Circular Image Container with Liquid Glass Ring */}
-      <div className="relative aspect-square w-full max-w-[200px] overflow-hidden rounded-full bg-bg-alt shadow-sm ring-[4px] ring-white/60 group-hover:ring-[#D4527A]/20 group-hover:shadow-[0_8px_30px_rgba(212,82,122,0.15)] transition-all duration-700 mb-6">
+      <div className="relative aspect-square w-full max-w-[130px] md:max-w-[150px] overflow-hidden rounded-full bg-bg-alt shadow-sm ring-[4px] ring-white/60 group-hover:ring-[#D4527A]/20 group-hover:shadow-[0_8px_30px_rgba(212,82,122,0.15)] transition-all duration-700 mb-4 md:mb-5">
         {/* Subtle glass overlay border */}
         <div className="absolute inset-0 rounded-full border border-white/40 z-10 pointer-events-none" />
         
@@ -169,6 +178,21 @@ function CategorySlideCard({ category, slideIndex }) {
   );
 }
 
+function MinimalProductCard({ product }) {
+  return (
+    <Link to={`/product/${product.slug}`} className="group block overflow-hidden rounded-[20px] glass-card transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(212,82,122,0.15)] bg-white/40">
+      <div className="relative overflow-hidden aspect-[4/5] bg-transparent">
+        {product.badge && <span className="absolute left-3 top-3 z-10 rounded-full glass-dark px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[1px] text-white shadow-sm">{product.badge}</span>}
+        <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.1]" loading="lazy" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+      </div>
+      <div className="p-4 md:p-5 text-center">
+        <h3 className="text-[14px] md:text-[16px] font-serif tracking-wide leading-tight text-text-main transition-colors group-hover:text-[#D4527A]">{product.name}</h3>
+      </div>
+    </Link>
+  );
+}
+
 export default function HomePage() {
   const [email, setEmail] = useState('');
   const [heroIndex, setHeroIndex] = useState(0);
@@ -180,6 +204,8 @@ export default function HomePage() {
 
   const heroRef = useRef(null);
   const collageRef = useRef(null);
+  const categoryScrollRef = useRef(null);
+  const favoritesScrollRef = useRef(null);
 
   const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(heroScroll, [0, 1], ["0%", "25%"]);
@@ -217,6 +243,20 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', updateCount);
   }, []);
 
+  const scrollCategoryLeft = () => {
+    if (categoryScrollRef.current) categoryScrollRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+  };
+  const scrollCategoryRight = () => {
+    if (categoryScrollRef.current) categoryScrollRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+  };
+
+  const scrollFavoritesLeft = () => {
+    if (favoritesScrollRef.current) favoritesScrollRef.current.scrollBy({ left: -350, behavior: 'smooth' });
+  };
+  const scrollFavoritesRight = () => {
+    if (favoritesScrollRef.current) favoritesScrollRef.current.scrollBy({ left: 350, behavior: 'smooth' });
+  };
+
   const bestsellers = products
     .filter((product) => product.badge === 'Bestseller' || product.rating >= 4.6)
     .slice(0, 12);
@@ -236,7 +276,7 @@ export default function HomePage() {
     <div className="overflow-x-hidden bg-bg-primary bg-pattern-diamond">
       <section
         ref={heroRef}
-        className="relative isolate flex min-h-[85vh] items-center overflow-hidden bg-bg-alt md:min-h-[90vh]"
+        className="relative isolate flex min-h-[100vh] items-center overflow-hidden bg-bg-alt"
         aria-label="Sterling Kart jewellery collections"
         aria-roledescription="carousel"
         onMouseEnter={() => setIsHeroHovered(true)}
@@ -252,66 +292,171 @@ export default function HomePage() {
             src={activeHeroSlide.image}
             alt={activeHeroSlide.alt}
             className="absolute inset-0 h-full w-full object-cover"
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1.1 }}
+            initial={{ opacity: 0, scale: 1.06 }}
+            animate={{ opacity: 1, scale: 1.06 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
+            transition={{ duration: 1.0, ease: 'easeOut' }}
             style={{ y: heroY }}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-black/15 transition-colors duration-700" />
-        <div className="absolute bottom-6 right-6 z-10 glass-panel rounded-xl px-5 py-3 text-right shadow-lg backdrop-blur-xl md:bottom-10 md:right-10 border-white/40 hidden md:block">
-          <p className="font-serif text-[17px] uppercase tracking-[1.5px] text-text-main drop-shadow-sm">Sterling Cart</p>
-          <p className="mt-1 text-[8px] font-bold uppercase tracking-[2.5px] text-text-muted">925 Silver Jewels</p>
+
+        {/* Cinematic gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+
+        {/* Bottom-right watermark */}
+        <div className="absolute bottom-8 right-8 z-10 hidden md:block text-right pointer-events-none">
+          <p className="font-serif text-[13px] uppercase tracking-[3px] text-white/30">Sterling Cart</p>
+          <p className="mt-1 text-[8px] font-bold uppercase tracking-[2.5px] text-white/20">925 Silver Jewels</p>
         </div>
-        <div className="relative mx-auto w-full max-w-[1320px] px-5 py-8 md:py-12 md:px-8 md:py-16 z-10">
+
+        {/* Hero content — floats freely over the image */}
+        <div className="relative mx-auto w-full max-w-[1320px] px-6 pt-[160px] pb-20 md:px-10 md:pt-[190px] md:pb-28 z-10">
           <AnimatePresence mode="wait">
             <motion.div
               key={heroIndex}
-              className="max-w-[540px] glass-panel p-8 md:p-12 rounded-[32px] border-white/50 shadow-2xl backdrop-blur-xl"
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+              className="max-w-[580px]"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
               aria-live="polite"
             >
-              <p className="mb-4 text-[10px] font-semibold uppercase tracking-[4px] text-text-muted">{activeHeroSlide.eyebrow}</p>
-              <h1 className="font-serif text-[38px] leading-[1.15] tracking-[-1px] text-text-main sm:text-[52px] drop-shadow-sm">{activeHeroSlide.title}</h1>
-              <p className="mt-5 max-w-[420px] text-[14px] md:text-[16px] leading-relaxed text-text-muted">{activeHeroSlide.description}</p>
-              <div className="mt-8 flex flex-wrap gap-4">
+              {/* Eyebrow */}
+              <motion.p
+                initial={{ opacity: 0, letterSpacing: '0.1em' }}
+                animate={{ opacity: 1, letterSpacing: '0.35em' }}
+                transition={{ duration: 0.9, ease: 'easeOut', delay: 0.05 }}
+                className="mb-5 text-[10px] font-semibold uppercase text-white/60 tracking-[0.35em] drop-shadow-md"
+              >
+                {activeHeroSlide.eyebrow}
+              </motion.p>
+
+              {/* Thin decorative line */}
+              <motion.div
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: 48, opacity: 1 }}
+                transition={{ duration: 0.7, ease: 'easeOut', delay: 0.1 }}
+                className="mb-6 h-[1px] bg-gradient-to-r from-white/60 to-transparent"
+              />
+
+              {/* Title */}
+              <h1
+                className="font-serif text-[42px] leading-[1.1] tracking-[-1.5px] text-white sm:text-[58px] md:text-[64px]"
+                style={{ textShadow: '0 2px 30px rgba(0,0,0,0.5)' }}
+              >
+                {activeHeroSlide.title}
+              </h1>
+
+              {/* Description */}
+              <p
+                className="mt-6 max-w-[400px] text-[14px] md:text-[15px] leading-relaxed text-white/65"
+                style={{ textShadow: '0 1px 8px rgba(0,0,0,0.4)' }}
+              >
+                {activeHeroSlide.description}
+              </p>
+
+              {/* CTA buttons */}
+              <div className="mt-9 flex flex-wrap items-center gap-3">
                 <MagneticButton>
-                  <Link to="/shop" className="btn-dark inline-flex text-[12px] py-3.5 px-8 tracking-widest shadow-lg">Shop the collection</Link>
+                  <Link
+                    to="/shop"
+                    className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-[11px] font-bold uppercase tracking-[2px] text-[#1A1A1A] shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-all hover:bg-white/90 hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] hover:-translate-y-0.5"
+                  >
+                    Shop the collection
+                  </Link>
                 </MagneticButton>
                 <MagneticButton>
-                  <Link to="/shop?badge=New" className="btn-secondary glass inline-flex text-[12px] py-3.5 px-8 tracking-widest hover:bg-white border-white/40">See new arrivals</Link>
+                  <Link
+                    to="/shop?badge=New"
+                    className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-8 py-3.5 text-[11px] font-bold uppercase tracking-[2px] text-white backdrop-blur-sm transition-all hover:bg-white/20 hover:border-white/60 hover:-translate-y-0.5"
+                  >
+                    New arrivals
+                  </Link>
                 </MagneticButton>
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
-        <button type="button" onClick={showPreviousHero} className="absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full glass text-text-main shadow-md transition-all hover:scale-105 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#1A1A1A] md:left-8 border-white/40" aria-label="Show previous hero image">
-          <ChevronLeft size={24} strokeWidth={1.5} />
+
+        {/* Prev/Next arrows — dark glass style */}
+        <button
+          type="button"
+          onClick={showPreviousHero}
+          className="absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/25 text-white backdrop-blur-md shadow-lg transition-all hover:bg-black/45 hover:border-white/40 hover:scale-105 focus:outline-none md:left-7"
+          aria-label="Show previous hero image"
+        >
+          <ChevronLeft size={20} strokeWidth={1.5} />
         </button>
-        <button type="button" onClick={showNextHero} className="absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full glass text-text-main shadow-md transition-all hover:scale-105 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#1A1A1A] md:right-8 border-white/40" aria-label="Show next hero image">
-          <ChevronRight size={24} strokeWidth={1.5} />
+        <button
+          type="button"
+          onClick={showNextHero}
+          className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/25 text-white backdrop-blur-md shadow-lg transition-all hover:bg-black/45 hover:border-white/40 hover:scale-105 focus:outline-none md:right-7"
+          aria-label="Show next hero image"
+        >
+          <ChevronRight size={20} strokeWidth={1.5} />
         </button>
-        <div className="absolute bottom-6 left-1/2 z-20 hidden md:flex -translate-x-1/2 items-center gap-4 rounded-full glass-panel px-6 py-4 shadow-md border-white/40 md:bottom-10">
+
+        {/* Slide indicators + play/pause — bottom-center, dark glass */}
+        <div className="absolute bottom-7 left-1/2 z-20 hidden md:flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/15 bg-black/30 px-5 py-3 backdrop-blur-md shadow-md">
           {heroSlides.map((slide, index) => (
-            <button key={slide.image} type="button" onClick={() => setHeroIndex(index)} className={`h-[3px] rounded-full transition-all duration-500 ${index === heroIndex ? 'w-10 bg-[#1A1A1A]' : 'w-4 bg-[#1A1A1A]/30 hover:bg-[#1A1A1A]/60'}`} aria-label={`Show hero image ${index + 1}`} aria-current={index === heroIndex ? 'true' : undefined} />
+            <button
+              key={slide.image}
+              type="button"
+              onClick={() => setHeroIndex(index)}
+              className={`rounded-full transition-all duration-500 ${
+                index === heroIndex
+                  ? 'w-8 h-[3px] bg-white'
+                  : 'w-3 h-[3px] bg-white/30 hover:bg-white/60'
+              }`}
+              aria-label={`Show hero image ${index + 1}`}
+              aria-current={index === heroIndex ? 'true' : undefined}
+            />
           ))}
-          <div className="w-[1px] h-5 bg-[#1A1A1A]/20 mx-1"></div>
-          <button type="button" onClick={() => setIsHeroPaused((isPaused) => !isPaused)} className="flex h-8 w-8 items-center justify-center rounded-full text-text-main transition hover:bg-white/50 focus:outline-none" aria-label={isHeroPaused ? 'Play hero slideshow' : 'Pause hero slideshow'}>
-            {isHeroPaused ? <Play size={12} fill="currentColor" /> : <Pause size={12} fill="currentColor" />}
+          <div className="w-[1px] h-4 bg-white/15 mx-1" />
+          <button
+            type="button"
+            onClick={() => setIsHeroPaused((isPaused) => !isPaused)}
+            className="flex h-7 w-7 items-center justify-center rounded-full text-white/60 transition hover:text-white focus:outline-none"
+            aria-label={isHeroPaused ? 'Play hero slideshow' : 'Pause hero slideshow'}
+          >
+            {isHeroPaused ? <Play size={11} fill="currentColor" /> : <Pause size={11} fill="currentColor" />}
           </button>
+        </div>
+
+        {/* Slide counter — bottom right */}
+        <div className="absolute bottom-8 left-6 z-20 hidden md:flex items-center gap-2 pointer-events-none md:left-10">
+          <span className="font-serif text-[22px] text-white/80 leading-none">{String(heroIndex + 1).padStart(2, '0')}</span>
+          <div className="w-8 h-[1px] bg-white/30" />
+          <span className="text-[11px] text-white/30 font-medium">{String(heroSlides.length).padStart(2, '0')}</span>
         </div>
       </section>
 
-      <section className="bg-bg-surface px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20 bg-pattern-diamond">
+      <section className="bg-bg-surface px-5 pt-10 pb-6 md:pt-16 md:pb-10 md:px-8 lg:pt-20 lg:pb-12 bg-pattern-diamond relative">
         <SectionHeading eyebrow="Find your favourites" title="Shop by category" />
-        <div className="mx-auto grid max-w-[1320px] grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {categories.map((category) => (
-            <CategorySlideCard key={category.id} category={category} slideIndex={categorySlideIndex} />
-          ))}
+        
+        <div className="relative max-w-[1320px] mx-auto group">
+          <button 
+            onClick={scrollCategoryLeft} 
+            className="absolute left-0 top-[73px] md:top-[83px] -translate-y-1/2 -ml-2 md:-ml-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/80 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronLeft size={22} strokeWidth={1.5} />
+          </button>
+          
+          <div ref={categoryScrollRef} className="flex gap-2 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-6 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] justify-start md:justify-center">
+            {categories.map((category) => (
+              <div key={category.id} className="min-w-[130px] sm:min-w-[150px] md:min-w-[170px] lg:min-w-[190px] snap-start shrink-0">
+                <CategorySlideCard category={category} slideIndex={categorySlideIndex} />
+              </div>
+            ))}
+          </div>
+
+          <button 
+            onClick={scrollCategoryRight} 
+            className="absolute right-0 top-[73px] md:top-[83px] -translate-y-1/2 -mr-2 md:-mr-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/80 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronRight size={22} strokeWidth={1.5} />
+          </button>
         </div>
         <div className="mx-auto mt-9 flex max-w-[1320px] flex-wrap items-center justify-center gap-2">
           <span className="mr-2 text-[12px] font-semibold uppercase tracking-[1.2px] text-text-muted">Shop for</span>
@@ -319,11 +464,95 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Wedding Collection Section */}
+      <section className="bg-bg-surface px-5 pt-8 pb-16 md:pt-12 md:pb-24 bg-pattern-diamond border-t border-[#EEE8E5]">
+        <div className="mx-auto max-w-[1320px]">
+          <div className="flex items-center justify-center gap-4 mb-12">
+            <div className="h-[1px] w-12 md:w-24 bg-[#1FA8A1]/40" />
+            <h2 className="font-serif text-[24px] md:text-[32px] tracking-[2px] uppercase text-[#1FA8A1]">Wedding Collection</h2>
+            <div className="h-[1px] w-12 md:w-24 bg-[#1FA8A1]/40" />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-10 md:gap-8 lg:gap-12">
+            {/* Card 1 */}
+            <div className="flex flex-col items-center">
+              <div className="relative w-full aspect-[4/3] group">
+                <div className="absolute inset-0 rounded-[16px] overflow-hidden shadow-lg">
+                  <img src={weddingCampaign1} alt="Rhiwayat Bridal" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <h3 className="absolute bottom-24 md:bottom-28 right-8 text-right font-serif text-[32px] md:text-[40px] leading-[1.1] tracking-wide text-white drop-shadow-md">
+                    RHIWAYAT<br />BRIDAL
+                  </h3>
+                </div>
+                
+                {/* Product Thumbnails */}
+                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex items-end justify-center gap-3 w-full px-4 z-10">
+                  {[productNecklace1, productEarring1, productBangle1].map((img, i) => (
+                    <div key={i} className="w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-xl bg-[#1A1A1A] border border-white/20 p-1 shadow-xl overflow-hidden transition-transform hover:-translate-y-2 cursor-pointer">
+                      <img src={img} alt="Product Thumbnail" className="w-full h-full object-cover rounded-lg" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Link to="/shop?collection=rhiwayat-bridal" className="mt-12 md:mt-14 inline-flex items-center gap-2 bg-[#1FA8A1] text-white px-8 py-3 rounded-md text-[13px] font-medium tracking-wide hover:bg-[#178f89] transition-colors shadow-md relative z-20">
+                View Full Collection <ArrowRight size={16} />
+              </Link>
+            </div>
+
+            {/* Card 2 */}
+            <div className="flex flex-col items-center mt-8 md:mt-0">
+              <div className="relative w-full aspect-[4/3] group">
+                <div className="absolute inset-0 rounded-[16px] overflow-hidden shadow-lg">
+                  <img src={weddingCampaign2} alt="Sakhi Kutumbh" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <h3 className="absolute bottom-24 md:bottom-28 right-8 text-right font-serif text-[32px] md:text-[40px] leading-[1.1] tracking-wide text-white drop-shadow-md">
+                    SAKHI<br />KUTUMBH
+                  </h3>
+                </div>
+                
+                {/* Product Thumbnails */}
+                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex items-end justify-center gap-3 w-full px-4 z-10">
+                  {[productRing1, productNecklace1, productEarring1].map((img, i) => (
+                    <div key={i} className="w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-xl bg-[#FAF6F3] border border-[#D9D0C8] p-1 shadow-xl overflow-hidden transition-transform hover:-translate-y-2 cursor-pointer">
+                      <img src={img} alt="Product Thumbnail" className="w-full h-full object-contain rounded-lg" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Link to="/shop?collection=sakhi-kutumbh" className="mt-12 md:mt-14 inline-flex items-center gap-2 bg-[#1FA8A1] text-white px-8 py-3 rounded-md text-[13px] font-medium tracking-wide hover:bg-[#178f89] transition-colors shadow-md relative z-20">
+                View Full Collection <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="border-y border-[#EEE8E5] bg-[#F7E1E8] px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20 bg-pattern-diamond">
         <SectionHeading eyebrow="Most loved" title="Customer favourites" />
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="mx-auto grid max-w-[1320px] grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {bestsellers.map((product) => <ProductCard key={product.id} product={product} />)}
-        </motion.div>
+        
+        <div className="relative max-w-[1320px] mx-auto group">
+          <button 
+            onClick={scrollFavoritesLeft} 
+            className="absolute left-0 top-[40%] md:top-[45%] -translate-y-1/2 -ml-2 md:-ml-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/80 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronLeft size={22} strokeWidth={1.5} />
+          </button>
+          
+          <div ref={favoritesScrollRef} className="flex gap-4 md:gap-5 overflow-x-auto snap-x snap-mandatory pb-6 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {bestsellers.map((product) => (
+              <div key={product.id} className="w-[calc(50%-8px)] md:w-[calc(33.333%-14px)] lg:w-[calc(20%-16px)] snap-start shrink-0">
+                <MinimalProductCard product={product} />
+              </div>
+            ))}
+          </div>
+
+          <button 
+            onClick={scrollFavoritesRight} 
+            className="absolute right-0 top-[40%] md:top-[45%] -translate-y-1/2 -mr-2 md:-mr-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/80 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronRight size={22} strokeWidth={1.5} />
+          </button>
+        </div>
         <div className="mt-9 text-center"><Link to="/shop" className="btn-secondary">View all jewellery</Link></div>
       </section>
 
@@ -398,6 +627,37 @@ export default function HomePage() {
             </div>
 
           </div>
+        </div>
+      </section>
+
+      {/* Influencer Spotlight / Circular Gallery Section */}
+      <section className="bg-black px-0 py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,82,122,0.15)_0%,transparent_70%)]" />
+        
+        <div className="mx-auto max-w-[1320px] px-5 md:px-8 relative z-10 mb-10 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-[#F4A0B0] mb-2">Influencer Spotlight</p>
+          <h2 className="font-serif text-[34px] leading-tight tracking-[-0.3px] text-white md:text-[40px] mb-4">
+            Trusted by Creators, Loved by Customers
+          </h2>
+          <p className="mx-auto max-w-2xl text-[14px] text-white/60 leading-relaxed">
+            See how influencers and jewellery enthusiasts style Sterling Kart's handcrafted sterling silver collections in real life. Swipe to explore.
+          </p>
+        </div>
+
+        <div className="w-full h-[500px] md:h-[650px] relative z-10">
+          <CircularGallery 
+            videos={[
+              "https://assets.mixkit.co/videos/preview/mixkit-woman-putting-on-a-diamond-ring-41223-large.mp4",
+              "https://assets.mixkit.co/videos/preview/mixkit-beautiful-woman-wearing-a-diamond-necklace-41215-large.mp4",
+              "https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-woman-showing-off-her-jewelry-41217-large.mp4",
+              "https://assets.mixkit.co/videos/preview/mixkit-woman-showing-a-diamond-ring-on-her-finger-41219-large.mp4",
+              "https://assets.mixkit.co/videos/preview/mixkit-woman-putting-on-a-diamond-ring-41223-large.mp4"
+            ]} 
+            bend={0.06}
+            itemWidth={2.5}
+            itemHeight={4.4}
+            gap={0.3}
+          />
         </div>
       </section>
 

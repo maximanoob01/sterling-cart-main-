@@ -43,43 +43,61 @@ export const AuthProvider = ({ children }) => {
   const openAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
   const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
 
-  const login = useCallback((email, password) => {
-    const found = mockUsers.find(
-      u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    );
-    if (found) {
-      const safeUser = Object.fromEntries(Object.entries(found).filter(([key]) => key !== 'password'));
-      setUser(safeUser);
-      closeAuthModal();
-      toast.success(`Welcome back, ${found.name}!`, {
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-        iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
-      });
-      return { success: true, user: safeUser };
-    }
-    return { success: false, error: 'Invalid email or password' };
-  }, [closeAuthModal]);
-
-  const signup = useCallback((name, email, password, phone) => {
-    const exists = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (exists) {
-      return { success: false, error: 'Email already registered' };
-    }
-    const newUser = {
-      id: Date.now(),
-      name,
-      email,
-      phone,
-      role: 'user',
-      addresses: [],
-    };
-    setUser(newUser);
-    closeAuthModal();
-    toast.success(`Welcome to Sterling Cart, ${name}!`, {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-      iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
+  const requestOtp = useCallback(async (phone, isSignup = false) => {
+    // Mock sending OTP
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ success: true, message: `OTP sent successfully to ${phone}` });
+      }, 800);
     });
-    return { success: true, user: newUser };
+  }, []);
+
+  const verifyOtp = useCallback(async (phone, otp, isSignup = false, name = '', email = '') => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (otp === '1234') { // Mock valid OTP
+          if (isSignup) {
+            const exists = mockUsers.find(u => u.phone === phone);
+            if (exists) {
+              resolve({ success: false, error: 'Phone number already registered. Please login.' });
+              return;
+            }
+            const newUser = {
+              id: Date.now(),
+              name,
+              email,
+              phone,
+              role: 'user',
+              addresses: [],
+            };
+            mockUsers.push(newUser);
+            setUser(newUser);
+            closeAuthModal();
+            toast.success(`Welcome to Sterling Cart, ${name}!`, {
+              style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
+              iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
+            });
+            resolve({ success: true, user: newUser });
+          } else {
+            const found = mockUsers.find(u => u.phone === phone);
+            if (found) {
+              const safeUser = Object.fromEntries(Object.entries(found).filter(([key]) => key !== 'password'));
+              setUser(safeUser);
+              closeAuthModal();
+              toast.success(`Welcome back, ${found.name}!`, {
+                style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
+                iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
+              });
+              resolve({ success: true, user: safeUser });
+            } else {
+              resolve({ success: false, error: 'Account not found. Please sign up.' });
+            }
+          }
+        } else {
+          resolve({ success: false, error: 'Invalid OTP. Please enter 1234.' });
+        }
+      }, 500);
+    });
   }, [closeAuthModal]);
 
   const logout = useCallback(() => {
@@ -104,7 +122,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{ 
-        user, login, signup, logout, updateProfile, isAdmin, isAuthenticated,
+        user, requestOtp, verifyOtp, logout, updateProfile, isAdmin, isAuthenticated,
         isAuthModalOpen, openAuthModal, closeAuthModal
       }}
     >

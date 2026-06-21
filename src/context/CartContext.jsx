@@ -1,7 +1,20 @@
 import { createContext, useContext, useReducer, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { SILVER_RATE_PER_GRAM, computeWeightBasedPrice } from '../utils/silverRate';
 
 const CartContext = createContext();
+
+/**
+ * Returns the base price for an item (before GST).
+ * - weight: (silverRate × weightGrams) + makingCharges
+ * - mrp: product.price (fixed)
+ */
+export const getItemPrice = (item, silverRate = SILVER_RATE_PER_GRAM) => {
+  if (item.pricingType === 'weight' && item.weightGrams != null && item.makingCharges != null) {
+    return computeWeightBasedPrice(item.weightGrams, item.makingCharges, silverRate);
+  }
+  return item.price;
+};
 
 const cartReducer = (state, action) => {
   switch (action.type) {
@@ -88,7 +101,12 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  // Subtotal: use computed price (weight-based or mrp) × quantity
+  const subtotal = state.items.reduce(
+    (sum, item) => sum + getItemPrice(item) * item.quantity,
+    0
+  );
 
   let discount = 0;
   if (state.coupon) {
@@ -99,8 +117,13 @@ export const CartProvider = ({ children }) => {
     }
   }
 
-  const shipping = subtotal >= 999 ? 0 : 49;
-  const gst = Math.round((subtotal - discount) * 0.18);
+  // Free delivery above ₹2,499; otherwise ₹69 flat
+  const FREE_DELIVERY_THRESHOLD = 2499;
+  const DELIVERY_FEE = 69;
+  const shipping = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+
+  // 3% GST on (subtotal − discount)
+  const gst = Math.round((subtotal - discount) * 0.03);
   const totalAmount = subtotal - discount + shipping + gst;
 
   return (
@@ -120,6 +143,10 @@ export const CartProvider = ({ children }) => {
         shipping,
         gst,
         totalAmount,
+        silverRate: SILVER_RATE_PER_GRAM,
+        freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD,
+        deliveryFee: DELIVERY_FEE,
+        getItemPrice,
       }}
     >
       {children}

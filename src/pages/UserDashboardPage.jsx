@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Package, Heart, MapPin, User, Truck, LogOut, ShoppingCart,
-  Download, ChevronRight, Home, Plus, Star, Trash2, X, Edit, Menu
+  Download, ChevronRight, Home, Plus, Star, Trash2, X, Edit, Menu, Lock
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -14,13 +14,13 @@ import { formatPrice, formatDate } from '../utils/formatPrice';
 import toast from 'react-hot-toast';
 
 const statusColors = {
-  Pending: 'bg-yellow-100 text-yellow-800',
-  Confirmed: 'bg-blue-100 text-blue-800',
-  Packed: 'bg-indigo-100 text-indigo-800',
-  Shipped: 'bg-purple-100 text-purple-800',
-  'Out for Delivery': 'bg-cyan-100 text-cyan-800',
-  Delivered: 'bg-green-100 text-green-800',
-  Cancelled: 'bg-red-100 text-red-800',
+  Pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  Confirmed: 'bg-blue-100 text-blue-800 border-blue-200',
+  Packed: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+  Shipped: 'bg-purple-100 text-purple-800 border-purple-200',
+  'Out for Delivery': 'bg-cyan-100 text-cyan-800 border-cyan-200',
+  Delivered: 'bg-green-100 text-green-800 border-green-200',
+  Cancelled: 'bg-red-100 text-red-800 border-red-200',
 };
 
 const sidebarTabs = [
@@ -31,168 +31,155 @@ const sidebarTabs = [
   { id: 'track', label: 'Track Order', icon: Truck, link: '/track-order' },
 ];
 
-const fadeIn = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.2 } },
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
 };
 
-/* ==================== ORDERS TAB ==================== */
-const OrdersTab = () => {
-  const orders = mockOrders;
+const fadeUpItem = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+};
 
-  if (orders.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-24 h-24 bg-pink-50 rounded-full flex items-center justify-center mb-6">
-          <Package size={40} className="text-pink-300" />
-        </div>
-        <h3 className="text-xl font-serif text-charcoal mb-2">No orders yet</h3>
-        <p className="text-silver-500 font-sans mb-6 max-w-sm">
-          You haven't placed any orders. Start exploring our collection!
-        </p>
-        <Link to="/shop" className="btn-primary">
-          <ShoppingCart size={16} /> Browse Collection
-        </Link>
-      </div>
-    );
-  }
+const BackgroundBlobs = () => (
+  <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 bg-[#FFF0F5]">
+    <motion.div
+      animate={{
+        scale: [1, 1.2, 1],
+        x: [0, 50, 0],
+        y: [0, 30, 0],
+      }}
+      transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+      className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-pink-200/50 mix-blend-multiply filter blur-[100px] opacity-70"
+    />
+    <motion.div
+      animate={{
+        scale: [1, 1.1, 1],
+        x: [0, -40, 0],
+        y: [0, 40, 0],
+      }}
+      transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+      className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#E5D5FA]/50 mix-blend-multiply filter blur-[100px] opacity-70"
+    />
+  </div>
+);
+
+/* ==================== ORDERS TAB ==================== */
+const OrderCard = ({ order }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const totalItems = order.items.reduce((acc, item) => acc + item.qty, 0);
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-serif text-charcoal mb-6">My Orders</h2>
-      {/* Desktop Table */}
-      <div className="hidden md:block overflow-x-auto rounded-xl border border-silver-200">
-        <table className="w-full text-sm font-sans">
-          <thead>
-            <tr className="bg-pink-50 text-charcoal">
-              <th className="text-left px-4 py-3 font-semibold">Order ID</th>
-              <th className="text-left px-4 py-3 font-semibold">Date</th>
-              <th className="text-left px-4 py-3 font-semibold">Items</th>
-              <th className="text-left px-4 py-3 font-semibold">Total</th>
-              <th className="text-left px-4 py-3 font-semibold">Status</th>
-              <th className="text-center px-4 py-3 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.id} className="border-t border-silver-100 hover:bg-pink-50/40 transition-colors">
-                <td className="px-4 py-3.5 font-medium text-charcoal">{order.id}</td>
-                <td className="px-4 py-3.5 text-silver-600">{formatDate(order.date)}</td>
-                <td className="px-4 py-3.5 max-w-[250px]">
-                  <div className="flex flex-col gap-3">
-                    {order.items.map((item, idx) => {
-                      const product = products.find(p => p.id === item.productId);
-                      const imageUrl = product ? product.images[0] : null;
-                      return (
-                        <div key={idx} className="flex items-center gap-3">
-                          {imageUrl ? (
-                            <img src={imageUrl} alt={item.name} className="w-12 h-12 rounded-lg object-cover border border-silver-200 shadow-sm shrink-0 bg-pink-50" />
-                          ) : (
-                            <div className="w-12 h-12 rounded-lg bg-pink-50 border border-silver-200 shrink-0 flex items-center justify-center">
-                              <Package size={16} className="text-pink-300" />
-                            </div>
-                          )}
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[13px] font-medium text-charcoal truncate">{item.name}</span>
-                            <span className="text-[11px] text-silver-500">Qty: {item.qty} {item.size ? `| Size: ${item.size}` : ''}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </td>
-                <td className="px-4 py-3.5 font-semibold text-charcoal">{formatPrice(order.total)}</td>
-                <td className="px-4 py-3.5">
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}`}>
-                    {order.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 text-center">
-                  <div className="flex items-center justify-center gap-2">
-                    {order.trackingNumber && (
-                      <Link
-                        to="/track-order"
-                        className="text-pink-400 hover:text-pink-500 transition-colors p-1.5 rounded-lg hover:bg-pink-50"
-                        title="Track Order"
-                      >
-                        <Truck size={16} />
-                      </Link>
-                    )}
-                    <button
-                      onClick={() => toast.success('Invoice download started!', {
-                        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-                        iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
-                      })}
-                      className="text-silver-500 hover:text-charcoal transition-colors p-1.5 rounded-lg hover:bg-silver-100"
-                      title="Download Invoice"
-                    >
-                      <Download size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <motion.div variants={fadeUpItem} className="bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl p-4 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_32px_rgba(212,82,122,0.08)] transition-shadow duration-300">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-2.5">
+            <span className="font-bold text-charcoal text-base">#{order.id}</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}`}>
+              {order.status}
+            </span>
+          </div>
+          <span className="text-xs text-silver-500 font-medium">{formatDate(order.date)} • {totalItems} item{totalItems !== 1 ? 's' : ''}</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {order.trackingNumber && (
+            <Link to="/track-order" className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50/80 text-[#D4527A] hover:bg-pink-100 rounded-full text-[12px] font-semibold transition-colors">
+              <Truck size={14} /> Track
+            </Link>
+          )}
+          <button
+            onClick={() => toast.success('Invoice downloading...')}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-silver-600 hover:text-charcoal border border-silver-200 hover:border-silver-300 rounded-full text-[12px] font-semibold transition-colors shadow-sm"
+          >
+            <Download size={14} /> Invoice
+          </button>
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-charcoal text-white rounded-full text-[12px] font-semibold hover:bg-[#D4527A] transition-colors shadow-sm"
+          >
+            {isExpanded ? 'Hide Details' : 'Show Details'}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Cards */}
-      <div className="md:hidden space-y-3">
-        {orders.map((order) => (
-          <div key={order.id} className="bg-bg-surface border border-silver-200 rounded-xl p-4 shadow-sm">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <p className="font-semibold text-charcoal text-sm">{order.id}</p>
-                <p className="text-xs text-silver-500 mt-0.5">{formatDate(order.date)}</p>
-              </div>
-              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}`}>
-                {order.status}
-              </span>
-            </div>
-            <div className="flex flex-col gap-3 mb-4">
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-6 pt-5 border-t border-pink-100/50 grid grid-cols-1 md:grid-cols-2 gap-4">
               {order.items.map((item, idx) => {
                 const product = products.find(p => p.id === item.productId);
                 const imageUrl = product ? product.images[0] : null;
                 return (
-                  <div key={idx} className="flex items-center gap-3">
-                    {imageUrl ? (
-                      <img src={imageUrl} alt={item.name} className="w-12 h-12 rounded-lg object-cover border border-silver-200 shadow-sm shrink-0 bg-pink-50" />
-                    ) : (
-                      <div className="w-12 h-12 rounded-lg bg-pink-50 border border-silver-200 shrink-0 flex items-center justify-center">
-                        <Package size={16} className="text-pink-300" />
+                  <div key={idx} className="flex items-center gap-4 bg-white/40 p-3 rounded-2xl border border-white/50">
+                    <div className="w-20 h-20 rounded-xl overflow-hidden bg-pink-50 shrink-0 shadow-sm relative group">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center"><Package className="text-pink-200" /></div>
+                      )}
+                    </div>
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <h4 className="font-serif text-charcoal font-medium truncate text-base mb-1">{item.name}</h4>
+                      <div className="flex items-center gap-2 text-xs text-silver-500 mb-2">
+                        <span className="bg-white/60 px-2 py-0.5 rounded-md">Qty: {item.qty}</span>
+                        {item.size && <span className="bg-white/60 px-2 py-0.5 rounded-md">Size: {item.size}</span>}
                       </div>
-                    )}
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-[13px] font-medium text-charcoal truncate">{item.name}</span>
-                      <span className="text-[11px] text-silver-500">Qty: {item.qty} {item.size ? `| Size: ${item.size}` : ''}</span>
                     </div>
                   </div>
                 );
               })}
             </div>
-            <div className="flex items-center justify-between border-t border-silver-100 pt-3">
-              <p className="font-semibold text-charcoal">{formatPrice(order.total)}</p>
-              <div className="flex items-center gap-2">
-                {order.trackingNumber && (
-                  <Link to="/track-order" className="text-pink-400 p-1.5">
-                    <Truck size={16} />
-                  </Link>
-                )}
-                <button
-                  onClick={() => toast.success('Invoice download started!', {
-                    style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-                    iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
-                  })}
-                  className="text-silver-500 p-1.5"
-                >
-                  <Download size={16} />
-                </button>
-              </div>
+            
+            <div className="mt-4 pt-4 border-t border-pink-100/50 flex items-center justify-between">
+              <span className="text-sm font-medium text-silver-500">Total Amount</span>
+              <span className="text-xl font-bold text-charcoal">{formatPrice(order.total)}</span>
             </div>
-          </div>
-        ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
+const OrdersTab = () => {
+  const orders = mockOrders;
+
+  if (orders.length === 0) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 text-center bg-white/40 backdrop-blur-xl border border-white/50 rounded-3xl shadow-[0_8px_32px_rgba(212,82,122,0.05)]">
+        <div className="w-24 h-24 bg-gradient-to-br from-pink-100 to-white rounded-full flex items-center justify-center mb-6 shadow-inner">
+          <Package size={40} className="text-[#D4527A]" />
+        </div>
+        <h3 className="text-2xl font-serif text-charcoal mb-2">No orders yet</h3>
+        <p className="text-silver-500 font-sans mb-8 max-w-sm">
+          You haven't placed any orders. Start exploring our premium collection!
+        </p>
+        <Link to="/shop" className="px-8 py-3 bg-[#D4527A] text-white rounded-full font-semibold hover:bg-[#B94B68] transition-all shadow-lg hover:shadow-pink-500/25 flex items-center gap-2">
+          <ShoppingCart size={18} /> Browse Collection
+        </Link>
+      </motion.div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-3xl font-serif text-charcoal tracking-tight">My Orders</h2>
       </div>
+      
+      <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-3">
+        {orders.map((order) => (
+          <OrderCard key={order.id} order={order} />
+        ))}
+      </motion.div>
     </div>
   );
 };
@@ -204,75 +191,76 @@ const WishlistTab = () => {
 
   if (wishlistItems.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-24 h-24 bg-pink-50 rounded-full flex items-center justify-center mb-6">
-          <Heart size={40} className="text-pink-300" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 text-center bg-white/40 backdrop-blur-xl border border-white/50 rounded-3xl shadow-[0_8px_32px_rgba(212,82,122,0.05)]">
+        <div className="w-24 h-24 bg-gradient-to-br from-pink-100 to-white rounded-full flex items-center justify-center mb-6 shadow-inner">
+          <Heart size={40} className="text-[#D4527A]" />
         </div>
-        <h3 className="text-xl font-serif text-charcoal mb-2">Your wishlist is empty</h3>
-        <p className="text-silver-500 font-sans mb-6 max-w-sm">
-          Save your favourite pieces here for later. Explore our collection to find something you love!
+        <h3 className="text-2xl font-serif text-charcoal mb-2">Your wishlist is empty</h3>
+        <p className="text-silver-500 font-sans mb-8 max-w-sm">
+          Curate your perfect collection here. Explore our exquisite pieces!
         </p>
-        <Link to="/shop" className="btn-primary">
-          <ShoppingCart size={16} /> Browse Collection
+        <Link to="/shop" className="px-8 py-3 bg-[#D4527A] text-white rounded-full font-semibold hover:bg-[#B94B68] transition-all shadow-lg hover:shadow-pink-500/25 flex items-center gap-2">
+          <ShoppingCart size={18} /> Discover Jewelry
         </Link>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-serif text-charcoal mb-6">
-        My Wishlist <span className="text-silver-500 text-base font-sans">({wishlistItems.length})</span>
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-3xl font-serif text-charcoal tracking-tight">
+          My Wishlist <span className="text-silver-400 text-lg font-sans align-middle ml-2">({wishlistItems.length})</span>
+        </h2>
+      </div>
+
+      <motion.div variants={staggerContainer} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {wishlistItems.map((product) => (
           <motion.div
             key={product.id}
-            className="bg-bg-surface border border-silver-200 rounded-xl overflow-hidden product-card"
-            layout
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            variants={fadeUpItem}
+            className="group bg-white/60 backdrop-blur-md border border-white/60 rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_40px_rgba(212,82,122,0.12)] hover:-translate-y-1 transition-all duration-300"
           >
-            <div className="relative aspect-square bg-pink-50 overflow-hidden">
+            <div className="relative aspect-square overflow-hidden bg-pink-50/50">
               <img
                 src={product.images[0]}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <button
                 onClick={() => removeItem(product.id)}
-                className="absolute top-3 right-3 w-8 h-8 bg-bg-surface/90 backdrop-blur-sm rounded-full flex items-center justify-center text-red-400 hover:bg-red-50 transition-colors shadow-sm"
+                className="absolute top-4 right-4 w-9 h-9 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-red-500 hover:bg-red-50 hover:scale-110 transition-all shadow-sm"
                 title="Remove from wishlist"
               >
-                <Trash2 size={15} />
+                <Trash2 size={16} />
               </button>
             </div>
-            <div className="p-4">
-              <h3 className="font-serif text-charcoal text-sm mb-1 line-clamp-1">{product.name}</h3>
-              <div className="flex items-center gap-1 mb-3">
+            <div className="p-5">
+              <div className="flex items-center gap-1 mb-2">
                 <Star size={12} className="fill-yellow-400 text-yellow-400" />
-                <span className="text-xs text-silver-500 font-sans">{product.rating}</span>
+                <span className="text-xs text-silver-500 font-bold">{product.rating}</span>
               </div>
+              <h3 className="font-serif text-charcoal text-base mb-3 line-clamp-1 group-hover:text-[#D4527A] transition-colors">{product.name}</h3>
               <div className="flex items-center justify-between">
-                <div>
-                  <span className="font-semibold text-charcoal font-sans">{formatPrice(product.price)}</span>
+                <div className="flex flex-col">
+                  <span className="font-bold text-charcoal text-lg leading-none">{formatPrice(product.price)}</span>
                   {product.mrp > product.price && (
-                    <span className="text-xs text-silver-400 line-through ml-2 font-sans">{formatPrice(product.mrp)}</span>
+                    <span className="text-xs text-silver-400 line-through mt-1">{formatPrice(product.mrp)}</span>
                   )}
                 </div>
                 <button
-                  onClick={() => addItem(product)}
-                  className="bg-pink-300 hover:bg-pink-400 text-white p-2 rounded-full transition-colors"
-                  title="Add to Cart"
+                  onClick={() => { addItem(product); removeItem(product.id); toast.success('Moved to Cart!'); }}
+                  className="w-10 h-10 bg-charcoal hover:bg-[#D4527A] text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                  title="Move to Cart"
                 >
-                  <ShoppingCart size={14} />
+                  <ShoppingCart size={16} />
                 </button>
               </div>
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };
@@ -285,126 +273,78 @@ const ProfileTab = () => {
     email: user?.email || '',
     phone: user?.phone || '',
   });
-  const [passwords, setPasswords] = useState({
-    current: '',
-    newPassword: '',
-    confirm: '',
-  });
 
   const handleProfileSave = (e) => {
     e.preventDefault();
     updateProfile({ name: profile.name, phone: profile.phone });
-  };
-
-  const handlePasswordUpdate = (e) => {
-    e.preventDefault();
-    if (!passwords.current || !passwords.newPassword || !passwords.confirm) {
-      toast.error('Please fill all password fields');
-      return;
-    }
-    if (passwords.newPassword !== passwords.confirm) {
-      toast.error('New passwords do not match');
-      return;
-    }
-    if (passwords.newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
-    toast.success('Password updated successfully!', {
+    toast.success('Profile updated successfully', {
       style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
-    setPasswords({ current: '', newPassword: '', confirm: '' });
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-serif text-charcoal mb-6">Profile Settings</h2>
-        <form onSubmit={handleProfileSave} className="bg-bg-surface border border-silver-200 rounded-xl p-5 md:p-6 mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5 mb-5">
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1.5 font-sans">Full Name</label>
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-3xl font-serif text-charcoal tracking-tight">Profile Settings</h2>
+      </div>
+
+      <motion.form variants={fadeUpItem} onSubmit={handleProfileSave} className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-3xl p-6 md:p-8 shadow-[0_8px_32px_rgba(212,82,122,0.05)] relative overflow-hidden">
+        {/* Decorative bloop */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-pink-200/40 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 relative z-10">
+          <div>
+            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Full Name</label>
+            <div className="relative flex items-center">
+              <User size={16} className="absolute left-4 text-gray-400" />
               <input
                 type="text"
                 value={profile.name}
                 onChange={(e) => setProfile(p => ({ ...p, name: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm"
+                className="w-full pl-10 pr-4 py-3 bg-white/50 backdrop-blur-sm border border-white rounded-2xl focus:outline-none focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] transition-all font-sans text-sm shadow-sm"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1.5 font-sans">Phone</label>
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Phone Number</label>
+            <div className="relative flex items-center">
+              <PhoneIcon size={16} className="absolute left-4 text-gray-400" />
               <input
                 type="tel"
                 value={profile.phone}
                 onChange={(e) => setProfile(p => ({ ...p, phone: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm"
+                className="w-full pl-10 pr-4 py-3 bg-white/50 backdrop-blur-sm border border-white rounded-2xl focus:outline-none focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] transition-all font-sans text-sm shadow-sm"
               />
             </div>
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-charcoal mb-1.5 font-sans">Email</label>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Email Address</label>
+            <div className="relative flex items-center">
+              <MailIcon size={16} className="absolute left-4 text-gray-400" />
               <input
                 type="email"
                 value={profile.email}
                 disabled
-                className="w-full px-4 py-2.5 border border-silver-200 rounded-lg bg-silver-100 text-silver-500 cursor-not-allowed font-sans text-sm"
-              />
-              <p className="text-xs text-silver-400 mt-1 font-sans">Email cannot be changed</p>
-            </div>
-          </div>
-          <div className="flex justify-end">
-            <button type="submit" className="btn-primary w-full sm:w-auto px-8">
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div>
-        <h3 className="text-xl font-serif text-charcoal mb-4">Change Password</h3>
-        <form onSubmit={handlePasswordUpdate} className="bg-bg-surface border border-silver-200 rounded-xl p-5 md:p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 mb-5">
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1.5 font-sans">Current Password</label>
-              <input
-                type="password"
-                value={passwords.current}
-                onChange={(e) => setPasswords(p => ({ ...p, current: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm"
-                placeholder="Current"
+                className="w-full pl-10 pr-4 py-3 bg-gray-100/50 backdrop-blur-sm border border-transparent rounded-2xl text-silver-500 cursor-not-allowed font-sans text-sm"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1.5 font-sans">New Password</label>
-              <input
-                type="password"
-                value={passwords.newPassword}
-                onChange={(e) => setPasswords(p => ({ ...p, newPassword: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm"
-                placeholder="New"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1.5 font-sans">Confirm Password</label>
-              <input
-                type="password"
-                value={passwords.confirm}
-                onChange={(e) => setPasswords(p => ({ ...p, confirm: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm"
-                placeholder="Confirm"
-              />
-            </div>
+            <p className="text-[11px] text-silver-400 mt-2 font-medium flex items-center gap-1"><Lock size={10} /> Email cannot be changed</p>
           </div>
-          <div className="flex justify-end">
-            <button type="submit" className="btn-secondary w-full sm:w-auto px-8">
-              Update Password
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+        <div className="flex justify-end relative z-10">
+          <button type="submit" className="px-8 py-3 bg-charcoal hover:bg-[#D4527A] text-white rounded-full font-semibold transition-all duration-300 shadow-md">
+            Save Changes
+          </button>
+        </div>
+      </motion.form>
+    </motion.div>
   );
 };
+
+/* helper icons for ProfileTab */
+const PhoneIcon = ({ size, className }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>;
+const MailIcon = ({ size, className }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>;
 
 /* ==================== ADDRESSES TAB ==================== */
 const AddressesTab = () => {
@@ -412,13 +352,7 @@ const AddressesTab = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({
-    fullName: '',
-    addressLine1: '',
-    addressLine2: '',
-    city: '',
-    state: '',
-    pincode: '',
-    landmark: '',
+    fullName: '', addressLine1: '', addressLine2: '', city: '', state: '', pincode: '', landmark: '',
   });
 
   const addresses = user?.addresses || [];
@@ -445,17 +379,11 @@ const AddressesTab = () => {
     let newAddresses;
     if (editingId) {
       newAddresses = addresses.map(a => (a.id === editingId ? { ...form, id: editingId } : a));
-      toast.success('Address updated!', {
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-        iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
-      });
+      toast.success('Address updated!', { style: { background: '#FFF0F5', color: '#2D2D2D' }, iconTheme: { primary: '#F4A0B0', secondary: '#FFF' } });
     } else {
       const newAddr = { ...form, id: Date.now(), isDefault: addresses.length === 0 };
       newAddresses = [...addresses, newAddr];
-      toast.success('Address added!', {
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-        iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
-      });
+      toast.success('Address added!', { style: { background: '#FFF0F5', color: '#2D2D2D' }, iconTheme: { primary: '#F4A0B0', secondary: '#FFF' } });
     }
     updateProfile({ addresses: newAddresses });
     resetForm();
@@ -464,124 +392,124 @@ const AddressesTab = () => {
   const handleDelete = (id) => {
     const newAddresses = addresses.filter(a => a.id !== id);
     updateProfile({ addresses: newAddresses });
-    toast.success('Address removed', {
-      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-      iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
-    });
+    toast.success('Address removed');
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-serif text-charcoal">Saved Addresses</h2>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-3xl font-serif text-charcoal tracking-tight">Saved Addresses</h2>
         {!showForm && (
-          <button onClick={() => setShowForm(true)} className="btn-primary text-sm">
+          <button onClick={() => setShowForm(true)} className="flex items-center gap-1 px-5 py-2 bg-[#D4527A] text-white rounded-full text-sm font-semibold hover:bg-[#B94B68] transition-all shadow-md">
             <Plus size={16} /> Add New
           </button>
         )}
       </div>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {showForm && (
           <motion.form
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="bg-bg-surface border border-silver-200 rounded-xl p-6 mb-6 overflow-hidden"
+            initial={{ opacity: 0, y: -20, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, y: -20, height: 0 }}
+            className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-3xl p-6 md:p-8 shadow-[0_8px_32px_rgba(212,82,122,0.08)] mb-8 overflow-hidden relative"
             onSubmit={handleSubmit}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-serif text-lg text-charcoal">{editingId ? 'Edit Address' : 'Add New Address'}</h3>
-              <button type="button" onClick={resetForm} className="text-silver-400 hover:text-charcoal">
-                <X size={20} />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-pink-200/40 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+            <div className="flex items-center justify-between mb-6 relative z-10">
+              <h3 className="font-serif text-xl text-charcoal">{editingId ? 'Edit Address' : 'Add New Address'}</h3>
+              <button type="button" onClick={resetForm} className="w-8 h-8 flex items-center justify-center rounded-full bg-white text-silver-400 hover:text-charcoal shadow-sm transition-colors">
+                <X size={18} />
               </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 relative z-10">
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-charcoal mb-1 font-sans">Full Name *</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Full Name *</label>
                 <input type="text" value={form.fullName} onChange={(e) => setForm(f => ({ ...f, fullName: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm" />
+                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white rounded-xl focus:outline-none focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] transition-all font-sans text-sm shadow-sm" />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-charcoal mb-1 font-sans">Address Line 1 *</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Address Line 1 *</label>
                 <input type="text" value={form.addressLine1} onChange={(e) => setForm(f => ({ ...f, addressLine1: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm" />
+                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white rounded-xl focus:outline-none focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] transition-all font-sans text-sm shadow-sm" />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-charcoal mb-1 font-sans">Address Line 2</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Address Line 2</label>
                 <input type="text" value={form.addressLine2} onChange={(e) => setForm(f => ({ ...f, addressLine2: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm" />
+                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white rounded-xl focus:outline-none focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] transition-all font-sans text-sm shadow-sm" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1 font-sans">City *</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">City *</label>
                 <input type="text" value={form.city} onChange={(e) => setForm(f => ({ ...f, city: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm" />
+                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white rounded-xl focus:outline-none focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] transition-all font-sans text-sm shadow-sm" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1 font-sans">State *</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">State *</label>
                 <input type="text" value={form.state} onChange={(e) => setForm(f => ({ ...f, state: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm" />
+                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white rounded-xl focus:outline-none focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] transition-all font-sans text-sm shadow-sm" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1 font-sans">Pincode *</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Pincode *</label>
                 <input type="text" value={form.pincode} onChange={(e) => setForm(f => ({ ...f, pincode: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm" />
+                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white rounded-xl focus:outline-none focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] transition-all font-sans text-sm shadow-sm" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1 font-sans">Landmark</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Landmark</label>
                 <input type="text" value={form.landmark} onChange={(e) => setForm(f => ({ ...f, landmark: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-silver-200 rounded-lg focus:outline-none focus:border-pink-300 focus:ring-1 focus:ring-pink-300 transition-colors font-sans text-sm" />
+                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-white rounded-xl focus:outline-none focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] transition-all font-sans text-sm shadow-sm" />
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button type="submit" className="btn-primary">{editingId ? 'Update Address' : 'Save Address'}</button>
-              <button type="button" onClick={resetForm} className="btn-secondary">Cancel</button>
+            <div className="flex justify-end gap-3 mt-8 relative z-10">
+              <button type="button" onClick={resetForm} className="px-6 py-2.5 rounded-full text-silver-600 font-semibold hover:bg-white transition-colors">Cancel</button>
+              <button type="submit" className="px-8 py-2.5 bg-charcoal text-white rounded-full font-semibold hover:bg-[#D4527A] transition-all shadow-md">{editingId ? 'Update' : 'Save'} Address</button>
             </div>
           </motion.form>
         )}
       </AnimatePresence>
 
-      {addresses.length === 0 && !showForm ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-20 h-20 bg-pink-50 rounded-full flex items-center justify-center mb-4">
-            <MapPin size={32} className="text-pink-300" />
-          </div>
-          <h3 className="text-lg font-serif text-charcoal mb-2">No saved addresses</h3>
-          <p className="text-silver-500 font-sans text-sm">Add an address to make checkout faster.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {addresses.map((addr) => (
-            <div key={addr.id} className="bg-bg-surface border border-silver-200 rounded-xl p-5 relative">
-              {addr.isDefault && (
-                <span className="absolute top-3 right-3 bg-pink-50 text-pink-400 text-xs font-semibold px-2.5 py-0.5 rounded-full font-sans">
-                  Default
-                </span>
-              )}
-              <h4 className="font-semibold text-charcoal font-sans mb-1">{addr.fullName}</h4>
-              <p className="text-sm text-silver-600 font-sans leading-relaxed">
-                {addr.addressLine1}
-                {addr.addressLine2 && `, ${addr.addressLine2}`}<br />
-                {addr.city}, {addr.state} — {addr.pincode}
-                {addr.landmark && <><br />Landmark: {addr.landmark}</>}
-              </p>
-              <div className="flex items-center gap-2 mt-4">
-                <button
-                  onClick={() => handleEdit(addr)}
-                  className="text-sm text-pink-400 hover:text-pink-500 font-sans flex items-center gap-1 transition-colors"
-                >
-                  <Edit size={14} /> Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(addr.id)}
-                  className="text-sm text-red-400 hover:text-red-500 font-sans flex items-center gap-1 transition-colors"
-                >
-                  <Trash2 size={14} /> Delete
-                </button>
+      {!showForm && (
+        <motion.div variants={staggerContainer} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {addresses.length === 0 ? (
+            <motion.div variants={fadeUpItem} className="col-span-2 flex flex-col items-center justify-center py-16 text-center bg-white/40 backdrop-blur-md rounded-3xl border border-white/50">
+              <div className="w-20 h-20 bg-pink-50 rounded-full flex items-center justify-center mb-4">
+                <MapPin size={32} className="text-[#D4527A]" />
               </div>
-            </div>
-          ))}
-        </div>
+              <h3 className="text-xl font-serif text-charcoal mb-2">No saved addresses</h3>
+              <p className="text-silver-500 font-sans text-sm">Add an address to make checkout faster.</p>
+            </motion.div>
+          ) : (
+            addresses.map((addr) => (
+              <motion.div key={addr.id} variants={fadeUpItem} className="bg-white/60 backdrop-blur-md border border-white/60 rounded-3xl p-6 relative hover:shadow-[0_8px_32px_rgba(212,82,122,0.08)] transition-all duration-300">
+                {addr.isDefault && (
+                  <span className="absolute top-4 right-4 bg-pink-100/80 text-[#D4527A] text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full">
+                    Default
+                  </span>
+                )}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-silver-400">
+                    <MapPin size={18} />
+                  </div>
+                  <h4 className="font-bold text-charcoal text-lg">{addr.fullName}</h4>
+                </div>
+                <p className="text-sm text-silver-600 leading-relaxed pl-[52px]">
+                  {addr.addressLine1}
+                  {addr.addressLine2 && `, ${addr.addressLine2}`}<br />
+                  {addr.city}, {addr.state} — {addr.pincode}
+                  {addr.landmark && <><br /><span className="text-silver-400 text-xs">Landmark: {addr.landmark}</span></>}
+                </p>
+                <div className="flex items-center gap-4 mt-6 pl-[52px]">
+                  <button onClick={() => handleEdit(addr)} className="text-sm font-semibold text-charcoal hover:text-[#D4527A] flex items-center gap-1.5 transition-colors">
+                    <Edit size={14} /> Edit
+                  </button>
+                  <button onClick={() => handleDelete(addr.id)} className="text-sm font-semibold text-red-400 hover:text-red-500 flex items-center gap-1.5 transition-colors">
+                    <Trash2 size={14} /> Delete
+                  </button>
+                </div>
+              </motion.div>
+            ))
+          )}
+        </motion.div>
       )}
     </div>
   );
@@ -619,104 +547,100 @@ const UserDashboardPage = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'orders':
-        return <OrdersTab />;
-      case 'wishlist':
-        return <WishlistTab />;
-      case 'profile':
-        return <ProfileTab />;
-      case 'addresses':
-        return <AddressesTab />;
-      default:
-        return <OrdersTab />;
+      case 'orders': return <OrdersTab />;
+      case 'wishlist': return <WishlistTab />;
+      case 'profile': return <ProfileTab />;
+      case 'addresses': return <AddressesTab />;
+      default: return <OrdersTab />;
     }
   };
 
   return (
-    <div className="min-h-screen pb-20 sm:pb-0 bg-silver-100">
+    <div className="min-h-screen pb-20 sm:pb-0 relative z-0 selection:bg-pink-200 selection:text-charcoal">
+      <BackgroundBlobs />
+      
       {/* Breadcrumb */}
-      <div className="bg-pink-50 border-b border-pink-100">
+      <div className="bg-white/40 backdrop-blur-md border-b border-white/50 sticky top-[72px] z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <nav className="flex items-center gap-2 text-sm font-sans">
-            <Link to="/" className="text-silver-500 hover:text-pink-400 transition-colors flex items-center gap-1">
-              <Home size={14} />
-              Home
+          <nav className="flex items-center gap-2 text-[13px] font-medium font-sans">
+            <Link to="/" className="text-silver-500 hover:text-[#D4527A] transition-colors flex items-center gap-1">
+              <Home size={14} /> Home
             </Link>
             <ChevronRight size={14} className="text-silver-400" />
-            <span className="text-charcoal font-medium">My Account</span>
+            <span className="text-charcoal">My Account</span>
           </nav>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Mobile Header */}
-        <div className="lg:hidden mb-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-xl font-serif text-charcoal">My Account</h1>
-              <p className="text-sm text-silver-500 font-sans">Welcome, {user?.name}</p>
+        <div className="lg:hidden mb-6">
+          <div className="flex items-center justify-between mb-4 bg-white/60 backdrop-blur-xl p-4 rounded-3xl border border-white/60 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4527A] to-[#B94B68] flex items-center justify-center text-white font-serif text-lg font-bold shadow-md">
+                {user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
+              </div>
+              <div>
+                <h1 className="text-lg font-serif text-charcoal leading-tight">My Account</h1>
+                <p className="text-xs text-silver-500 font-medium">{user?.name}</p>
+              </div>
             </div>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 bg-bg-surface border border-silver-200 rounded-lg"
-            >
-              <Menu size={20} className="text-charcoal" />
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2.5 bg-white rounded-full shadow-sm text-charcoal hover:text-[#D4527A] transition-colors">
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
 
           <AnimatePresence>
             {mobileMenuOpen && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="bg-bg-surface border border-silver-200 rounded-xl overflow-hidden mb-4"
+                initial={{ opacity: 0, y: -10, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: 'auto' }}
+                exit={{ opacity: 0, y: -10, height: 0 }}
+                className="bg-white/80 backdrop-blur-2xl border border-white rounded-3xl overflow-hidden mb-4 shadow-xl z-30 relative"
               >
-                {sidebarTabs.map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => handleTabClick(tab)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-sans transition-colors ${
-                        isActive ? 'bg-pink-50 text-pink-400 border-l-3 border-pink-300' : 'text-silver-600 hover:bg-pink-50'
-                      }`}
-                    >
-                      <Icon size={18} />
-                      {tab.label}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-sans text-red-400 hover:bg-red-50 transition-colors border-t border-silver-100"
-                >
-                  <LogOut size={18} />
-                  Logout
-                </button>
+                <div className="p-2 space-y-1">
+                  {sidebarTabs.map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => handleTabClick(tab)}
+                        className={`w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold rounded-2xl transition-all ${
+                          isActive ? 'bg-[#D4527A] text-white shadow-md' : 'text-silver-600 hover:bg-white hover:text-charcoal'
+                        }`}
+                      >
+                        <Icon size={18} /> {tab.label}
+                      </button>
+                    );
+                  })}
+                  <div className="h-px bg-pink-100/50 my-2 mx-4" />
+                  <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-2xl transition-all">
+                    <LogOut size={18} /> Logout
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex gap-8 lg:gap-12 relative">
           {/* Desktop Sidebar */}
-          <aside className="hidden lg:block w-[250px] shrink-0">
-            <div className="bg-bg-surface border border-silver-200 rounded-xl overflow-hidden sticky top-24">
+          <aside className="hidden lg:block w-[280px] shrink-0 z-10">
+            <div className="bg-white/60 backdrop-blur-2xl border border-white rounded-[2rem] overflow-hidden shadow-[0_8px_32px_rgba(212,82,122,0.06)] sticky top-32 p-3">
               {/* User Info */}
-              <div className="p-5 border-b border-silver-100">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-200 to-pink-400 flex items-center justify-center mb-3">
-                  <span className="text-white font-serif font-bold text-lg">
+              <div className="px-5 pt-6 pb-6 flex flex-col items-center text-center">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#D4527A] to-[#B94B68] flex items-center justify-center mb-4 shadow-lg ring-4 ring-white">
+                  <span className="text-white font-serif font-bold text-2xl tracking-wider">
                     {user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
                   </span>
                 </div>
-                <h3 className="font-serif text-charcoal text-lg">{user?.name}</h3>
-                <p className="text-sm text-silver-500 font-sans">{user?.email}</p>
+                <h3 className="font-serif text-charcoal text-xl leading-tight mb-1">{user?.name}</h3>
+                <p className="text-xs text-silver-500 font-medium bg-white/80 px-3 py-1 rounded-full">{user?.phone}</p>
               </div>
 
               {/* Nav Links */}
-              <nav className="py-2">
+              <nav className="p-2 relative flex flex-col gap-1">
                 {sidebarTabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -724,42 +648,48 @@ const UserDashboardPage = () => {
                     <button
                       key={tab.id}
                       onClick={() => handleTabClick(tab)}
-                      className={`w-full flex items-center gap-3 px-5 py-3 text-sm font-sans transition-all ${
-                        isActive
-                          ? 'bg-pink-50 text-pink-400 border-l-[3px] border-pink-300 font-medium'
-                          : 'text-silver-600 hover:bg-pink-50 hover:text-charcoal border-l-[3px] border-transparent'
+                      className={`relative w-full flex items-center gap-3 px-5 py-4 text-sm font-semibold rounded-2xl transition-all z-10 overflow-hidden group ${
+                        isActive ? 'text-white' : 'text-silver-600 hover:text-charcoal'
                       }`}
                     >
-                      <Icon size={18} />
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className="absolute inset-0 bg-[#D4527A] rounded-2xl z-[-1] shadow-md"
+                          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        />
+                      )}
+                      {!isActive && (
+                        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-100 rounded-2xl z-[-1] transition-opacity duration-300" />
+                      )}
+                      <Icon size={18} className={isActive ? "text-white" : "text-silver-400 group-hover:text-[#D4527A] transition-colors"} />
                       {tab.label}
-                      {tab.link && <ChevronRight size={14} className="ml-auto text-silver-400" />}
+                      {tab.link && <ChevronRight size={14} className="ml-auto opacity-50" />}
                     </button>
                   );
                 })}
               </nav>
 
-              {/* Logout */}
-              <div className="border-t border-silver-100 py-2">
+              <div className="p-2 mt-2">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-5 py-3 text-sm font-sans text-red-400 hover:bg-red-50 transition-colors border-l-[3px] border-transparent"
+                  className="w-full flex items-center justify-center gap-2 px-5 py-4 text-sm font-semibold text-charcoal bg-white hover:bg-red-50 hover:text-red-500 rounded-2xl transition-all shadow-sm"
                 >
-                  <LogOut size={18} />
-                  Logout
+                  <LogOut size={18} /> Logout
                 </button>
               </div>
             </div>
           </aside>
 
           {/* Content Area */}
-          <main className="flex-1 min-w-0">
+          <main className="flex-1 min-w-0 z-10">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
-                variants={fadeIn}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
+                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
               >
                 {renderContent()}
               </motion.div>

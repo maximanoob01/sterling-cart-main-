@@ -25,47 +25,75 @@ export default function Footer() {
   if (location.pathname.startsWith('/admin')) return null;
 
   return (
-    <footer className="bg-[#0A0A0A] pt-20 pb-10 text-white relative overflow-hidden border-t border-white/10">
+    <footer 
+      className="pt-24 pb-10 text-white relative overflow-hidden border-t border-[#D4527A]/20"
+      style={{ background: 'linear-gradient(135deg, #1E0912 0%, #2A0D1A 50%, #1A0810 100%)' }}
+    >
+      {/* 3D Floating Ring Background Element */}
+      <div 
+        className="absolute right-[-10%] md:right-[-5%] lg:right-0 top-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[450px] md:h-[450px] lg:w-[550px] lg:h-[550px] opacity-90 pointer-events-none z-0 select-none mix-blend-lighten"
+        style={{ 
+          maskImage: 'radial-gradient(circle at center, black 40%, transparent 70%)', 
+          WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 70%)' 
+        }}
+      >
+        <img src="/footer-ring.png" alt="" className="w-full h-full object-cover" />
+      </div>
+
       {/* Decorative Blur */}
-      <div className="absolute top-0 left-1/2 w-full max-w-[1000px] h-[300px] bg-[#D4527A]/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-full max-w-[800px] h-[300px] bg-[#D4527A]/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0" />
 
       <div className="mx-auto max-w-[1320px] px-6 md:px-10 relative z-10">
         
         {/* Top Section: Brand & Newsletter */}
-        <div className="grid gap-12 lg:grid-cols-12 mb-16 border-b border-white/10 pb-16">
-          <div className="lg:col-span-5">
+        <div className="grid gap-12 lg:grid-cols-12 mb-16 border-b border-[#D4527A]/20 pb-16">
+          <div className="lg:col-span-5 flex flex-col pr-4">
             <Link to="/" className="inline-flex flex-col items-start leading-none mb-6">
               <span className="whitespace-nowrap font-[var(--font-logo)] text-[28px] font-semibold uppercase tracking-[1px] text-white">
                 Sterling Kart
               </span>
-              <span className="mt-1.5 whitespace-nowrap font-sans text-[9px] font-bold uppercase tracking-[3px] text-white/60">
+              <span className="mt-1.5 whitespace-nowrap font-sans text-[9px] font-bold uppercase tracking-[3px] text-[#F4A0B0]">
                 925 Silver Jewels
               </span>
             </Link>
-            <p className="text-[14px] leading-relaxed text-white/60 max-w-[380px] font-serif italic">
+            <p className="text-[14px] leading-relaxed text-white/70 max-w-[380px] font-serif italic">
               Elevating everyday elegance with bespoke 925 sterling silver jewelry. Crafted with passion, designed for luxury.
             </p>
-            <div className="mt-8 flex items-center gap-4">
+            <div className="mt-8 mb-10 flex items-center gap-4">
               <a 
                 href="https://www.instagram.com/sterling.kart/" 
                 target="_blank" 
                 rel="noreferrer" 
-                className="flex items-center justify-center w-11 h-11 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-500"
+                className="flex items-center justify-center w-11 h-11 rounded-full border border-[#D4527A]/40 text-[#F4A0B0] hover:bg-[#D4527A]/20 hover:text-white hover:border-[#D4527A] transition-all duration-500"
                 aria-label="Instagram"
               >
                 <InstagramIcon size={18} />
               </a>
               <a 
                 href="mailto:contact@sterlingkart.com" 
-                className="flex items-center justify-center w-11 h-11 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-500"
+                className="flex items-center justify-center w-11 h-11 rounded-full border border-[#D4527A]/40 text-[#F4A0B0] hover:bg-[#D4527A]/20 hover:text-white hover:border-[#D4527A] transition-all duration-500"
                 aria-label="Email Us"
               >
                 <Mail size={18} strokeWidth={1.5} />
               </a>
             </div>
+
+            <div>
+              <h4 className="mb-5 text-[10px] font-bold uppercase tracking-[2px] text-[#F4A0B0]">Visit Us</h4>
+              <ul className="flex flex-col gap-3 text-[13px] text-white/60">
+                <li className="flex items-start gap-3 group">
+                  <MapPin size={16} className="text-[#D4527A] shrink-0 mt-0.5 group-hover:text-white transition-colors" />
+                  <span className="leading-relaxed">B.T. Ganj | Civil Lines, Roorkee</span>
+                </li>
+                <li className="flex items-start gap-3 group">
+                  <Phone size={16} className="text-[#D4527A] shrink-0 mt-0.5 group-hover:text-white transition-colors" />
+                  <span className="leading-relaxed">9911773307  |  7011028085</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <div className="lg:col-span-7 grid gap-8 sm:grid-cols-3">
+          <div className="lg:col-span-4 grid gap-8 sm:grid-cols-2 lg:pl-10">
             <FooterLinks title="Explore" links={[
               ['Shop All', '/shop'],
               ['New Arrivals', '/shop?sort=new'],
@@ -79,31 +107,17 @@ export default function Footer() {
               ['Returns & Exchanges', '#'],
               ['Contact Us', '/contact'],
             ]} />
-
-            <div>
-              <h4 className="mb-6 text-[10px] font-semibold uppercase tracking-[2px] text-white/40">Visit Us</h4>
-              <ul className="flex flex-col gap-4 text-[13px] text-white/60">
-                <li className="flex items-start gap-3 group">
-                  <MapPin size={16} className="text-white/40 shrink-0 mt-0.5 group-hover:text-white transition-colors" />
-                  <span className="leading-relaxed">B.T. Ganj | Civil Lines<br/>Roorkee</span>
-                </li>
-                <li className="flex items-start gap-3 group">
-                  <Phone size={16} className="text-white/40 shrink-0 mt-0.5 group-hover:text-white transition-colors" />
-                  <span className="leading-relaxed">9911773307<br/>7011028085</span>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="flex flex-col gap-4 text-[11px] font-medium tracking-wide text-white/40 sm:flex-row sm:items-center sm:justify-between uppercase">
+        <div className="flex flex-col gap-4 text-[11px] font-medium tracking-wide text-white/50 sm:flex-row sm:items-center sm:justify-between uppercase">
           <p>© {new Date().getFullYear()} Sterling Kart. All rights reserved.</p>
           <div className="flex items-center gap-4">
-            <Link to="#" className="hover:text-white transition-colors">Privacy</Link>
-            <Link to="#" className="hover:text-white transition-colors">Terms</Link>
-            <span className="flex items-center gap-1 ml-4 border-l border-white/10 pl-8">
-              Designed by <a href="#" className="text-white/70 hover:text-white transition-colors">hypenbloom</a>
+            <Link to="#" className="hover:text-white hover:underline transition-colors">Privacy</Link>
+            <Link to="#" className="hover:text-white hover:underline transition-colors">Terms</Link>
+            <span className="flex items-center gap-1 ml-4 border-l border-[#D4527A]/30 pl-8">
+              Designed by <a href="#" className="text-[#F4A0B0] hover:text-white transition-colors">hypenbloom</a>
             </span>
           </div>
         </div>

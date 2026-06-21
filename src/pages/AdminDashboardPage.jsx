@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingBag, Users, BarChart3, Settings, TrendingUp, Clock, Search, Edit, Trash2, Eye, Download, Plus } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, Users, BarChart3, Settings, TrendingUp, Clock, Search, Edit, Trash2, Eye, Download, Plus, X, Scale, Wrench } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import { products as initialProducts } from '../data/products';
@@ -14,6 +14,7 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [products, setProducts] = useState(initialProducts);
   const [orders, setOrders] = useState(mockOrders);
+  const [editingProduct, setEditingProduct] = useState(null);
 
   // Redirect if not admin
   if (!user || !isAdmin) {
@@ -47,6 +48,12 @@ export default function AdminDashboardPage() {
       setProducts(products.filter(p => p.id !== productId));
       toast.success('Product deleted successfully');
     }
+  };
+
+  const handleSaveProduct = (updatedProduct) => {
+    setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+    setEditingProduct(null);
+    toast.success('Product updated successfully');
   };
 
   const getStatusBadgeClass = (status) => {
@@ -206,31 +213,56 @@ export default function AdminDashboardPage() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-pink-50">
-              <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Product</th>
-              <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">SKU</th>
-              <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Category</th>
-              <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Price</th>
-              <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Stock</th>
-              <th className="px-[24px] py-[16px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px] text-right">Actions</th>
+              <th className="px-[16px] py-[14px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Product</th>
+              <th className="px-[16px] py-[14px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">SKU</th>
+              <th className="px-[16px] py-[14px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Category</th>
+              <th className="px-[16px] py-[14px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Pricing</th>
+              <th className="px-[16px] py-[14px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Weight / Making</th>
+              <th className="px-[16px] py-[14px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Price / MRP</th>
+              <th className="px-[16px] py-[14px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Stock</th>
+              <th className="px-[16px] py-[14px] font-sans text-[12px] font-bold text-[#D4527A] uppercase tracking-[0.5px] text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#E8E8E8] font-sans text-[14px]">
-            {products.slice(0, 10).map(product => (
+          <tbody className="divide-y divide-[#E8E8E8] font-sans text-[13px]">
+            {products.map(product => (
               <tr key={product.id} className="hover:bg-[#FAFAFA] transition-colors">
-                <td className="px-[24px] py-[16px] flex items-center gap-[12px]">
-                   <div className="w-[40px] h-[40px] rounded-[8px] bg-[#FAFAFA] overflow-hidden border border-border-main"><img src={product.images[0]} alt="" className="w-full h-full object-cover" /></div>
-                   <span className="font-medium text-text-main max-w-[200px] truncate">{product.name}</span>
+                <td className="px-[16px] py-[14px] flex items-center gap-[10px]">
+                   <div className="w-[36px] h-[36px] rounded-[8px] bg-[#FAFAFA] overflow-hidden border border-border-main shrink-0"><img src={product.images[0]} alt="" className="w-full h-full object-cover" /></div>
+                   <span className="font-medium text-text-main max-w-[160px] truncate">{product.name}</span>
                 </td>
-                <td className="px-[24px] py-[16px] text-text-muted">{product.sku}</td>
-                <td className="px-[24px] py-[16px] text-text-main capitalize">{product.category.replace('-', ' ')}</td>
-                <td className="px-[24px] py-[16px] font-bold text-text-main">{formatPrice(product.price)}</td>
-                <td className="px-[24px] py-[16px]">
+                <td className="px-[16px] py-[14px] text-text-muted text-[11px]">{product.sku}</td>
+                <td className="px-[16px] py-[14px] text-text-main capitalize">{product.category.replace('-', ' ')}</td>
+                <td className="px-[16px] py-[14px]">
+                  {product.pricingType === 'weight' ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold px-[8px] py-[4px] rounded-[6px] bg-[#E0F2FE] text-[#0369A1]">
+                      <Scale size={11} /> Weight
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold px-[8px] py-[4px] rounded-[6px] bg-[#E6F4EA] text-[#137333]">
+                      MRP
+                    </span>
+                  )}
+                </td>
+                <td className="px-[16px] py-[14px] text-text-muted">
+                  {product.pricingType === 'weight' ? (
+                    <span className="flex items-center gap-1 text-[12px]">
+                      <Scale size={11} />{product.weightGrams}g
+                      <span className="mx-1 text-[#C0C0C0]">·</span>
+                      <Wrench size={11} />₹{product.makingCharges}
+                    </span>
+                  ) : <span className="text-text-muted/40 text-[12px]">—</span>}
+                </td>
+                <td className="px-[16px] py-[14px] font-bold text-text-main">
+                  {formatPrice(product.price)}
+                  {product.mrp > product.price && <span className="block text-[11px] text-text-muted font-normal line-through">{formatPrice(product.mrp)}</span>}
+                </td>
+                <td className="px-[16px] py-[14px]">
                   <span className={`inline-flex font-sans text-[11px] font-bold tracking-[0.5px] px-[8px] py-[4px] rounded-[6px] ${product.stockQty > 20 ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]'}`}>
                     {product.stockQty} in stock
                   </span>
                 </td>
-                <td className="px-[24px] py-[16px] text-right">
-                  <button className="text-[#A8A8A8] hover:text-[#0369A1] transition-colors p-[4px]"><Edit size={16} /></button>
+                <td className="px-[16px] py-[14px] text-right">
+                  <button onClick={() => setEditingProduct({...product})} className="text-[#A8A8A8] hover:text-[#0369A1] transition-colors p-[4px]"><Edit size={16} /></button>
                   <button onClick={() => handleDeleteProduct(product.id)} className="text-[#A8A8A8] hover:text-[#C5221F] transition-colors p-[4px] ml-[8px]"><Trash2 size={16} /></button>
                 </td>
               </tr>
@@ -238,6 +270,114 @@ export default function AdminDashboardPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Edit Product Modal */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-bg-surface rounded-[24px] shadow-2xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-border-main">
+              <h3 className="font-serif text-[20px] text-text-main">Edit Product</h3>
+              <button onClick={() => setEditingProduct(null)} className="w-8 h-8 rounded-full bg-[#F5F0F1] flex items-center justify-center text-text-muted hover:text-text-main"><X size={16} /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Product Name</label>
+                  <input value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A]" />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">SKU</label>
+                  <input value={editingProduct.sku} onChange={e => setEditingProduct({...editingProduct, sku: e.target.value})} className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A]" />
+                </div>
+              </div>
+
+              {/* Pricing Type Toggle */}
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-2">Pricing Type</label>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setEditingProduct({...editingProduct, pricingType: 'mrp', weightGrams: null, makingCharges: null})}
+                    className={`flex-1 h-[40px] rounded-[10px] text-[12px] font-bold border-2 transition-all ${
+                      editingProduct.pricingType === 'mrp' ? 'border-[#137333] bg-[#E6F4EA] text-[#137333]' : 'border-border-main bg-white text-text-muted'
+                    }`}
+                  >
+                    Fixed MRP
+                  </button>
+                  <button
+                    onClick={() => setEditingProduct({...editingProduct, pricingType: 'weight', weightGrams: editingProduct.weightGrams || 5.0, makingCharges: editingProduct.makingCharges || 300})}
+                    className={`flex-1 h-[40px] rounded-[10px] text-[12px] font-bold border-2 transition-all flex items-center justify-center gap-1.5 ${
+                      editingProduct.pricingType === 'weight' ? 'border-[#0369A1] bg-[#E0F2FE] text-[#0369A1]' : 'border-border-main bg-white text-text-muted'
+                    }`}
+                  >
+                    <Scale size={14} /> Weight-Based
+                  </button>
+                </div>
+              </div>
+
+              {/* Weight-based fields */}
+              {editingProduct.pricingType === 'weight' && (
+                <div className="grid grid-cols-2 gap-4 p-4 bg-[#E0F2FE]/40 rounded-[12px] border border-[#BAE6FD]">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-[1px] text-[#0369A1] mb-1.5 flex items-center gap-1"><Scale size={11} /> Weight (grams)</label>
+                    <input
+                      type="number" step="0.1" min="0"
+                      value={editingProduct.weightGrams || ''}
+                      onChange={e => setEditingProduct({...editingProduct, weightGrams: parseFloat(e.target.value) || 0})}
+                      className="w-full h-[40px] px-3 border border-[#BAE6FD] rounded-[10px] font-sans text-[13px] outline-none focus:border-[#0369A1] bg-white"
+                      placeholder="e.g. 5.2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-[1px] text-[#0369A1] mb-1.5 flex items-center gap-1"><Wrench size={11} /> Making Charges (₹)</label>
+                    <input
+                      type="number" step="1" min="0"
+                      value={editingProduct.makingCharges || ''}
+                      onChange={e => setEditingProduct({...editingProduct, makingCharges: parseInt(e.target.value) || 0})}
+                      className="w-full h-[40px] px-3 border border-[#BAE6FD] rounded-[10px] font-sans text-[13px] outline-none focus:border-[#0369A1] bg-white"
+                      placeholder="e.g. 350"
+                    />
+                  </div>
+                  <div className="col-span-2 text-[11px] text-[#0369A1] bg-white/70 rounded-[8px] px-3 py-2">
+                    Estimated price: <strong>₹{Math.round(102.4 * (editingProduct.weightGrams || 0) + (editingProduct.makingCharges || 0))}</strong> + 3% GST
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Price (₹)</label>
+                  <input type="number" value={editingProduct.price} onChange={e => setEditingProduct({...editingProduct, price: parseInt(e.target.value) || 0})} className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A]" />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">MRP (₹)</label>
+                  <input type="number" value={editingProduct.mrp} onChange={e => setEditingProduct({...editingProduct, mrp: parseInt(e.target.value) || 0})} className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A]" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Stock Qty</label>
+                  <input type="number" value={editingProduct.stockQty} onChange={e => setEditingProduct({...editingProduct, stockQty: parseInt(e.target.value) || 0})} className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A]" />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Badge</label>
+                  <select value={editingProduct.badge || ''} onChange={e => setEditingProduct({...editingProduct, badge: e.target.value || null})} className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A] appearance-none">
+                    <option value="">None</option>
+                    <option value="Bestseller">Bestseller</option>
+                    <option value="New">New</option>
+                    <option value="Sale">Sale</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setEditingProduct(null)} className="flex-1 h-[44px] rounded-full border border-border-main text-text-muted font-bold text-[12px] uppercase tracking-[1px] hover:bg-[#FAFAFA] transition-colors">Cancel</button>
+                <button onClick={() => handleSaveProduct(editingProduct)} className="flex-1 h-[44px] rounded-full bg-[#1A1A1A] text-white font-bold text-[12px] uppercase tracking-[1px] hover:bg-[#D4527A] transition-colors">Save Changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 

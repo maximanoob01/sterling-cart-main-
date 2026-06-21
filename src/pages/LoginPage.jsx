@@ -12,17 +12,18 @@ const slides = [slide1, slide2, slide3];
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [authStep, setAuthStep] = useState('PHONE'); // 'PHONE' or 'OTP'
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
-    confirmPassword: '',
     phone: '',
+    otp: '',
   });
   const [error, setError] = useState('');
   
-  const { login, signup, isAuthModalOpen, closeAuthModal } = useAuth();
+  const { requestOtp, verifyOtp, isAuthModalOpen, closeAuthModal } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,33 +34,41 @@ export default function LoginPage() {
     return () => clearInterval(timer);
   }, [isAuthModalOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (isLogin) {
-      if (!formData.email || !formData.password) {
-        setError('Please fill in all fields');
+    if (authStep === 'PHONE') {
+      if (!formData.phone) {
+        setError('Phone number is required');
         return;
       }
-      const res = login(formData.email, formData.password);
+      if (!isLogin && (!formData.name || !formData.email)) {
+        setError('Name and Email are required for signup');
+        return;
+      }
+
+      setIsSubmitting(true);
+      const res = await requestOtp(formData.phone, !isLogin);
+      setIsSubmitting(false);
+
       if (res.success) {
-        navigate(res.user.role === 'admin' ? '/admin' : '/dashboard');
+        setAuthStep('OTP');
       } else {
-        setError(res.error);
+        setError(res.error || 'Failed to send OTP');
       }
     } else {
-      if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
-        setError('Please fill in all required fields');
+      if (!formData.otp) {
+        setError('Please enter the OTP');
         return;
       }
-      if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
-        return;
-      }
-      const res = signup(formData.name, formData.email, formData.password, formData.phone);
+
+      setIsSubmitting(true);
+      const res = await verifyOtp(formData.phone, formData.otp, !isLogin, formData.name, formData.email);
+      setIsSubmitting(false);
+
       if (res.success) {
-        navigate('/dashboard');
+        navigate(res.user?.role === 'admin' ? '/admin' : '/dashboard');
       } else {
         setError(res.error);
       }
@@ -138,14 +147,14 @@ export default function LoginPage() {
           <div className="flex bg-gray-100 rounded-lg p-1 mb-6 max-w-[220px]">
             <button
               type="button"
-              onClick={() => {setIsLogin(true); setError('');}}
+              onClick={() => {setIsLogin(true); setError(''); setAuthStep('PHONE');}}
               className={`flex-1 py-1.5 text-[13px] font-semibold rounded-md transition-all ${isLogin ? 'bg-bg-surface text-black shadow-sm' : 'text-gray-500 hover:text-black'}`}
             >
               Sign In
             </button>
             <button
               type="button"
-              onClick={() => {setIsLogin(false); setError('');}}
+              onClick={() => {setIsLogin(false); setError(''); setAuthStep('PHONE');}}
               className={`flex-1 py-1.5 text-[13px] font-semibold rounded-md transition-all ${!isLogin ? 'bg-bg-surface text-black shadow-sm' : 'text-gray-500 hover:text-black'}`}
             >
               Sign Up
@@ -158,102 +167,97 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
-            {!isLogin && (
-              <div className="col-span-1">
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Full Name</label>
-                <div className="relative flex items-center">
-                  <User size={16} className="absolute left-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Enter your name"
-                    value={formData.name}
-                    onChange={e => setFormData({...formData, name: e.target.value})}
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 rounded-xl border border-gray-200 focus:bg-bg-surface focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] outline-none text-[13px] transition-all"
-                  />
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-y-4">
+            {authStep === 'PHONE' ? (
+              <>
+                {!isLogin && (
+                  <>
+                    <div className="col-span-1">
+                      <label className="block text-[12px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Full Name</label>
+                      <div className="relative flex items-center">
+                        <User size={16} className="absolute left-4 text-gray-400" />
+                        <input
+                          type="text"
+                          placeholder="Enter your name"
+                          value={formData.name}
+                          onChange={e => setFormData({...formData, name: e.target.value})}
+                          className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 rounded-xl border border-gray-200 focus:bg-bg-surface focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] outline-none text-[13px] transition-all"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-span-1">
+                      <label className="block text-[12px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Email Address</label>
+                      <div className="relative flex items-center">
+                        <Mail size={16} className="absolute left-4 text-gray-400" />
+                        <input
+                          type="email"
+                          placeholder="name@example.com"
+                          value={formData.email}
+                          onChange={e => setFormData({...formData, email: e.target.value})}
+                          className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 rounded-xl border border-gray-200 focus:bg-bg-surface focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] outline-none text-[13px] transition-all"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+                <div className="col-span-1">
+                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Phone Number</label>
+                  <div className="relative flex items-center">
+                    <Phone size={16} className="absolute left-4 text-gray-400" />
+                    <input
+                      type="tel"
+                      placeholder="Enter mobile number"
+                      value={formData.phone}
+                      onChange={e => setFormData({...formData, phone: e.target.value})}
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 rounded-xl border border-gray-200 focus:bg-bg-surface focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] outline-none text-[13px] transition-all"
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {!isLogin && (
-              <div className="col-span-1">
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Phone Number</label>
-                <div className="relative flex items-center">
-                  <Phone size={16} className="absolute left-4 text-gray-400" />
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    value={formData.phone}
-                    onChange={e => setFormData({...formData, phone: e.target.value})}
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 rounded-xl border border-gray-200 focus:bg-bg-surface focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] outline-none text-[13px] transition-all"
-                  />
+                <div className="col-span-1 pt-2">
+                  <p className="text-[11px] text-gray-500 mb-4">
+                    By continuing, I agree to <a href="#" className="text-[#D4527A] font-semibold hover:underline">Terms of use</a> and <a href="#" className="text-[#D4527A] font-semibold hover:underline">Privacy Policy</a>
+                  </p>
+                  
+                  <button type="submit" disabled={isSubmitting} className="w-full py-3 bg-[#E5E5E5] hover:bg-[#D4527A] text-gray-500 hover:text-white font-semibold rounded-full transition-all duration-300 text-[14px] flex justify-center items-center">
+                    {isSubmitting ? 'Sending OTP...' : 'Send OTP'}
+                  </button>
                 </div>
-              </div>
-            )}
-
-            <div className="col-span-1 sm:col-span-2">
-              <label className="block text-[12px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Email Address</label>
-              <div className="relative flex items-center">
-                <Mail size={16} className="absolute left-4 text-gray-400" />
-                <input
-                  type="email"
-                  placeholder="name@example.com"
-                  value={formData.email}
-                  onChange={e => setFormData({...formData, email: e.target.value})}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 rounded-xl border border-gray-200 focus:bg-bg-surface focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] outline-none text-[13px] transition-all"
-                />
-              </div>
-            </div>
-
-            <div className={!isLogin ? "col-span-1" : "col-span-1 sm:col-span-2"}>
-              <label className="block text-[12px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Password</label>
-              <div className="relative flex items-center">
-                <Lock size={16} className="absolute left-4 text-gray-400" />
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={e => setFormData({...formData, password: e.target.value})}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 rounded-xl border border-gray-200 focus:bg-bg-surface focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] outline-none text-[13px] transition-all"
-                />
-              </div>
-            </div>
-
-            {!isLogin && (
-              <div className="col-span-1">
-                <label className="block text-[12px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Confirm Password</label>
-                <div className="relative flex items-center">
-                  <Lock size={16} className="absolute left-4 text-gray-400" />
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={formData.confirmPassword}
-                    onChange={e => setFormData({...formData, confirmPassword: e.target.value})}
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 rounded-xl border border-gray-200 focus:bg-bg-surface focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] outline-none text-[13px] transition-all"
-                  />
+              </>
+            ) : (
+              <>
+                <div className="col-span-1">
+                  <div className="mb-4">
+                    <p className="text-[13px] text-gray-600">Enter the 4-digit OTP sent to <span className="font-semibold text-gray-900">{formData.phone}</span></p>
+                    <button type="button" onClick={() => setAuthStep('PHONE')} className="text-[#D4527A] text-[12px] hover:underline mt-1 font-medium">Change Phone Number</button>
+                  </div>
+                  
+                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider">One Time Password</label>
+                  <div className="relative flex items-center">
+                    <Lock size={16} className="absolute left-4 text-gray-400" />
+                    <input
+                      type="text"
+                      maxLength={4}
+                      placeholder="1 2 3 4"
+                      value={formData.otp}
+                      onChange={e => setFormData({...formData, otp: e.target.value})}
+                      className="w-full pl-10 pr-4 py-2.5 tracking-[0.5em] font-bold text-center bg-gray-50/50 rounded-xl border border-gray-200 focus:bg-bg-surface focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] outline-none text-[16px] transition-all"
+                    />
+                  </div>
+                  <p className="text-[11px] text-gray-500 mt-2 text-center">For testing, use <span className="font-bold text-gray-800">1234</span></p>
                 </div>
-              </div>
-            )}
 
-            {isLogin && (
-              <div className="col-span-1 sm:col-span-2 flex items-center justify-between mt-1">
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#B94B68] focus:ring-[#B94B68] accent-[#B94B68] cursor-pointer" />
-                  <span className="text-[14px] text-gray-600 group-hover:text-gray-900">Remember Me</span>
-                </label>
-                <a href="#" className="text-[14px] text-gray-500 hover:text-[#B94B68] hover:underline transition-colors">Forgot Password?</a>
-              </div>
+                <div className="col-span-1 pt-2">
+                  <button type="submit" disabled={isSubmitting} className="w-full py-3 bg-[#1A1A1A] hover:bg-[#D4527A] text-white font-semibold rounded-full transition-all duration-300 text-[14px] flex justify-center items-center shadow-md">
+                    {isSubmitting ? 'Verifying...' : 'Verify & Continue'}
+                  </button>
+                  <div className="mt-4 text-center">
+                    <button type="button" onClick={() => requestOtp(formData.phone, !isLogin)} className="text-[12px] text-gray-500 hover:text-[#D4527A] transition-colors font-medium">Resend OTP</button>
+                  </div>
+                </div>
+              </>
             )}
-
-            <div className="col-span-1 sm:col-span-2 pt-2">
-              <p className="text-[11px] text-gray-500 mb-4">
-                By continuing, I agree to <a href="#" className="text-[#D4527A] font-semibold hover:underline">Terms of use</a> and <a href="#" className="text-[#D4527A] font-semibold hover:underline">Privacy Policy</a>
-              </p>
-              
-              <button type="submit" className="w-full py-3 bg-[#E5E5E5] hover:bg-[#D4527A] text-gray-500 hover:text-white font-semibold rounded-full transition-all duration-300 text-[14px]">
-                Continue
-              </button>
-            </div>
           </form>
         </div>
       </motion.div>

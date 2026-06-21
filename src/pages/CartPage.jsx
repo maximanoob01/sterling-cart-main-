@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Minus, Plus, X, Trash2, ShoppingBag, Shield, ChevronRight, Home, Heart, Star } from 'lucide-react';
+import { Minus, Plus, X, Trash2, ShoppingBag, Shield, ChevronRight, Home, Heart, Star, Scale } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { getItemPrice } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { products } from '../data/products';
 import { coupons } from '../data/orders';
-import { formatPrice, calculateDiscount } from '../utils/formatPrice';
+import { calculateDiscount } from '../utils/formatPrice';
 import { useState } from 'react';
+import { useCurrency } from '../context/CurrencyContext';
+import FreeDeliveryBar from '../components/cart/FreeDeliveryBar';
 
 /* ─────────────────────────  STAR RATING HELPER  ───────────────────────── */
 const StarRating = ({ rating, size = 14 }) => (
@@ -25,6 +28,7 @@ const StarRating = ({ rating, size = 14 }) => (
 const ProductCard = ({ product }) => {
   const { addItem } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
+  const { formatPrice } = useCurrency();
   const discount = calculateDiscount(product.price, product.mrp);
   const wishlisted = isWishlisted(product.id);
 
@@ -99,6 +103,7 @@ const ProductCard = ({ product }) => {
 export default function CartPage() {
   const { items, updateQuantity, removeItem, totalItems, subtotal, discount, shipping, gst, totalAmount, applyCoupon, removeCoupon, coupon } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
+  const { formatPrice } = useCurrency();
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
   const [itemToRemove, setItemToRemove] = useState(null);
@@ -171,6 +176,10 @@ export default function CartPage() {
           {/* Cart Items */}
           <div className="lg:w-[62%]">
             <div className="glass-panel rounded-[32px] p-[20px] md:p-[32px] border border-white/60 shadow-lg">
+              {/* Free Delivery Progress Banner */}
+              <div className="mb-6">
+                <FreeDeliveryBar subtotal={subtotal} threshold={2499} />
+              </div>
               {items.map((item, index) => (
                 <div key={`${item.id}-${item.selectedSize}-${index}`} className="flex gap-[20px] md:gap-[28px] py-[28px] border-b border-[#E8DDD5] last:border-b-0 last:pb-0 first:pt-0 relative group">
                   <Link to={`/product/${item.id}`} className="w-[90px] h-[90px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px] shrink-0 bg-[#F7F5F4] rounded-[20px] overflow-hidden border border-white/50 shadow-sm">
@@ -186,10 +195,20 @@ export default function CartPage() {
                           {item.stoneType && item.stoneType !== 'No Stone' && <span className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-[#D4527A]/40"/> {item.stoneType}</span>}
                           {item.selectedSize && <span className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-[#D4527A]/40"/> Size: {item.selectedSize}</span>}
                         </div>
-                        <p className="font-sans text-[14px] text-text-muted mt-[8px] italic">{formatPrice(item.price)} each</p>
+                        {item.pricingType === 'weight' ? (
+                          <div className="mt-2 space-y-0.5">
+                            <p className="text-[12px] text-text-muted italic flex items-center gap-1">
+                              <Scale size={11} className="text-[#D4527A]" />
+                              Weight-based: {item.weightGrams}g silver + making charges
+                            </p>
+                            <p className="text-[12px] font-semibold text-[#D4527A]">{formatPrice(getItemPrice(item))} each <span className="text-[10px] font-normal text-text-muted">(+3% GST at checkout)</span></p>
+                          </div>
+                        ) : (
+                          <p className="font-sans text-[14px] text-text-muted mt-[8px] italic">{formatPrice(getItemPrice(item))} each <span className="text-[10px]">(+3% GST at checkout)</span></p>
+                        )}
                       </div>
                       <div className="font-sans font-semibold text-text-main text-[18px] md:text-[22px] shrink-0 sm:text-right">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(getItemPrice(item) * item.quantity)}
                       </div>
                     </div>
                     
@@ -213,6 +232,20 @@ export default function CartPage() {
                 </div>
               ))}
             </div>
+
+            {/* International Payments Banner */}
+            <div className="mt-6 glass-panel rounded-[24px] border border-white/60 p-[20px] shadow-sm flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-[#D4527A]/10 flex items-center justify-center shrink-0 border border-[#D4527A]/20">
+                <span className="text-[20px]">🌍</span>
+              </div>
+              <div>
+                <h4 className="font-serif text-[16px] text-text-main font-semibold mb-1">International Payments Accepted</h4>
+                <p className="font-sans text-[13px] text-text-muted leading-relaxed">
+                  We accept Visa, Mastercard, American Express, and other major international cards. Customers worldwide can securely pay in <span className="font-bold text-[#D4527A]">USD</span>.
+                </p>
+              </div>
+            </div>
+
           </div>
 
           {/* Order Summary */}
@@ -261,11 +294,15 @@ export default function CartPage() {
                   </div>
                 )}
                 <div className="flex justify-between items-center">
-                  <span className="text-text-muted">Shipping</span>
-                  <span className="font-medium text-text-main">{shipping === 0 ? 'Complimentary' : formatPrice(shipping)}</span>
+                   <span className="text-text-muted">Shipping</span>
+                   <span className="font-medium text-text-main">
+                     {shipping === 0
+                       ? <span className="text-[#D4527A] font-semibold text-[12px]">FREE ✓</span>
+                       : <>{formatPrice(shipping)} <span className="text-[11px] text-text-muted">(free above ₹2,499)</span></>}
+                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-text-muted">GST (18%)</span>
+                  <span className="text-text-muted">GST (3%)</span>
                   <span className="font-medium text-text-main">{formatPrice(gst)}</span>
                 </div>
               </div>
@@ -275,6 +312,11 @@ export default function CartPage() {
                 <span className="font-sans text-[28px] font-semibold text-text-main">{formatPrice(totalAmount)}</span>
               </div>
               
+              {/* Free Delivery Progress — compact */}
+              <div className="mb-[24px] relative z-10">
+                <FreeDeliveryBar subtotal={subtotal} threshold={2499} compact />
+              </div>
+
               <Link to="/checkout" className="flex items-center justify-center w-full h-[60px] rounded-full bg-[#D4527A] text-white text-[13px] font-bold uppercase tracking-[1.5px] hover:bg-[#B94B68] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 relative z-10">
                 Proceed to Checkout
               </Link>
