@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Award, Check, ChevronRight, Heart, Home, Lock, MapPin, Minus, PackageCheck,
-  Plus, RotateCcw, Ruler, Share2, ShieldCheck, Shield, Globe, ShoppingCart, Star, Truck, X, ZoomIn,
+  Award, Check, ChevronRight, Heart, Home, MapPin, PackageCheck,
+  Ruler, Share2, Shield, Globe, Star, X, ZoomIn,
   Sparkles, ShoppingBag, Scale, Wrench, IndianRupee,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -20,15 +20,6 @@ const loveMetrics = [
   ['Value for money', 91],
   ['Unboxing experience', 95],
   ['Product variety', 94],
-];
-
-const promises = [
-  [ShieldCheck, 'BIS Hallmarked', 'Authentic 925 sterling silver'],
-  [RotateCcw, 'Easy Returns', '7-day return window'],
-  [Truck, 'Free Shipping', 'On orders above ₹2,499'],
-  [Award, 'Quality Checked', 'Inspected before dispatch'],
-  [Lock, 'Secure Payment', 'Protected checkout'],
-  [PackageCheck, 'Gift-Ready', 'Packed with care'],
 ];
 
 /* ── helpers ─────────────────────────────────────────────────────────── */
@@ -174,17 +165,18 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
-  const { formatPrice, currency } = useCurrency();
-  const [product, setProduct] = useState(getProductById(id));
+  const { formatPrice } = useCurrency();
+  const [product] = useState(getProductById(id));
   const relatedProducts = product ? getRelatedProducts(product, 4) : [];
 
   const [mainImage, setMainImage] = useState(product?.images[0] || '');
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || null);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity] = useState(1);
   const [pincode, setPincode] = useState('');
   const [deliveryMessage, setDeliveryMessage] = useState('');
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [isProductDetailsOpen, setIsProductDetailsOpen] = useState(false);
 
   if (!product) {
     return (
@@ -216,35 +208,35 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary pb-24 sm:pb-10">
+    <div className="min-h-screen overflow-x-hidden bg-bg-primary pb-24 sm:pb-10">
 
       {/* ── Breadcrumb ── */}
-      <div className="border-b border-[#F1E7E9] bg-gradient-to-r from-[#FFF0F5] to-[#FDF8FA] px-4 py-3 md:px-8">
-        <nav className="mx-auto flex max-w-[1320px] flex-wrap items-center gap-2 text-[11px] text-text-muted">
+      <div className="overflow-hidden border-b border-[#F1E7E9] bg-gradient-to-r from-[#FFF0F5] to-[#FDF8FA] px-4 py-3 md:px-8">
+        <nav className="mx-auto flex max-w-[1320px] flex-nowrap items-center gap-1.5 overflow-hidden text-[10px] text-text-muted sm:gap-2 sm:text-[11px]">
           <Link to="/" className="flex items-center gap-1 hover:text-[#D4527A] transition-colors"><Home size={12} /> Home</Link>
           <ChevronRight size={10} className="text-[#D9C5C9]" />
           <Link to="/shop" className="hover:text-[#D4527A] transition-colors">Shop</Link>
           <ChevronRight size={10} className="text-[#D9C5C9]" />
-          <Link to={`/shop?category=${product.category}`} className="capitalize hover:text-[#D4527A] transition-colors">{product.category}</Link>
+          <Link to={`/shop?category=${product.category}`} className="shrink-0 capitalize hover:text-[#D4527A] transition-colors">{product.category}</Link>
           <ChevronRight size={10} className="text-[#D9C5C9]" />
-          <span className="max-w-[200px] truncate font-semibold text-[#D4527A]">{product.name}</span>
+          <span className="min-w-0 truncate font-semibold text-[#D4527A]">{product.name}</span>
         </nav>
       </div>
 
-      <main className="mx-auto max-w-[1320px] px-4 py-8 md:px-8 md:py-12">
+      <main className="mx-auto w-full max-w-[1320px] overflow-hidden px-4 py-6 md:px-8 md:py-12">
 
         {/* ── Product Section ── */}
         <section className="grid items-start gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
 
           {/* ── Image Gallery ── */}
-          <div className="flex flex-col-reverse gap-3 md:flex-row md:gap-4">
+          <div className="min-w-0 overflow-hidden flex flex-col-reverse gap-3 md:flex-row md:gap-4">
             {/* Thumbnails */}
-            <div className="flex gap-2 overflow-x-auto md:flex-col md:overflow-visible md:gap-3 shrink-0">
+            <div className="flex max-w-full gap-2 overflow-x-auto pb-1 md:flex-col md:overflow-visible md:gap-3 md:pb-0 shrink-0">
               {product.images.map((img, idx) => (
                 <button
                   key={`${img}-${idx}`}
                   onClick={() => setMainImage(img)}
-                  className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-200 md:h-[72px] md:w-[72px] ${
+                  className={`h-14 w-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-200 sm:h-16 sm:w-16 md:h-[72px] md:w-[72px] ${
                     mainImage === img
                       ? 'border-[#D4527A] shadow-[0_0_0_3px_rgba(212,82,122,0.15)]'
                       : 'border-transparent hover:border-[#F4A0B0] opacity-70 hover:opacity-100'
@@ -265,7 +257,7 @@ export default function ProductDetailPage() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.25 }}
                   onClick={() => setIsZoomOpen(true)}
-                  className="group relative block w-full overflow-hidden rounded-3xl bg-[#FAF8F7] aspect-[4/5]"
+                  className="group relative block w-full overflow-hidden rounded-2xl bg-[#FAF8F7] aspect-[4/5] sm:rounded-3xl"
                   aria-label="Zoom image"
                 >
                   <img
@@ -290,21 +282,21 @@ export default function ProductDetailPage() {
           </div>
 
           {/* ── Product Info ── */}
-          <div className="flex flex-col gap-0">
+          <div className="min-w-0 flex flex-col gap-0">
 
             {/* Header row */}
-            <div className="flex items-start justify-between gap-4">
-              <div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div className="min-w-0">
                 {product.badge && (
                   <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#FFF0F5] border border-[#F4A0B0]/40 px-3 py-1">
                     <Sparkles size={10} className="text-[#D4527A]" />
                     <span className="text-[10px] font-bold uppercase tracking-[1.5px] text-[#D4527A]">{product.badge}</span>
                   </div>
                 )}
-                <h1 className="font-serif text-[24px] leading-[1.2] md:text-[32px] lg:text-[38px] text-text-main">{product.name}</h1>
+                <h1 className="break-words font-serif text-[23px] leading-[1.18] md:text-[32px] lg:text-[38px] text-text-main">{product.name}</h1>
                 <p className="mt-1.5 text-[11px] text-text-muted tracking-[0.3px]">Design code: <span className="font-medium">{product.sku}</span></p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <button
                   onClick={() => toggleItem(product)}
                   className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-2 text-[11px] font-semibold shadow-sm transition-all ${
@@ -334,7 +326,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Price */}
-            <div className="mt-5 rounded-2xl bg-gradient-to-br from-[#FFF0F5] to-[#FDF5F8] border border-[#F4A0B0]/20 p-4">
+            <div className="mt-5 rounded-2xl bg-gradient-to-br from-[#FFF0F5] to-[#FDF5F8] border border-[#F4A0B0]/20 p-3.5 sm:p-4">
               {product.pricingType === 'weight' ? (
                 <>
                   {/* Weight-based: show live breakdown */}
@@ -344,7 +336,7 @@ export default function ProductDetailPage() {
                     </span>
                     <span className="mb-0.5 rounded-full bg-[#1C1C2E]/90 text-white px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.8px]">+ 3% GST</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="grid grid-cols-1 gap-2 text-center min-[380px]:grid-cols-3">
                     <div className="rounded-xl bg-white/70 border border-[#F4A0B0]/30 px-2 py-2">
                       <p className="flex items-center justify-center gap-0.5 text-[9px] font-bold uppercase tracking-[1px] text-[#D4527A] mb-1"><Scale size={10} />Silver</p>
                       <p className="text-[13px] font-semibold text-text-main">{formatPrice(SILVER_RATE_PER_GRAM)}/g</p>
@@ -368,7 +360,7 @@ export default function ProductDetailPage() {
               ) : (
                 <>
                   <div className="flex flex-wrap items-end gap-2">
-                    <span className="font-serif text-[32px] font-medium text-text-main leading-none">{formatPrice(product.price)}</span>
+                    <span className="font-serif text-[28px] font-medium text-text-main leading-none sm:text-[32px]">{formatPrice(product.price)}</span>
                     {discount > 0 && (
                       <>
                         <span className="text-[15px] text-text-muted line-through mb-0.5">{formatPrice(product.mrp)}</span>
@@ -438,16 +430,16 @@ export default function ProductDetailPage() {
             </div>
 
             {/* CTA buttons */}
-            <div className="mt-5 flex gap-3 h-[46px]">
+            <div className="mt-5 flex h-auto flex-col gap-2.5 sm:h-[46px] sm:flex-row sm:gap-3">
               <button
                 onClick={addToCart}
-                className="flex-1 flex items-center justify-center border border-[#D4527A] text-[#D4527A] font-bold text-[12px] tracking-[1.5px] uppercase hover:bg-[#FFF0F5] transition-colors rounded-full"
+                className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-[#D4527A] text-[11px] font-bold uppercase tracking-[1.1px] text-[#D4527A] transition-colors hover:bg-[#FFF0F5] sm:text-[12px] sm:tracking-[1.5px]"
               >
                 Add to cart
               </button>
               <button
                 onClick={buyNow}
-                className="flex-[1.5] flex items-center justify-center gap-2 bg-[#D4527A] text-white font-bold text-[12px] tracking-[1.5px] uppercase hover:bg-[#B94B68] transition-colors rounded-full shadow-[0_4px_20px_rgba(212,82,122,0.3)]"
+                className="flex min-h-11 flex-[1.5] items-center justify-center gap-2 rounded-full bg-[#D4527A] text-[11px] font-bold uppercase tracking-[1.1px] text-white shadow-[0_4px_20px_rgba(212,82,122,0.3)] transition-colors hover:bg-[#B94B68] sm:text-[12px] sm:tracking-[1.5px]"
               >
                 Buy now <ChevronRight size={14} />
               </button>
@@ -465,48 +457,48 @@ export default function ProductDetailPage() {
             </div>
 
             {/* 5 Promises */}
-            <div className="mt-8 grid grid-cols-5 gap-2 text-center pb-6 border-b border-[#F0E8EA]">
+            <div className="mt-8 grid grid-cols-3 gap-3 text-center pb-6 border-b border-[#F0E8EA] min-[430px]:grid-cols-5">
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><Award size={18} strokeWidth={1.5} /></div>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><Award size={16} strokeWidth={1.5} /></div>
                 <p className="text-[9px] font-semibold text-[#B94B68] uppercase tracking-wide leading-tight mb-1">Timeless<br/>Assurance</p>
                 <p className="text-[9px] text-text-muted leading-[1.2]">Lifetime Trade &<br/>Upgrade</p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><Shield size={18} strokeWidth={1.5} /></div>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><Shield size={16} strokeWidth={1.5} /></div>
                 <p className="text-[9px] font-semibold text-[#B94B68] uppercase tracking-wide leading-tight mb-1">One year<br/>Promise</p>
                 <p className="text-[9px] text-text-muted leading-[1.2]">Warranty & Premium<br/>Care</p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><Heart size={18} strokeWidth={1.5} /></div>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><Heart size={16} strokeWidth={1.5} /></div>
                 <p className="text-[9px] font-semibold text-[#B94B68] uppercase tracking-wide leading-tight mb-1">Authenticity<br/>Assured</p>
                 <p className="text-[9px] text-text-muted leading-[1.2]">100% Certified &<br/>Genuine</p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><Sparkles size={18} strokeWidth={1.5} /></div>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><Sparkles size={16} strokeWidth={1.5} /></div>
                 <p className="text-[9px] font-semibold text-[#B94B68] uppercase tracking-wide leading-tight mb-1">BIS<br/>Hallmarked</p>
                 <p className="text-[9px] text-text-muted leading-[1.2]">Authentic 925<br/>sterling silver</p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><PackageCheck size={18} strokeWidth={1.5} /></div>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><PackageCheck size={16} strokeWidth={1.5} /></div>
                 <p className="text-[9px] font-semibold text-[#B94B68] uppercase tracking-wide leading-tight mb-1">Gift-<br/>Ready</p>
                 <p className="text-[9px] text-text-muted leading-[1.2]">Packed with<br/>care</p>
               </div>
             </div>
 
             {/* Offer strip */}
-            <div className="mt-4 flex items-center gap-4 rounded-2xl border border-dashed border-[#F4A0B0]/60 bg-gradient-to-r from-[#FFF0F5] to-[#FDF8FA] p-4">
+            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-dashed border-[#F4A0B0]/60 bg-gradient-to-r from-[#FFF0F5] to-[#FDF8FA] p-3.5 sm:gap-4 sm:p-4">
               <div className="flex-1">
                 <p className="text-[9px] font-bold uppercase tracking-[1.5px] text-[#D4527A] mb-1">Available offer</p>
                 <p className="text-[15px] font-semibold text-text-main">Flat ₹500 off</p>
                 <p className="text-[11px] text-text-muted mt-0.5">On your first purchase</p>
               </div>
-              <span className="rounded-xl border border-dashed border-[#D4527A]/40 bg-white px-3 py-2 text-[13px] font-bold tracking-[1px] text-[#D4527A]">SK500</span>
+              <span className="shrink-0 rounded-xl border border-dashed border-[#D4527A]/40 bg-white px-3 py-2 text-[12px] font-bold tracking-[1px] text-[#D4527A] sm:text-[13px]">SK500</span>
             </div>
 
             {/* Delivery check */}
             <div className="mt-4 rounded-2xl border border-[#F0E8EA] bg-bg-surface p-4">
               <h2 className="text-[11px] font-bold uppercase tracking-[1.2px] text-text-main mb-3">Check delivery</h2>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-2 sm:flex">
                 <div className="flex h-11 items-center gap-1.5 rounded-full border border-[#F0E8EA] bg-[#FFF0F5] px-3 text-[12px] font-bold text-[#D4527A] shrink-0">
                   <MapPin size={13} /> IN
                 </div>
@@ -518,7 +510,7 @@ export default function ProductDetailPage() {
                 />
                 <button
                   onClick={checkDelivery}
-                  className="shrink-0 rounded-full bg-[#1C1C2E] px-4 text-[11px] font-bold uppercase tracking-[0.8px] text-white hover:bg-[#2C2C3E] transition-colors"
+                  className="col-span-2 min-h-11 shrink-0 rounded-full bg-[#1C1C2E] px-4 text-[11px] font-bold uppercase tracking-[0.8px] text-white transition-colors hover:bg-[#2C2C3E] sm:col-span-1"
                 >
                   Check
                 </button>
@@ -536,7 +528,7 @@ export default function ProductDetailPage() {
         {/* ── Customer love + Promises ── */}
         <section className="mt-10 md:mt-14 grid gap-5 lg:grid-cols-2">
           {/* Customer love */}
-          <div className="rounded-3xl border border-[#F0E8EA] bg-bg-surface p-6 md:p-7">
+          <div className="rounded-2xl border border-[#F0E8EA] bg-bg-surface p-4 md:rounded-3xl md:p-7">
             <SectionLabel>Customer confidence</SectionLabel>
             <h2 className="font-serif text-[22px] md:text-[26px] text-text-main">What customers love</h2>
             <div className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -560,32 +552,62 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Product details (Replaced Promises) */}
-          <div className="rounded-3xl border border-[#F0E8EA] bg-bg-surface p-6 md:p-7 flex flex-col">
-            <SectionLabel>Explore the story</SectionLabel>
-            <h2 className="font-serif text-[22px] md:text-[26px] text-text-main">Product details</h2>
-            <p className="mt-4 text-[13px] leading-[1.85] text-text-muted">{product.description}</p>
-            <div className="mt-7 grid gap-6 border-t border-[#F0E8EA] pt-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              <DetailGroup title="General" items={[
-                ['Design code', product.sku],
-                ['Category', product.category],
-                ['Occasion', product.occasion],
-                ['Style', product.style],
-              ]} />
-              <DetailGroup title="Silver details" items={[
-                ['Material', product.metal],
-                ['Purity', '925 sterling silver'],
-                ['Finish', product.metal.includes('Oxidized') ? 'Oxidized' : 'High polish'],
-                ['Approx. weight', `${(3.5 + product.id % 6).toFixed(1)}g`],
-              ]} />
-            </div>
+          {/* Product details */}
+          <div className="rounded-2xl border border-[#F0E8EA] bg-bg-surface p-4 md:rounded-3xl md:p-7">
+            <button
+              type="button"
+              onClick={() => setIsProductDetailsOpen((isOpen) => !isOpen)}
+              className="flex w-full items-center justify-between gap-4 text-left"
+              aria-expanded={isProductDetailsOpen}
+              aria-controls="product-details-dropdown"
+            >
+              <span>
+                <span className="mb-2 block text-[10px] font-bold uppercase tracking-[2px] text-[#D4527A]">Explore the story</span>
+                <span className="block font-serif text-[22px] text-text-main md:text-[26px]">Product details</span>
+              </span>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#F0E8EA] bg-[#FFF8FA] text-[#D4527A] transition-colors">
+                <ChevronRight
+                  size={18}
+                  className={`transition-transform duration-300 ${isProductDetailsOpen ? 'rotate-90' : ''}`}
+                />
+              </span>
+            </button>
+
+            <AnimatePresence initial={false}>
+              {isProductDetailsOpen && (
+                <motion.div
+                  id="product-details-dropdown"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  className="overflow-hidden"
+                >
+                  <p className="mt-4 text-[13px] leading-[1.85] text-text-muted">{product.description}</p>
+                  <div className="mt-7 grid gap-6 border-t border-[#F0E8EA] pt-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                    <DetailGroup title="General" items={[
+                      ['Design code', product.sku],
+                      ['Category', product.category],
+                      ['Occasion', product.occasion],
+                      ['Style', product.style],
+                    ]} />
+                    <DetailGroup title="Silver details" items={[
+                      ['Material', product.metal],
+                      ['Purity', '925 sterling silver'],
+                      ['Finish', product.metal.includes('Oxidized') ? 'Oxidized' : 'High polish'],
+                      ['Approx. weight', `${(3.5 + product.id % 6).toFixed(1)}g`],
+                    ]} />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </section>
 
         {/* ── Related products ── */}
         {relatedProducts.length > 0 && (
-          <section className="mt-14">
-            <div className="flex items-end justify-between mb-6">
+          <section className="mt-10 md:mt-14">
+            <div className="mb-5 flex items-end justify-between gap-4 md:mb-6">
               <div>
                 <SectionLabel>More to discover</SectionLabel>
                 <h2 className="font-serif text-[22px] md:text-[28px] text-text-main">You may also like</h2>
@@ -603,30 +625,6 @@ export default function ProductDetailPage() {
           </section>
         )}
       </main>
-
-      {/* ── Mobile sticky bar ── */}
-      <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-[#F0E8EA] bg-bg-surface/95 px-4 py-3 backdrop-blur-md sm:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-        <button
-          onClick={() => toggleItem(product)}
-          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            isWished ? 'border-[#D4527A] bg-[#FFF0F5] text-[#D4527A]' : 'border-[#E8E0E2] text-text-muted'
-          }`}
-        >
-          <Heart size={17} className={isWished ? 'fill-[#D4527A]' : ''} />
-        </button>
-        <button
-          onClick={addToCart}
-          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#1C1C2E] py-3 text-[12px] font-bold uppercase tracking-[1px] text-white"
-        >
-          <ShoppingCart size={15} /> Add to cart
-        </button>
-        <button
-          onClick={buyNow}
-          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#D4527A] to-[#B94B68] py-3 text-[12px] font-bold uppercase tracking-[1px] text-white"
-        >
-          Buy now
-        </button>
-      </div>
 
       <AnimatePresence>
         {isSizeGuideOpen && <RingSizeGuide onClose={() => setIsSizeGuideOpen(false)} />}

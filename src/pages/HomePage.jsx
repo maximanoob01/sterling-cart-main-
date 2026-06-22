@@ -1,15 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Award, ChevronLeft, ChevronRight, Heart, Pause, Play, RotateCcw, Shield, ShoppingCart, Star, Truck } from 'lucide-react';
+import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck } from 'lucide-react';
 import MagneticButton from '../components/ui/MagneticButton';
 import CircularGallery from '../components/ui/CircularGallery';
-import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
 import { categories, products } from '../data/products';
 import { testimonials } from '../data/orders';
-import { calculateDiscount } from '../utils/formatPrice';
-import { useCurrency } from '../context/CurrencyContext';
 import heroLifestyle1 from '../assets/images/hero_lifestyle_1.png';
 import heroLifestyle2 from '../assets/images/hero_lifestyle_2.png';
 import heroLifestyle3 from '../assets/images/hero_lifestyle_3.png';
@@ -32,11 +28,6 @@ import productRing1 from '../assets/images/product_ring_1.png';
 import productNecklace1 from '../assets/images/product_necklace_1.png';
 import productEarring1 from '../assets/images/product_earring_1.png';
 import productBangle1 from '../assets/images/product_bangle_1.png';
-
-const fadeIn = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
-};
 
 const occasions = [
   ['Everyday', 'everyday'],
@@ -101,52 +92,11 @@ function StarRating({ rating, size = 13 }) {
   );
 }
 
-function ProductCard({ product }) {
-  const { addItem } = useCart();
-  const { toggleItem, isWishlisted } = useWishlist();
-  const { formatPrice } = useCurrency();
-  const wishlisted = isWishlisted(product.id);
-  const discount = calculateDiscount(product.price, product.mrp);
-
-  return (
-    <motion.article variants={fadeIn} className="group overflow-hidden rounded-[20px] glass-card transition-all duration-500 hover:-translate-y-1 hover:shadow-product">
-      <div className="relative overflow-hidden bg-transparent p-2 md:p-2.5">
-        <div className="relative overflow-hidden rounded-[14px]">
-          {product.badge && <span className="absolute left-3 top-3 z-10 rounded-full glass-dark px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[1px] text-white shadow-sm">{product.badge}</span>}
-          <button onClick={() => toggleItem(product)} className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full glass text-text-main shadow-sm transition-all hover:bg-white hover:text-[#D4527A]" aria-label="Toggle wishlist">
-            <Heart size={16} className={wishlisted ? 'fill-[#D4527A] text-[#D4527A]' : ''} />
-          </button>
-          <Link to={`/product/${product.slug}`} className="block aspect-[4/5]">
-            <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]" loading="lazy" />
-          </Link>
-        </div>
-      </div>
-      <div className="p-4 md:p-5 pt-1 md:pt-2">
-        <Link to={`/product/${product.slug}`} className="block min-h-[42px] text-[13px] md:text-[15px] font-serif tracking-wide leading-tight text-text-main transition-colors hover:text-[#D4527A]">{product.name}</Link>
-        <div className="mt-2 flex items-center gap-2">
-          <StarRating rating={product.rating} size={12} />
-          <span className="text-[11px] text-text-muted font-medium">({product.reviewCount})</span>
-        </div>
-        <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="text-[15px] md:text-[17px] font-serif font-medium">{formatPrice(product.price)}</span>
-          {product.mrp > product.price && <span className="text-[12px] text-text-muted line-through">{formatPrice(product.mrp)}</span>}
-          {discount > 0 && <span className="text-[10px] font-semibold uppercase tracking-wider text-[#D4527A]">{discount}% off</span>}
-        </div>
-        <div className="mt-5">
-          <button onClick={() => addItem(product)} className="group flex h-[42px] w-full items-center justify-center gap-2 rounded-full glass-dark text-[11px] font-bold uppercase tracking-[1.5px] text-white transition-all hover:bg-[#1A1A1A] hover:shadow-lg">
-            <ShoppingCart size={15} className="transition-transform group-hover:scale-110" /> Add to cart
-          </button>
-        </div>
-      </div>
-    </motion.article>
-  );
-}
-
 function CategorySlideCard({ category, slideIndex }) {
   return (
-    <Link to={`/shop?category=${category.id}`} className="group flex flex-col items-center p-2">
+    <Link to={`/shop?category=${category.id}`} className="group flex flex-col items-center p-1.5 md:p-2">
       {/* Circular Image Container with Liquid Glass Ring */}
-      <div className="relative aspect-square w-full max-w-[130px] md:max-w-[150px] overflow-hidden rounded-full bg-bg-alt shadow-sm ring-[4px] ring-white/60 group-hover:ring-[#D4527A]/20 group-hover:shadow-[0_8px_30px_rgba(212,82,122,0.15)] transition-all duration-700 mb-4 md:mb-5">
+      <div className="relative aspect-square w-full max-w-[104px] sm:max-w-[120px] md:max-w-[150px] overflow-hidden rounded-full bg-bg-alt shadow-sm ring-[3px] ring-white/60 group-hover:ring-[#D4527A]/20 group-hover:shadow-[0_8px_30px_rgba(212,82,122,0.15)] transition-all duration-700 mb-3 md:mb-5">
         {/* Subtle glass overlay border */}
         <div className="absolute inset-0 rounded-full border border-white/40 z-10 pointer-events-none" />
         
@@ -164,7 +114,7 @@ function CategorySlideCard({ category, slideIndex }) {
       </div>
 
       {/* Typography & Indicators below the circle */}
-      <h3 className="font-serif text-[17px] md:text-[20px] tracking-wide text-text-main group-hover:text-[#D4527A] transition-colors duration-300 text-center">
+      <h3 className="font-serif text-[14px] sm:text-[16px] md:text-[20px] tracking-wide text-text-main group-hover:text-[#D4527A] transition-colors duration-300 text-center">
         {category.name}
       </h3>
       
@@ -180,14 +130,14 @@ function CategorySlideCard({ category, slideIndex }) {
 
 function MinimalProductCard({ product }) {
   return (
-    <Link to={`/product/${product.slug}`} className="group block overflow-hidden rounded-[20px] glass-card transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(212,82,122,0.15)] bg-white/40">
+    <Link to={`/product/${product.slug}`} className="group block overflow-hidden rounded-[14px] glass-card transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(212,82,122,0.15)] bg-white/40 md:rounded-[20px]">
       <div className="relative overflow-hidden aspect-[4/5] bg-transparent">
-        {product.badge && <span className="absolute left-3 top-3 z-10 rounded-full glass-dark px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[1px] text-white shadow-sm">{product.badge}</span>}
+        {product.badge && <span className="absolute left-2 top-2 z-10 rounded-full glass-dark px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.8px] text-white shadow-sm md:left-3 md:top-3 md:px-3 md:py-1.5 md:text-[9px] md:tracking-[1px]">{product.badge}</span>}
         <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.1]" loading="lazy" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
       </div>
-      <div className="p-4 md:p-5 text-center">
-        <h3 className="text-[14px] md:text-[16px] font-serif tracking-wide leading-tight text-text-main transition-colors group-hover:text-[#D4527A]">{product.name}</h3>
+      <div className="p-2.5 text-center md:p-5">
+        <h3 className="text-[12px] md:text-[16px] font-serif tracking-wide leading-tight text-text-main transition-colors group-hover:text-[#D4527A]">{product.name}</h3>
       </div>
     </Link>
   );
@@ -206,6 +156,7 @@ export default function HomePage() {
   const collageRef = useRef(null);
   const categoryScrollRef = useRef(null);
   const favoritesScrollRef = useRef(null);
+  const newArrivalsScrollRef = useRef(null);
 
   const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(heroScroll, [0, 1], ["0%", "25%"]);
@@ -257,8 +208,18 @@ export default function HomePage() {
     if (favoritesScrollRef.current) favoritesScrollRef.current.scrollBy({ left: 350, behavior: 'smooth' });
   };
 
+  const scrollNewArrivalsLeft = () => {
+    if (newArrivalsScrollRef.current) newArrivalsScrollRef.current.scrollBy({ left: -350, behavior: 'smooth' });
+  };
+  const scrollNewArrivalsRight = () => {
+    if (newArrivalsScrollRef.current) newArrivalsScrollRef.current.scrollBy({ left: 350, behavior: 'smooth' });
+  };
+
   const bestsellers = products
     .filter((product) => product.badge === 'Bestseller' || product.rating >= 4.6)
+    .slice(0, 12);
+  const newArrivals = products
+    .filter((product) => product.badge === 'New' || product.isNew)
     .slice(0, 12);
   const activeHeroSlide = heroSlides[heroIndex];
   const visibleTestimonials = testimonials.slice(testimonialIndex, testimonialIndex + testimonialCount);
@@ -276,7 +237,7 @@ export default function HomePage() {
     <div className="overflow-x-hidden bg-bg-primary bg-pattern-diamond">
       <section
         ref={heroRef}
-        className="relative isolate flex min-h-[100vh] items-center overflow-hidden bg-bg-alt"
+        className="relative isolate flex h-[345px] min-h-0 items-end overflow-hidden bg-bg-alt sm:h-[420px] md:h-auto md:min-h-[100vh] md:items-center"
         aria-label="Sterling Kart jewellery collections"
         aria-roledescription="carousel"
         onMouseEnter={() => setIsHeroHovered(true)}
@@ -291,9 +252,9 @@ export default function HomePage() {
             key={activeHeroSlide.image}
             src={activeHeroSlide.image}
             alt={activeHeroSlide.alt}
-            className="absolute inset-0 h-full w-full object-cover"
-            initial={{ opacity: 0, scale: 1.06 }}
-            animate={{ opacity: 1, scale: 1.06 }}
+            className="absolute inset-0 h-full w-full object-cover object-center sm:object-center"
+            initial={{ opacity: 0, scale: 1.02 }}
+            animate={{ opacity: 1, scale: 1.02 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.0, ease: 'easeOut' }}
             style={{ y: heroY }}
@@ -301,8 +262,8 @@ export default function HomePage() {
         </AnimatePresence>
 
         {/* Cinematic gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent md:from-black/70 md:via-black/30 md:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/10 md:from-black/60 md:via-transparent md:to-black/20" />
 
         {/* Bottom-right watermark */}
         <div className="absolute bottom-8 right-8 z-10 hidden md:block text-right pointer-events-none">
@@ -311,11 +272,11 @@ export default function HomePage() {
         </div>
 
         {/* Hero content — floats freely over the image */}
-        <div className="relative mx-auto w-full max-w-[1320px] px-6 pt-[160px] pb-20 md:px-10 md:pt-[190px] md:pb-28 z-10">
+        <div className="relative z-10 mx-auto w-full max-w-[1320px] px-4 pb-14 pt-20 sm:px-6 sm:pb-16 sm:pt-28 md:px-10 md:pb-28 md:pt-[190px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={heroIndex}
-              className="max-w-[580px]"
+              className="max-w-[260px] sm:max-w-[430px] md:max-w-[580px]"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
@@ -325,9 +286,9 @@ export default function HomePage() {
               {/* Eyebrow */}
               <motion.p
                 initial={{ opacity: 0, letterSpacing: '0.1em' }}
-                animate={{ opacity: 1, letterSpacing: '0.35em' }}
+                animate={{ opacity: 1, letterSpacing: '0.24em' }}
                 transition={{ duration: 0.9, ease: 'easeOut', delay: 0.05 }}
-                className="mb-5 text-[10px] font-semibold uppercase text-white/60 tracking-[0.35em] drop-shadow-md"
+                className="mb-2 text-[8px] font-semibold uppercase text-white/75 tracking-[0.2em] drop-shadow-md sm:text-[9px] md:mb-5 md:text-[10px] md:tracking-[0.35em]"
               >
                 {activeHeroSlide.eyebrow}
               </motion.p>
@@ -337,12 +298,12 @@ export default function HomePage() {
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: 48, opacity: 1 }}
                 transition={{ duration: 0.7, ease: 'easeOut', delay: 0.1 }}
-                className="mb-6 h-[1px] bg-gradient-to-r from-white/60 to-transparent"
+                className="mb-3 h-[1px] bg-gradient-to-r from-white/60 to-transparent md:mb-6"
               />
 
               {/* Title */}
               <h1
-                className="font-serif text-[42px] leading-[1.1] tracking-[-1.5px] text-white sm:text-[58px] md:text-[64px]"
+                className="font-serif text-[24px] leading-[1.08] text-white sm:text-[34px] md:text-[64px]"
                 style={{ textShadow: '0 2px 30px rgba(0,0,0,0.5)' }}
               >
                 {activeHeroSlide.title}
@@ -350,18 +311,18 @@ export default function HomePage() {
 
               {/* Description */}
               <p
-                className="mt-6 max-w-[400px] text-[14px] md:text-[15px] leading-relaxed text-white/65"
+                className="mt-2 max-w-[240px] text-[10px] leading-relaxed text-white/80 sm:mt-3 sm:max-w-[340px] sm:text-[12px] md:mt-6 md:max-w-[400px] md:text-[15px] md:text-white/65"
                 style={{ textShadow: '0 1px 8px rgba(0,0,0,0.4)' }}
               >
                 {activeHeroSlide.description}
               </p>
 
               {/* CTA buttons */}
-              <div className="mt-9 flex flex-wrap items-center gap-3">
+              <div className="mt-4 flex flex-row items-center gap-2 sm:gap-3 md:mt-9">
                 <MagneticButton>
                   <Link
                     to="/shop"
-                    className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-[11px] font-bold uppercase tracking-[2px] text-[#1A1A1A] shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-all hover:bg-white/90 hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] hover:-translate-y-0.5"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-[9px] font-bold uppercase tracking-[1px] text-[#1A1A1A] shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-all hover:bg-white/90 hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] hover:-translate-y-0.5 sm:px-5 sm:py-2.5 sm:text-[10px] md:px-8 md:py-3.5 md:text-[11px] md:tracking-[2px]"
                   >
                     Shop the collection
                   </Link>
@@ -369,7 +330,7 @@ export default function HomePage() {
                 <MagneticButton>
                   <Link
                     to="/shop?badge=New"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-8 py-3.5 text-[11px] font-bold uppercase tracking-[2px] text-white backdrop-blur-sm transition-all hover:bg-white/20 hover:border-white/60 hover:-translate-y-0.5"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-white/10 px-4 py-2 text-[9px] font-bold uppercase tracking-[1px] text-white backdrop-blur-sm transition-all hover:bg-white/20 hover:border-white/60 hover:-translate-y-0.5 sm:px-5 sm:py-2.5 sm:text-[10px] md:px-8 md:py-3.5 md:text-[11px] md:tracking-[2px]"
                   >
                     New arrivals
                   </Link>
@@ -383,7 +344,7 @@ export default function HomePage() {
         <button
           type="button"
           onClick={showPreviousHero}
-          className="absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/25 text-white backdrop-blur-md shadow-lg transition-all hover:bg-black/45 hover:border-white/40 hover:scale-105 focus:outline-none md:left-7"
+          className="absolute left-3 top-[56%] z-20 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/25 text-white backdrop-blur-md shadow-lg transition-all hover:bg-black/45 hover:border-white/40 hover:scale-105 focus:outline-none md:left-7 md:top-1/2 md:flex md:h-11 md:w-11"
           aria-label="Show previous hero image"
         >
           <ChevronLeft size={20} strokeWidth={1.5} />
@@ -391,14 +352,14 @@ export default function HomePage() {
         <button
           type="button"
           onClick={showNextHero}
-          className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/25 text-white backdrop-blur-md shadow-lg transition-all hover:bg-black/45 hover:border-white/40 hover:scale-105 focus:outline-none md:right-7"
+          className="absolute right-3 top-[56%] z-20 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/25 text-white backdrop-blur-md shadow-lg transition-all hover:bg-black/45 hover:border-white/40 hover:scale-105 focus:outline-none md:right-7 md:top-1/2 md:flex md:h-11 md:w-11"
           aria-label="Show next hero image"
         >
           <ChevronRight size={20} strokeWidth={1.5} />
         </button>
 
         {/* Slide indicators + play/pause — bottom-center, dark glass */}
-        <div className="absolute bottom-7 left-1/2 z-20 hidden md:flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/15 bg-black/30 px-5 py-3 backdrop-blur-md shadow-md">
+        <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/15 bg-black/25 px-2.5 py-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.22)] backdrop-blur-xl md:bottom-7 md:gap-2.5 md:px-4 md:py-2">
           {heroSlides.map((slide, index) => (
             <button
               key={slide.image}
@@ -406,21 +367,21 @@ export default function HomePage() {
               onClick={() => setHeroIndex(index)}
               className={`rounded-full transition-all duration-500 ${
                 index === heroIndex
-                  ? 'w-8 h-[3px] bg-white'
-                  : 'w-3 h-[3px] bg-white/30 hover:bg-white/60'
+                  ? 'h-[2px] w-5 bg-white shadow-[0_0_8px_rgba(255,255,255,0.45)] md:h-[3px] md:w-8'
+                  : 'h-[2px] w-2 bg-white/35 hover:bg-white/65 md:h-[3px] md:w-3'
               }`}
               aria-label={`Show hero image ${index + 1}`}
               aria-current={index === heroIndex ? 'true' : undefined}
             />
           ))}
-          <div className="w-[1px] h-4 bg-white/15 mx-1" />
+          <div className="mx-0.5 h-2.5 w-[1px] bg-white/15 md:mx-1 md:h-3.5" />
           <button
             type="button"
             onClick={() => setIsHeroPaused((isPaused) => !isPaused)}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-white/60 transition hover:text-white focus:outline-none"
+            className="flex h-5 w-5 items-center justify-center rounded-full text-white/65 transition hover:bg-white/10 hover:text-white focus:outline-none md:h-6 md:w-6"
             aria-label={isHeroPaused ? 'Play hero slideshow' : 'Pause hero slideshow'}
           >
-            {isHeroPaused ? <Play size={11} fill="currentColor" /> : <Pause size={11} fill="currentColor" />}
+            {isHeroPaused ? <Play size={8} fill="currentColor" className="md:size-[10px]" /> : <Pause size={8} fill="currentColor" className="md:size-[10px]" />}
           </button>
         </div>
 
@@ -432,7 +393,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-bg-surface px-5 pt-10 pb-6 md:pt-16 md:pb-10 md:px-8 lg:pt-20 lg:pb-12 bg-pattern-diamond relative">
+      <section className="bg-bg-surface px-4 pt-6 pb-5 md:pt-16 md:pb-10 md:px-8 lg:pt-20 lg:pb-12 bg-pattern-diamond relative">
         <SectionHeading eyebrow="Find your favourites" title="Shop by category" />
         
         <div className="relative max-w-[1320px] mx-auto group">
@@ -443,9 +404,9 @@ export default function HomePage() {
             <ChevronLeft size={22} strokeWidth={1.5} />
           </button>
           
-          <div ref={categoryScrollRef} className="flex gap-2 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-6 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] justify-start md:justify-center">
+          <div ref={categoryScrollRef} className="flex gap-1.5 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-5 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] justify-start md:justify-center">
             {categories.map((category) => (
-              <div key={category.id} className="min-w-[130px] sm:min-w-[150px] md:min-w-[170px] lg:min-w-[190px] snap-start shrink-0">
+              <div key={category.id} className="min-w-[108px] sm:min-w-[130px] md:min-w-[170px] lg:min-w-[190px] snap-start shrink-0">
                 <CategorySlideCard category={category} slideIndex={categorySlideIndex} />
               </div>
             ))}
@@ -458,68 +419,68 @@ export default function HomePage() {
             <ChevronRight size={22} strokeWidth={1.5} />
           </button>
         </div>
-        <div className="mx-auto mt-9 flex max-w-[1320px] flex-wrap items-center justify-center gap-2">
-          <span className="mr-2 text-[12px] font-semibold uppercase tracking-[1.2px] text-text-muted">Shop for</span>
-          {occasions.map(([name, id]) => <Link key={id} to={`/shop?occasion=${id}`} className="rounded-full border border-border-main bg-bg-primary px-4 py-2 text-[12px] font-medium text-text-muted transition-colors hover:border-[#D9909F] hover:text-[#B94B68]">{name}</Link>)}
+        <div className="mx-auto mt-5 flex max-w-[1320px] flex-wrap items-center justify-center gap-1.5 md:mt-9 md:gap-2">
+          <span className="mr-1 text-[10px] font-semibold uppercase tracking-[1px] text-text-muted md:mr-2 md:text-[12px] md:tracking-[1.2px]">Shop for</span>
+          {occasions.map(([name, id]) => <Link key={id} to={`/shop?occasion=${id}`} className="rounded-full border border-border-main bg-bg-primary px-3 py-1.5 text-[11px] font-medium text-text-muted transition-colors hover:border-[#D9909F] hover:text-[#B94B68] md:px-4 md:py-2 md:text-[12px]">{name}</Link>)}
         </div>
       </section>
 
       {/* Wedding Collection Section */}
-      <section className="bg-bg-surface px-5 pt-8 pb-16 md:pt-12 md:pb-24 bg-pattern-diamond border-t border-[#EEE8E5]">
+      <section className="bg-bg-surface px-4 pt-8 pb-12 md:px-5 md:pt-12 md:pb-24 bg-pattern-diamond border-t border-[#EEE8E5]">
         <div className="mx-auto max-w-[1320px]">
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <div className="h-[1px] w-12 md:w-24 bg-[#1FA8A1]/40" />
-            <h2 className="font-serif text-[24px] md:text-[32px] tracking-[2px] uppercase text-[#1FA8A1]">Wedding Collection</h2>
-            <div className="h-[1px] w-12 md:w-24 bg-[#1FA8A1]/40" />
+          <div className="flex items-center justify-center gap-3 mb-8 md:gap-4 md:mb-12">
+            <div className="h-[1px] w-8 md:w-24 bg-[#1FA8A1]/40" />
+            <h2 className="font-serif text-[20px] md:text-[32px] tracking-[1.2px] md:tracking-[2px] uppercase text-[#1FA8A1]">Wedding Collection</h2>
+            <div className="h-[1px] w-8 md:w-24 bg-[#1FA8A1]/40" />
           </div>
 
-          <div className="grid md:grid-cols-2 gap-10 md:gap-8 lg:gap-12">
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] md:mx-0 md:grid md:grid-cols-2 md:gap-8 md:overflow-visible md:px-0 md:pb-0 lg:gap-12 [&::-webkit-scrollbar]:hidden">
             {/* Card 1 */}
-            <div className="flex flex-col items-center">
+            <div className="flex w-[78vw] max-w-[290px] shrink-0 snap-start flex-col items-center md:w-auto md:max-w-none">
               <div className="relative w-full aspect-[4/3] group">
                 <div className="absolute inset-0 rounded-[16px] overflow-hidden shadow-lg">
                   <img src={weddingCampaign1} alt="Rhiwayat Bridal" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <h3 className="absolute bottom-24 md:bottom-28 right-8 text-right font-serif text-[32px] md:text-[40px] leading-[1.1] tracking-wide text-white drop-shadow-md">
+                  <h3 className="absolute bottom-14 right-4 text-right font-serif text-[20px] leading-[1.1] tracking-wide text-white drop-shadow-md md:bottom-28 md:right-8 md:text-[40px]">
                     RHIWAYAT<br />BRIDAL
                   </h3>
                 </div>
                 
                 {/* Product Thumbnails */}
-                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex items-end justify-center gap-3 w-full px-4 z-10">
+                <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex items-end justify-center gap-2 w-full px-3 z-10 md:-bottom-6 md:gap-3 md:px-4">
                   {[productNecklace1, productEarring1, productBangle1].map((img, i) => (
-                    <div key={i} className="w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-xl bg-[#1A1A1A] border border-white/20 p-1 shadow-xl overflow-hidden transition-transform hover:-translate-y-2 cursor-pointer">
+                    <div key={i} className="w-[54px] h-[54px] rounded-lg bg-[#1A1A1A] border border-white/20 p-1 shadow-xl overflow-hidden transition-transform hover:-translate-y-2 cursor-pointer md:h-[100px] md:w-[100px] md:rounded-xl">
                       <img src={img} alt="Product Thumbnail" className="w-full h-full object-cover rounded-lg" />
                     </div>
                   ))}
                 </div>
               </div>
-              <Link to="/shop?collection=rhiwayat-bridal" className="mt-12 md:mt-14 inline-flex items-center gap-2 bg-[#1FA8A1] text-white px-8 py-3 rounded-md text-[13px] font-medium tracking-wide hover:bg-[#178f89] transition-colors shadow-md relative z-20">
+              <Link to="/shop?collection=rhiwayat-bridal" className="mt-8 md:mt-14 inline-flex items-center gap-2 bg-[#1FA8A1] text-white px-6 py-2.5 md:px-8 md:py-3 rounded-md text-[12px] md:text-[13px] font-medium tracking-wide hover:bg-[#178f89] transition-colors shadow-md relative z-20">
                 View Full Collection <ArrowRight size={16} />
               </Link>
             </div>
 
             {/* Card 2 */}
-            <div className="flex flex-col items-center mt-8 md:mt-0">
+            <div className="flex w-[78vw] max-w-[290px] shrink-0 snap-start flex-col items-center md:mt-0 md:w-auto md:max-w-none">
               <div className="relative w-full aspect-[4/3] group">
                 <div className="absolute inset-0 rounded-[16px] overflow-hidden shadow-lg">
                   <img src={weddingCampaign2} alt="Sakhi Kutumbh" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <h3 className="absolute bottom-24 md:bottom-28 right-8 text-right font-serif text-[32px] md:text-[40px] leading-[1.1] tracking-wide text-white drop-shadow-md">
+                  <h3 className="absolute bottom-14 right-4 text-right font-serif text-[20px] leading-[1.1] tracking-wide text-white drop-shadow-md md:bottom-28 md:right-8 md:text-[40px]">
                     SAKHI<br />KUTUMBH
                   </h3>
                 </div>
                 
                 {/* Product Thumbnails */}
-                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex items-end justify-center gap-3 w-full px-4 z-10">
+                <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex items-end justify-center gap-2 w-full px-3 z-10 md:-bottom-6 md:gap-3 md:px-4">
                   {[productRing1, productNecklace1, productEarring1].map((img, i) => (
-                    <div key={i} className="w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-xl bg-[#FAF6F3] border border-[#D9D0C8] p-1 shadow-xl overflow-hidden transition-transform hover:-translate-y-2 cursor-pointer">
+                    <div key={i} className="w-[54px] h-[54px] rounded-lg bg-[#FAF6F3] border border-[#D9D0C8] p-1 shadow-xl overflow-hidden transition-transform hover:-translate-y-2 cursor-pointer md:h-[100px] md:w-[100px] md:rounded-xl">
                       <img src={img} alt="Product Thumbnail" className="w-full h-full object-contain rounded-lg" />
                     </div>
                   ))}
                 </div>
               </div>
-              <Link to="/shop?collection=sakhi-kutumbh" className="mt-12 md:mt-14 inline-flex items-center gap-2 bg-[#1FA8A1] text-white px-8 py-3 rounded-md text-[13px] font-medium tracking-wide hover:bg-[#178f89] transition-colors shadow-md relative z-20">
+              <Link to="/shop?collection=sakhi-kutumbh" className="mt-8 md:mt-14 inline-flex items-center gap-2 bg-[#1FA8A1] text-white px-6 py-2.5 md:px-8 md:py-3 rounded-md text-[12px] md:text-[13px] font-medium tracking-wide hover:bg-[#178f89] transition-colors shadow-md relative z-20">
                 View Full Collection <ArrowRight size={16} />
               </Link>
             </div>
@@ -527,7 +488,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-[#EEE8E5] bg-[#F7E1E8] px-5 py-10 md:py-10 md:py-16 md:px-8 md:py-20 bg-pattern-diamond">
+      <section className="border-y border-[#EEE8E5] bg-[#F7E1E8] px-4 py-8 md:px-8 md:py-20 bg-pattern-diamond">
         <SectionHeading eyebrow="Most loved" title="Customer favourites" />
         
         <div className="relative max-w-[1320px] mx-auto group">
@@ -538,9 +499,9 @@ export default function HomePage() {
             <ChevronLeft size={22} strokeWidth={1.5} />
           </button>
           
-          <div ref={favoritesScrollRef} className="flex gap-4 md:gap-5 overflow-x-auto snap-x snap-mandatory pb-6 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div ref={favoritesScrollRef} className="flex gap-3 md:gap-5 overflow-x-auto snap-x snap-mandatory pb-5 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {bestsellers.map((product) => (
-              <div key={product.id} className="w-[calc(50%-8px)] md:w-[calc(33.333%-14px)] lg:w-[calc(20%-16px)] snap-start shrink-0">
+              <div key={product.id} className="w-[42vw] max-w-[150px] sm:w-[170px] sm:max-w-none md:w-[calc(33.333%-14px)] lg:w-[calc(20%-16px)] snap-start shrink-0">
                 <MinimalProductCard product={product} />
               </div>
             ))}
@@ -553,20 +514,20 @@ export default function HomePage() {
             <ChevronRight size={22} strokeWidth={1.5} />
           </button>
         </div>
-        <div className="mt-9 text-center"><Link to="/shop" className="btn-secondary">View all jewellery</Link></div>
+        <div className="mt-5 text-center md:mt-9"><Link to="/shop" className="btn-secondary">View all jewellery</Link></div>
       </section>
 
-      <section className="bg-bg-surface px-5 py-8 md:px-8 bg-pattern-diamond">
-        <div className="mx-auto grid max-w-[1320px] grid-cols-2 gap-4 md:gap-5 md:grid-cols-4">
+      <section className="bg-bg-surface px-4 py-6 md:px-8 md:py-8 bg-pattern-diamond">
+        <div className="mx-auto grid max-w-[1320px] grid-cols-2 gap-3 md:gap-5 md:grid-cols-4">
           {promises.map((promise, idx) => {
             const Icon = promise.icon;
             return (
-              <div key={idx} className="relative group overflow-hidden rounded-xl aspect-[5/2] md:aspect-[3/1] bg-pink-50 flex items-center justify-center p-4">
+              <div key={idx} className="relative group overflow-hidden rounded-xl aspect-[7/3] md:aspect-[3/1] bg-pink-50 flex items-center justify-center p-3 md:p-4">
                 <img src={promise.image} alt={promise.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-black/65 group-hover:bg-black/75 transition-colors duration-300" />
-                <div className="relative z-10 flex flex-col items-center gap-2 md:gap-2 text-center">
-                  <Icon size={22} className="text-[#F4A0B0] drop-shadow-md" />
-                  <span className="font-serif text-[15px] md:text-[17px] text-white tracking-[0.5px] leading-tight drop-shadow-xl">
+                <div className="relative z-10 flex flex-col items-center gap-1.5 md:gap-2 text-center">
+                  <Icon size={18} className="text-[#F4A0B0] drop-shadow-md md:size-[22px]" />
+                  <span className="font-serif text-[12px] md:text-[17px] text-white tracking-[0.5px] leading-tight drop-shadow-xl">
                     {promise.title}
                   </span>
                 </div>
@@ -576,52 +537,81 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="border-y border-[#EEE8E5] bg-[#F7E1E8] px-4 py-8 md:px-8 md:py-20 bg-pattern-diamond">
+        <SectionHeading eyebrow="Just dropped" title="New arrivals" />
+        
+        <div className="relative max-w-[1320px] mx-auto group">
+          <button 
+            onClick={scrollNewArrivalsLeft} 
+            className="absolute left-0 top-[40%] md:top-[45%] -translate-y-1/2 -ml-2 md:-ml-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/80 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronLeft size={22} strokeWidth={1.5} />
+          </button>
+          
+          <div ref={newArrivalsScrollRef} className="flex gap-3 md:gap-5 overflow-x-auto snap-x snap-mandatory pb-5 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {newArrivals.map((product) => (
+              <div key={product.id} className="w-[42vw] max-w-[150px] sm:w-[170px] sm:max-w-none md:w-[calc(33.333%-14px)] lg:w-[calc(20%-16px)] snap-start shrink-0">
+                <MinimalProductCard product={product} />
+              </div>
+            ))}
+          </div>
+
+          <button 
+            onClick={scrollNewArrivalsRight} 
+            className="absolute right-0 top-[40%] md:top-[45%] -translate-y-1/2 -mr-2 md:-mr-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/80 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronRight size={22} strokeWidth={1.5} />
+          </button>
+        </div>
+        <div className="mt-5 text-center md:mt-9"><Link to="/shop?badge=New" className="btn-secondary">View all new arrivals</Link></div>
+      </section>
+
       {/* Curated Collage Section */}
-      <section className="bg-bg-surface px-5 py-12 md:py-16 md:px-8 md:py-24 relative overflow-hidden bg-pattern-diamond" ref={collageRef}>
+      <section className="bg-bg-surface px-4 py-8 md:px-8 md:py-24 relative overflow-hidden bg-pattern-diamond" ref={collageRef}>
         <div className="absolute top-1/2 left-0 w-96 h-96 bg-pink-100/40 rounded-full blur-[120px] -translate-y-1/2 -translate-x-1/2 pointer-events-none" />
         <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-slate-100/60 rounded-full blur-[100px] translate-x-1/3 pointer-events-none" />
         
         <div className="mx-auto max-w-[1320px] relative z-10">
           <SectionHeading eyebrow="The Edit" title="Curated for you" align="center" />
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-12 auto-rows-[240px] md:auto-rows-[300px]">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6 mt-6 md:mt-12 auto-rows-[92px] sm:auto-rows-[120px] md:auto-rows-[300px]">
             
-            <div className="col-span-2 row-span-2 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+            <div className="col-span-2 row-span-2 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
               <motion.img style={{ y: ySlow, scale: 1.2 }} src={c1} alt="Curated style 1" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-80" />
-              <div className="absolute bottom-6 left-6 right-6 glass-dark rounded-2xl p-6 text-white transition-all duration-500 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 border-white/20">
-                <span className="text-[11px] font-semibold uppercase tracking-[3px] text-white/80">Signature Series</span>
-                <h3 className="text-[28px] font-serif mt-2 mb-1">Elegance Defined</h3>
-                <p className="text-[13px] text-white/70 max-w-[80%]">Discover pieces that elevate your everyday presence.</p>
+              <div className="absolute bottom-2 left-2 right-2 glass-dark rounded-lg p-2 text-white transition-all duration-500 md:bottom-6 md:left-6 md:right-6 md:translate-y-4 md:rounded-2xl md:p-6 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 border-white/20">
+                <span className="text-[7px] font-semibold uppercase tracking-[1px] text-white/80 md:text-[11px] md:tracking-[3px]">Signature Series</span>
+                <h3 className="text-[13px] font-serif mt-0.5 md:mt-2 md:mb-1 md:text-[28px]">Elegance Defined</h3>
+                <p className="hidden text-[13px] text-white/70 max-w-[80%] md:block">Discover pieces that elevate your everyday presence.</p>
               </div>
             </div>
 
-            <div className="col-span-1 row-span-1 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+            <div className="col-span-1 row-span-1 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
               <motion.img style={{ y: yFast, scale: 1.2 }} src={c2} alt="Curated style 2" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500" />
             </div>
 
-            <div className="col-span-1 row-span-2 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+            <div className="col-span-1 row-span-2 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
               <motion.img style={{ y: ySlow, scale: 1.2 }} src={c3} alt="Curated style 3" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
             </div>
 
-            <div className="col-span-1 row-span-1 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+            <div className="col-span-1 row-span-1 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
               <motion.img style={{ y: yFast, scale: 1.2 }} src={c4} alt="Curated style 4" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
               <div className="absolute inset-0 glass-dark opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center border-none">
-                <span className="text-white font-serif text-[20px] tracking-wide drop-shadow-md">Details</span>
+                <span className="text-white font-serif text-[12px] md:text-[20px] tracking-wide drop-shadow-md">Details</span>
               </div>
             </div>
 
-            <div className="col-span-2 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+            <div className="col-span-2 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
               <motion.img style={{ y: ySlow, scale: 1.2 }} src={c5} alt="Curated style 5" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
             </div>
 
-            <div className="col-span-2 relative group overflow-hidden rounded-[24px] bg-bg-alt shadow-sm">
+            <div className="col-span-2 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
               <motion.img style={{ y: yFast, scale: 1.2 }} src={c6} alt="Curated style 6" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
               <div className="absolute inset-0 flex flex-col items-center justify-center glass-dark opacity-0 group-hover:opacity-100 transition-all duration-500 border-none">
-                <span className="text-white font-serif text-[26px]">Modern Classics</span>
-                <MagneticButton className="mt-4">
-                  <Link to="/shop" className="inline-block text-[11px] font-semibold uppercase tracking-[2px] text-white border-b border-white/50 pb-1 hover:text-white hover:border-white transition-all">Shop The Look</Link>
+                <span className="text-white font-serif text-[13px] md:text-[26px]">Modern Classics</span>
+                <MagneticButton className="mt-2 md:mt-4">
+                  <Link to="/shop" className="inline-block text-[9px] font-semibold uppercase tracking-[1px] text-white border-b border-white/50 pb-0.5 hover:text-white hover:border-white transition-all md:text-[11px] md:tracking-[2px] md:pb-1">Shop The Look</Link>
                 </MagneticButton>
               </div>
             </div>
@@ -631,12 +621,12 @@ export default function HomePage() {
       </section>
 
       {/* Influencer Spotlight / Circular Gallery Section */}
-      <section className="bg-black px-0 py-16 md:py-24 relative overflow-hidden">
+      <section className="bg-black px-0 py-12 md:py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,82,122,0.15)_0%,transparent_70%)]" />
         
         <div className="mx-auto max-w-[1320px] px-5 md:px-8 relative z-10 mb-10 text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[2px] text-[#F4A0B0] mb-2">Influencer Spotlight</p>
-          <h2 className="font-serif text-[34px] leading-tight tracking-[-0.3px] text-white md:text-[40px] mb-4">
+          <h2 className="font-serif text-[28px] leading-tight text-white md:text-[40px] mb-4">
             Trusted by Creators, Loved by Customers
           </h2>
           <p className="mx-auto max-w-2xl text-[14px] text-white/60 leading-relaxed">
@@ -644,7 +634,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="w-full h-[500px] md:h-[650px] relative z-10">
+        <div className="w-full h-[390px] md:h-[650px] relative z-10">
           <CircularGallery 
             videos={[
               "https://assets.mixkit.co/videos/preview/mixkit-woman-putting-on-a-diamond-ring-41223-large.mp4",
@@ -661,7 +651,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="group relative h-[450px] w-full overflow-hidden md:h-[600px]">
+      <section className="group relative h-[520px] w-full overflow-hidden md:h-[600px]">
         <video 
           src={storeVideo} 
           autoPlay 
@@ -677,30 +667,30 @@ export default function HomePage() {
           <span className="font-serif text-xl tracking-[0.2em] text-white md:text-2xl uppercase">Sterling Cart</span>
         </div>
 
-        <div className="absolute inset-0 flex items-center justify-end p-6 md:p-16 lg:pr-24">
+        <div className="absolute inset-0 flex items-end justify-end p-4 pb-8 md:items-center md:p-16 lg:pr-24">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-full max-w-[480px] rounded-2xl border border-white/20 bg-black/30 p-8 text-left backdrop-blur-md md:p-12"
+            className="w-full max-w-[480px] rounded-2xl border border-white/20 bg-black/35 p-5 text-left backdrop-blur-md md:p-12"
           >
-            <h2 className="font-serif text-[36px] leading-tight text-white md:text-[46px]">Find the store</h2>
-            <div className="mt-6 h-[1px] w-12 bg-bg-surface/40" />
-            <p className="mt-6 text-[14px] leading-relaxed tracking-wide text-white/90 md:text-[15px]">
+            <h2 className="font-serif text-[28px] leading-tight text-white md:text-[46px]">Find the store</h2>
+            <div className="mt-4 h-[1px] w-12 bg-bg-surface/40 md:mt-6" />
+            <p className="mt-4 text-[12px] leading-relaxed tracking-wide text-white/90 md:mt-6 md:text-[15px]">
               Step into the world of Sterling Cart. Discover our latest collections, experience our craftsmanship up close, and enjoy personal styling sessions with our experts.
               <br/><br/>
               <strong className="text-white font-medium uppercase tracking-wider text-[13px]">Flagship Store</strong><br/>
               Roorkee, Uttarakhand 247667
             </p>
-            <a href="#store-locator" className="mt-8 inline-block border border-white/60 bg-transparent px-8 py-3 text-[12px] font-semibold uppercase tracking-[1.5px] text-white transition-all hover:bg-bg-surface hover:text-black">
+            <a href="#store-locator" className="mt-5 inline-block border border-white/60 bg-transparent px-6 py-2.5 text-[11px] font-semibold uppercase tracking-[1.2px] text-white transition-all hover:bg-bg-surface hover:text-black md:mt-8 md:px-8 md:py-3 md:text-[12px] md:tracking-[1.5px]">
               Get Directions
             </a>
           </motion.div>
         </div>
       </section>
 
-      <section className="bg-bg-alt px-5 py-12 md:py-20 md:px-8 relative overflow-hidden bg-pattern-diamond">
+      <section className="bg-bg-alt px-4 py-10 md:px-8 md:py-20 relative overflow-hidden bg-pattern-diamond">
         <div className="mx-auto max-w-[1320px] relative z-10">
           <div className="mb-10 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
             <SectionHeading eyebrow="Kind words" title="Loved by our customers" align="left" />
@@ -711,10 +701,10 @@ export default function HomePage() {
           </div>
           <div className="grid gap-5 md:grid-cols-3">
             {visibleTestimonials.map((testimonial) => (
-              <article key={testimonial.id} className="rounded-[24px] glass-card p-8 transition-transform duration-500 hover:-translate-y-1">
+              <article key={testimonial.id} className="rounded-[18px] glass-card p-5 transition-transform duration-500 hover:-translate-y-1 md:rounded-[24px] md:p-8">
                 <StarRating rating={testimonial.rating} size={14} />
-                <p className="mt-6 text-[15px] leading-relaxed text-text-main font-serif italic tracking-wide">"{testimonial.text}"</p>
-                <div className="mt-8 flex items-center gap-4">
+                <p className="mt-4 text-[13px] leading-relaxed text-text-main font-serif italic tracking-wide md:mt-6 md:text-[15px]">"{testimonial.text}"</p>
+                <div className="mt-6 flex items-center gap-3 md:mt-8 md:gap-4">
                   <div className="h-11 w-11 rounded-full bg-[#E8DDD5] flex items-center justify-center text-[13px] font-serif text-text-main">{testimonial.name.charAt(0)}</div>
                   <div>
                     <p className="text-[13px] font-semibold text-text-main uppercase tracking-widest">{testimonial.name}</p>
@@ -727,19 +717,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="relative px-5 py-16 md:py-24 text-text-main md:px-8 overflow-hidden bg-bg-surface bg-pattern-diamond">
+      <section className="relative px-4 py-12 md:px-8 md:py-24 text-text-main overflow-hidden bg-bg-surface bg-pattern-diamond">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,160,176,0.1)_0%,transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(232,221,213,0.3)_0%,transparent_50%)]" />
         
-        <div className="relative z-10 mx-auto flex max-w-[1040px] flex-col items-center justify-between gap-10 text-center md:flex-row md:text-left glass-panel p-10 md:p-14 rounded-[40px] border-white/60 shadow-xl">
+        <div className="relative z-10 mx-auto flex max-w-[1040px] flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left glass-panel p-6 md:p-14 rounded-[24px] md:rounded-[40px] border-white/60 shadow-xl">
           <div className="max-w-[420px]">
             <p className="text-[11px] font-semibold uppercase tracking-[3px] text-[#B94B68]">A little something extra</p>
-            <h2 className="mt-3 font-serif text-[38px] leading-[1.1] tracking-[-0.5px]">Get 10% off your first order.</h2>
-            <p className="mt-4 text-[15px] text-text-muted leading-relaxed">Join our inner circle for new launches, thoughtful offers, and exclusive early access.</p>
+            <h2 className="mt-3 font-serif text-[28px] leading-[1.1] md:text-[38px]">Get 10% off your first order.</h2>
+            <p className="mt-3 text-[13px] text-text-muted leading-relaxed md:mt-4 md:text-[15px]">Join our inner circle for new launches, thoughtful offers, and exclusive early access.</p>
           </div>
-          <form onSubmit={handleSubscribe} className="flex w-full max-w-[420px] rounded-full glass bg-white/70 p-1.5 shadow-sm border border-white">
-            <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" required placeholder="Your email address" className="min-w-0 flex-1 bg-transparent border-0 px-6 text-[14px] text-text-main outline-none placeholder:text-text-muted/60" />
-            <button className="rounded-full bg-[#1A1A1A] px-7 py-4 text-[11px] font-bold uppercase tracking-[1px] text-white hover:bg-[#2A2A2A] transition-all hover:scale-[1.02]">Subscribe</button>
+          <form onSubmit={handleSubscribe} className="flex w-full max-w-[420px] flex-col gap-2 rounded-[20px] glass bg-white/70 p-2 shadow-sm border border-white sm:flex-row sm:rounded-full sm:gap-0">
+            <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" required placeholder="Your email address" className="min-w-0 flex-1 bg-transparent border-0 px-4 py-3 text-[13px] text-text-main outline-none placeholder:text-text-muted/60 sm:px-6 sm:py-0 md:text-[14px]" />
+            <button className="rounded-full bg-[#1A1A1A] px-6 py-3 text-[10px] font-bold uppercase tracking-[1px] text-white hover:bg-[#2A2A2A] transition-all hover:scale-[1.02] md:px-7 md:py-4 md:text-[11px]">Subscribe</button>
           </form>
         </div>
       </section>
@@ -749,9 +739,9 @@ export default function HomePage() {
 
 function SectionHeading({ eyebrow, title, align = 'center' }) {
   return (
-    <div className={`mb-9 ${align === 'left' ? 'text-left' : 'text-center'}`}>
-      <p className="text-[11px] font-semibold uppercase tracking-[2px] text-[#B94B68]">{eyebrow}</p>
-      <h2 className="mt-2 font-serif text-[34px] leading-tight tracking-[-0.3px] text-text-main md:text-[40px]">{title}</h2>
+    <div className={`mb-6 md:mb-9 ${align === 'left' ? 'text-left' : 'text-center'}`}>
+      <p className="text-[10px] font-semibold uppercase tracking-[1.5px] text-[#B94B68] md:text-[11px] md:tracking-[2px]">{eyebrow}</p>
+      <h2 className="mt-2 font-serif text-[28px] leading-tight text-text-main md:text-[40px]">{title}</h2>
       {align === 'left' && <Link to="/shop" className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold uppercase tracking-[0.7px] text-[#B94B68]">Browse all <ArrowRight size={14} /></Link>}
     </div>
   );

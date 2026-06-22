@@ -239,6 +239,32 @@ export default function Header() {
               </HeaderIcon>
             </motion.span>
 
+            <motion.div variants={itemFade} className="lg:hidden">
+              <Link
+                to="/shop?category=coins"
+                className="group relative flex h-[42px] w-[42px] items-center justify-center overflow-hidden rounded-full border border-white/25 bg-white/10 shadow-[0_8px_28px_rgba(244,160,176,0.24)] backdrop-blur-xl transition-all duration-300 active:scale-95"
+                aria-label="Shop silver coins"
+              >
+                <motion.span
+                  aria-hidden="true"
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 7, ease: 'linear' }}
+                  className="absolute inset-[3px] rounded-full bg-[conic-gradient(from_90deg,transparent,rgba(255,255,255,0.7),transparent,rgba(244,160,176,0.65),transparent)] opacity-80"
+                />
+                <span className="absolute inset-[5px] rounded-full bg-[#1E0912]/70 backdrop-blur-md" />
+                <motion.span
+                  aria-hidden="true"
+                  animate={{ x: ['-130%', '130%'] }}
+                  transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut', repeatDelay: 1.2 }}
+                  className="absolute inset-y-0 z-10 w-5 -skew-x-12 bg-gradient-to-r from-transparent via-white/70 to-transparent"
+                />
+                <span className="relative z-20 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-white via-[#DDE2E8] to-[#8B95A3] shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),inset_0_-3px_5px_rgba(57,67,82,0.35),0_4px_12px_rgba(255,255,255,0.22)] ring-1 ring-white/70">
+                  <span className="absolute inset-[4px] rounded-full border border-white/60" />
+                  <span className="font-serif text-[8px] font-black tracking-[-0.5px] text-[#28313D] drop-shadow-sm">999</span>
+                </span>
+              </Link>
+            </motion.div>
+
             <motion.button
               variants={itemFade}
               type="button"
@@ -527,12 +553,38 @@ export default function Header() {
         {isAuthenticated ? (
           <Link to={isAdmin ? '/admin' : '/dashboard'} className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
             <User size={20} />
-            <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Profile</span>
+            <span className="relative mt-0.5 flex h-[11px] w-[48px] items-center justify-center overflow-hidden text-[9px] font-semibold uppercase tracking-[0.5px]">
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={`mobile-auth-${profileTextIndex}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25 }}
+                  className="absolute whitespace-nowrap"
+                >
+                  {profileTexts[profileTextIndex]}
+                </motion.span>
+              </AnimatePresence>
+            </span>
           </Link>
         ) : (
           <button type="button" onClick={useAuth().openAuthModal} className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
             <User size={20} />
-            <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Profile</span>
+            <span className="relative mt-0.5 flex h-[11px] w-[48px] items-center justify-center overflow-hidden text-[9px] font-semibold uppercase tracking-[0.5px]">
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={`mobile-guest-${profileTextIndex}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25 }}
+                  className="absolute whitespace-nowrap"
+                >
+                  {profileTexts[profileTextIndex]}
+                </motion.span>
+              </AnimatePresence>
+            </span>
           </button>
         )}
       </nav>
