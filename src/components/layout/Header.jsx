@@ -148,11 +148,11 @@ export default function Header() {
       <AnimatePresence>
         {showAnnouncement && (
           <motion.div
-            initial={{ height: 34, opacity: 1 }}
+            initial={{ height: 36, opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className={`relative flex h-[36px] items-center overflow-hidden text-white z-[60] ${
+            className={`relative flex h-9 items-center overflow-hidden text-white z-[60] ${
               isHeroPage && !isScrolled
-                ? 'bg-black/30 backdrop-blur-md border-b border-white/10'
+                ? 'bg-black/30 backdrop-blur-md'
                 : 'bg-[#121212]'
             }`}
             style={isHeroPage ? { position: 'fixed', top: 0, left: 0, right: 0 } : {}}
@@ -199,7 +199,7 @@ export default function Header() {
               }`
             : 'sticky top-0 bg-[#1E0912]/96 backdrop-blur-2xl shadow-[0_4px_40px_rgba(212,82,122,0.18)] border-b border-[#D4527A]/20'
         }`}
-        style={isHeroPage && showAnnouncement ? { top: 36 } : {}}
+        style={isHeroPage && showAnnouncement ? { top: '36px' } : {}}
       >
         {/* Luxury gradient shimmer line at bottom of header — only on hero, unscrolled */}
         {isHeroPage && !isScrolled && (
@@ -708,18 +708,18 @@ function LogoMark({ compact = false, heroMode = false }) {
       <span
         className={`${
           compact ? 'text-[19px]' : 'text-[21px] xl:text-[24px]'
-        } whitespace-nowrap font-[var(--font-logo)] font-semibold uppercase tracking-[0.7px] transition-colors duration-500 ${
+        } brand-wordmark whitespace-nowrap transition-colors duration-500 ${
           heroMode ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]' : ''
         }`}
       >
-        Sterling Kart
+        STERLING KART
       </span>
       <span className={`${
         compact ? 'mt-1 text-[7px]' : 'mt-1.5 text-[7px] xl:text-[8px]'
-      } whitespace-nowrap font-sans font-bold uppercase tracking-[2.2px] transition-colors duration-500 ${
+      } brand-submark whitespace-nowrap transition-colors duration-500 ${
         heroMode ? 'text-white/60' : ''
       }`}>
-        925 Silver Jewels
+        925 SILVER JEWELS
       </span>
     </span>
   );
@@ -979,7 +979,7 @@ function GiftMegaMenu({ onClose }) {
         <div className="min-h-[300px] p-6">
           <h3 className="mb-4 border-b border-[#D4527A]/20 pb-3 font-serif text-[17px] font-semibold text-white/90">Trending gift offers</h3>
           <div className="grid grid-cols-2 gap-3">
-            <GiftOfferCard eyebrow="First order" title="10% off" text="A little welcome gift for your first Sterling Cart order." to="/gifting" tone="pink" onClose={onClose} />
+            <GiftOfferCard eyebrow="First order" title="10% off" text="A little welcome gift for your first Sterling Kart order." to="/gifting" tone="pink" onClose={onClose} />
             <GiftOfferCard eyebrow="Most loved" title="Gift picks" text="Discover bestselling pieces chosen for special moments." to="/gifting" tone="dark" onClose={onClose} />
           </div>
         </div>

@@ -37,12 +37,12 @@ export default function LoadingScreen() {
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
         >
           <motion.h1
-            className="font-serif text-[32px] md:text-[42px] uppercase tracking-[0.2em] text-white/90 drop-shadow-lg"
+            className="brand-wordmark text-[32px] md:text-[42px] text-white/90 drop-shadow-lg"
             initial={{ opacity: 0, filter: "blur(10px)" }}
             animate={{ opacity: 1, filter: "blur(0px)" }}
             transition={{ duration: 1.5, ease: 'easeOut', delay: 0.2 }}
           >
-            Sterling Kart
+            STERLING KART
           </motion.h1>
           
           <motion.div
@@ -53,12 +53,12 @@ export default function LoadingScreen() {
           />
           
           <motion.p
-            className="mt-6 text-[11px] md:text-[12px] font-medium uppercase tracking-[4px] text-white/50"
+            className="brand-submark mt-6 text-[11px] md:text-[12px] text-white/50"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 1 }}
           >
-            925 Silver Jwells
+            925 SILVER JEWELS
           </motion.p>
         </motion.div>
       </div>

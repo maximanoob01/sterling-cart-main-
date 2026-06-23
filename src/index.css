@@ -18,7 +18,7 @@
   --color-admin-darker: #16162A;
   --color-admin-sidebar: #1E1E2E;
   --font-serif: 'Playfair Display', Georgia, serif;
-  --font-logo: 'Cinzel', 'Times New Roman', serif;
+  --font-logo: Optima, 'Optima Nova', 'Segoe UI', Candara, Calibri, Arial, sans-serif;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   
   /* Semantic Theme Variables */
@@ -425,6 +425,20 @@ input[type="range"]::-webkit-slider-thumb {
   /* Luxury scroll indicator for hero section */
   .hero-scroll-indicator {
     animation: hero-bounce 2.4s ease-in-out infinite;
+  }
+
+  .brand-wordmark {
+    font-family: var(--font-logo);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .brand-submark {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.34em;
   }
 }
 

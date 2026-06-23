@@ -108,11 +108,11 @@ export default function LoginPage() {
           
           {/* Watermark Logo */}
           <div className="absolute top-8 left-8 z-10 drop-shadow-md flex flex-col items-center leading-none">
-            <span className="whitespace-nowrap font-[var(--font-logo)] text-[22px] font-semibold uppercase tracking-[0.7px] text-white/90">
-              Sterling Kart
+            <span className="brand-wordmark whitespace-nowrap text-[22px] text-white/90">
+              STERLING KART
             </span>
-            <span className="mt-1.5 whitespace-nowrap font-sans text-[7.5px] font-bold uppercase tracking-[2.2px] text-white/80">
-              925 Silver Jewels
+            <span className="brand-submark mt-1.5 whitespace-nowrap text-[7.5px] text-white/80">
+              925 SILVER JEWELS
             </span>
           </div>
 

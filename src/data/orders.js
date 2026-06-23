@@ -400,14 +400,14 @@ export const mockCustomers = [
 export const mockReviews = [
   { id: 1, productId: 1, name: 'Priya S.', date: '2025-05-15', rating: 5, text: 'Absolutely love this ring! The silver quality is amazing and it fits perfectly. Wore it to work and got so many compliments.', verified: true },
   { id: 2, productId: 1, name: 'Anita M.', date: '2025-05-10', rating: 4, text: 'Beautiful ring with a great shine. Packaging was premium and delivery was quick. Only wish it was slightly thicker.', verified: true },
-  { id: 3, productId: 1, name: 'Kavita R.', date: '2025-04-28', rating: 5, text: 'This is my third purchase from Sterling Cart and they never disappoint. The ring is elegant and well-crafted.', verified: true },
+  { id: 3, productId: 1, name: 'Kavita R.', date: '2025-04-28', rating: 5, text: 'This is my third purchase from Sterling Kart and they never disappoint. The ring is elegant and well-crafted.', verified: true },
   { id: 4, productId: 5, name: 'Deepa N.', date: '2025-05-20', rating: 5, text: 'These studs are stunning! Perfect everyday sparkle without being too flashy. The CZ stones look real.', verified: true },
   { id: 5, productId: 5, name: 'Sanya K.', date: '2025-05-18', rating: 4, text: 'Good quality studs. The push-back closure is secure. Only giving 4 stars because they are slightly smaller than expected.', verified: true },
   { id: 6, productId: 10, name: 'Meera I.', date: '2025-05-22', rating: 5, text: 'The layered necklace is a dream! It looks so much more expensive than it is. Perfect for both Indian and Western outfits.', verified: true },
   { id: 7, productId: 6, name: 'Ritu A.', date: '2025-05-12', rating: 5, text: 'These jhumkas are a masterpiece! The craftsmanship is incredible. Wore them to my cousin\'s wedding and everyone asked where I got them.', verified: true },
   { id: 8, productId: 14, name: 'Ishita G.', date: '2025-05-08', rating: 4, text: 'Cute charm bracelet with good weight to it. The charms are well-made and don\'t feel cheap at all.', verified: false },
   { id: 9, productId: 15, name: 'Kavita R.', date: '2025-05-25', rating: 5, text: 'This tennis bracelet is absolutely gorgeous! I get compliments every time I wear it. The CZ stones sparkle like real diamonds.', verified: true },
-  { id: 10, productId: 23, name: 'Ritu A.', date: '2025-05-28', rating: 5, text: 'Bought this for my wedding and I couldn\'t be happier. Every piece in the set is beautifully crafted. Thank you Sterling Cart!', verified: true },
+  { id: 10, productId: 23, name: 'Ritu A.', date: '2025-05-28', rating: 5, text: 'Bought this for my wedding and I couldn\'t be happier. Every piece in the set is beautifully crafted. Thank you Sterling Kart!', verified: true },
   { id: 11, productId: 27, name: 'Deepa N.', date: '2025-05-30', rating: 4, text: 'Sweet heart pendant. Simple yet elegant. Would have loved if it came with a chain included.', verified: true },
   { id: 12, productId: 3, name: 'Sanya K.', date: '2025-05-14', rating: 5, text: 'The moonstone in this ring is mesmerizing! The way it catches light is truly magical. Best jewellery purchase I\'ve ever made.', verified: true },
 ];
@@ -418,7 +418,7 @@ export const testimonials = [
     name: 'Priya Sharma',
     city: 'Bangalore',
     rating: 5,
-    text: 'Sterling Cart has completely changed how I shop for silver jewellery. The quality is exceptional and every piece feels so premium. I\'m a customer for life!',
+    text: 'Sterling Kart has completely changed how I shop for silver jewellery. The quality is exceptional and every piece feels so premium. I\'m a customer for life!',
     avatar: 'PS',
   },
   {

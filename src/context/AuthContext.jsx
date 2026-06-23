@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
             mockUsers.push(newUser);
             setUser(newUser);
             closeAuthModal();
-            toast.success(`Welcome to Sterling Cart, ${name}!`, {
+            toast.success(`Welcome to Sterling Kart, ${name}!`, {
               style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
               iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
             });

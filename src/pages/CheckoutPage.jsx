@@ -122,15 +122,46 @@ const CheckoutPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     setIsPlacingOrder(true);
     const orderId = generateOrderId();
 
-    setTimeout(() => {
-      clearCart();
-      setIsPlacingOrder(false);
-      setOrderSuccessData({ orderId });
-    }, 2000);
+    const payload = {
+      orderId,
+      form,
+      items: items.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: getItemPrice(item)
+      })),
+      finalTotalAmount
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/api/orders/confirmation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('Email sending failed:', data.error);
+        toast.error("Order placed, but email confirmation failed.");
+      } else {
+        toast.success("Order placed and email sent!");
+      }
+    } catch (error) {
+      console.error('Error connecting to email server:', error);
+      toast.error("Order placed, but couldn't send email confirmation.");
+    }
+
+    clearCart();
+    setIsPlacingOrder(false);
+    setOrderSuccessData({ orderId });
   };
 
   const steps = [

@@ -67,6 +67,12 @@ export default function CircularGallery({
       video.muted = true;
       video.playsInline = true;
       video.autoplay = true;
+      video.style.position = 'absolute';
+      video.style.width = '0px';
+      video.style.height = '0px';
+      video.style.opacity = '0';
+      video.style.pointerEvents = 'none';
+      document.body.appendChild(video);
       video.play().catch(e => console.log('Video autoplay blocked:', e));
       
       videoElements.push(video);
@@ -161,7 +167,10 @@ export default function CircularGallery({
       items.forEach((item, i) => {
         // Update video texture if playing
         if (item.video.readyState >= item.video.HAVE_CURRENT_DATA) {
-          item.texture.needsUpdate = true;
+          if (item.lastTime !== item.video.currentTime) {
+            item.texture.needsUpdate = true;
+            item.lastTime = item.video.currentTime;
+          }
         }
 
         // Wrap logic
@@ -196,6 +205,9 @@ export default function CircularGallery({
         v.pause();
         v.src = '';
         v.load();
+        if (v.parentNode) {
+          v.parentNode.removeChild(v);
+        }
       });
       gl.getExtension('WEBGL_lose_context')?.loseContext();
       if (container.contains(gl.canvas)) {

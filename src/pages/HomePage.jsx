@@ -12,6 +12,9 @@ import heroLifestyle3 from '../assets/images/hero_lifestyle_3.png';
 import heroLifestyle4 from '../assets/images/hero_lifestyle_4.png';
 import heroLifestyle5 from '../assets/images/hero_lifestyle_5.png';
 import storeVideo from '../assets/images/v1.mp4';
+import v2 from '../assets/images/v2.mp4';
+import v3 from '../assets/images/v3.mp4';
+import v4 from '../assets/images/v4.mp4';
 import c1 from '../assets/images/c1.jpeg';
 import c2 from '../assets/images/c2.jpeg';
 import c3 from '../assets/images/c3.jpeg';
@@ -151,6 +154,7 @@ export default function HomePage() {
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [testimonialCount, setTestimonialCount] = useState(3);
   const [categorySlideIndex, setCategorySlideIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
   const heroRef = useRef(null);
   const collageRef = useRef(null);
@@ -188,7 +192,10 @@ export default function HomePage() {
   }, [heroIndex]);
 
   useEffect(() => {
-    const updateCount = () => setTestimonialCount(window.innerWidth < 768 ? 1 : 3);
+    const updateCount = () => {
+      setTestimonialCount(window.innerWidth < 768 ? 1 : 3);
+      setIsMobile(window.innerWidth < 768);
+    };
     updateCount();
     window.addEventListener('resize', updateCount);
     return () => window.removeEventListener('resize', updateCount);
@@ -267,8 +274,8 @@ export default function HomePage() {
 
         {/* Bottom-right watermark */}
         <div className="absolute bottom-8 right-8 z-10 hidden md:block text-right pointer-events-none">
-          <p className="font-serif text-[13px] uppercase tracking-[3px] text-white/30">Sterling Cart</p>
-          <p className="mt-1 text-[8px] font-bold uppercase tracking-[2.5px] text-white/20">925 Silver Jewels</p>
+          <p className="brand-wordmark text-[13px] text-white/30">STERLING KART</p>
+          <p className="brand-submark mt-1 text-[8px] text-white/20">925 SILVER JEWELS</p>
         </div>
 
         {/* Hero content — floats freely over the image */}
@@ -621,10 +628,10 @@ export default function HomePage() {
       </section>
 
       {/* Influencer Spotlight / Circular Gallery Section */}
-      <section className="bg-black px-0 py-12 md:py-24 relative overflow-hidden">
+      <section className="bg-black px-0 py-10 md:py-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,82,122,0.15)_0%,transparent_70%)]" />
         
-        <div className="mx-auto max-w-[1320px] px-5 md:px-8 relative z-10 mb-10 text-center">
+        <div className="mx-auto max-w-[1320px] px-5 md:px-8 relative z-10 mb-0 text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[2px] text-[#F4A0B0] mb-2">Influencer Spotlight</p>
           <h2 className="font-serif text-[28px] leading-tight text-white md:text-[40px] mb-4">
             Trusted by Creators, Loved by Customers
@@ -634,19 +641,13 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="w-full h-[390px] md:h-[650px] relative z-10">
+        <div className="relative z-10 -mt-12 h-[240px] w-full md:-mt-8 md:h-[600px]">
           <CircularGallery 
-            videos={[
-              "https://assets.mixkit.co/videos/preview/mixkit-woman-putting-on-a-diamond-ring-41223-large.mp4",
-              "https://assets.mixkit.co/videos/preview/mixkit-beautiful-woman-wearing-a-diamond-necklace-41215-large.mp4",
-              "https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-woman-showing-off-her-jewelry-41217-large.mp4",
-              "https://assets.mixkit.co/videos/preview/mixkit-woman-showing-a-diamond-ring-on-her-finger-41219-large.mp4",
-              "https://assets.mixkit.co/videos/preview/mixkit-woman-putting-on-a-diamond-ring-41223-large.mp4"
-            ]} 
+            videos={[v4, storeVideo, v2, v3]}
             bend={0.06}
-            itemWidth={2.5}
-            itemHeight={4.4}
-            gap={0.3}
+            itemWidth={isMobile ? 2.5 : 4}
+            itemHeight={isMobile ? 4.4 : 7}
+            gap={isMobile ? 0.3 : 0.4}
           />
         </div>
       </section>
@@ -664,7 +665,7 @@ export default function HomePage() {
         
         {/* Top Left Watermark */}
         <div className="absolute top-6 left-6 z-10 pointer-events-none opacity-60 md:top-8 md:left-10">
-          <span className="font-serif text-xl tracking-[0.2em] text-white md:text-2xl uppercase">Sterling Cart</span>
+          <span className="brand-wordmark text-xl text-white md:text-2xl">STERLING KART</span>
         </div>
 
         <div className="absolute inset-0 flex items-end justify-end p-4 pb-8 md:items-center md:p-16 lg:pr-24">
@@ -678,7 +679,7 @@ export default function HomePage() {
             <h2 className="font-serif text-[28px] leading-tight text-white md:text-[46px]">Find the store</h2>
             <div className="mt-4 h-[1px] w-12 bg-bg-surface/40 md:mt-6" />
             <p className="mt-4 text-[12px] leading-relaxed tracking-wide text-white/90 md:mt-6 md:text-[15px]">
-              Step into the world of Sterling Cart. Discover our latest collections, experience our craftsmanship up close, and enjoy personal styling sessions with our experts.
+              Step into the world of Sterling Kart. Discover our latest collections, experience our craftsmanship up close, and enjoy personal styling sessions with our experts.
               <br/><br/>
               <strong className="text-white font-medium uppercase tracking-wider text-[13px]">Flagship Store</strong><br/>
               Roorkee, Uttarakhand 247667

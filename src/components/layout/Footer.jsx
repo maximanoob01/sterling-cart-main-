@@ -49,11 +49,11 @@ export default function Footer() {
         <div className="grid gap-12 lg:grid-cols-12 mb-16 border-b border-[#D4527A]/20 pb-16">
           <div className="lg:col-span-5 flex flex-col pr-4">
             <Link to="/" className="inline-flex flex-col items-start leading-none mb-6">
-              <span className="whitespace-nowrap font-[var(--font-logo)] text-[28px] font-semibold uppercase tracking-[1px] text-white">
-                Sterling Kart
+              <span className="brand-wordmark whitespace-nowrap text-[28px] text-white">
+                STERLING KART
               </span>
-              <span className="mt-1.5 whitespace-nowrap font-sans text-[9px] font-bold uppercase tracking-[3px] text-[#F4A0B0]">
-                925 Silver Jewels
+              <span className="brand-submark mt-1.5 whitespace-nowrap text-[9px] text-[#F4A0B0]">
+                925 SILVER JEWELS
               </span>
             </Link>
             <p className="text-[14px] leading-relaxed text-white/70 max-w-[380px] font-serif italic">
