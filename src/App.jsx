@@ -5,6 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { AuthProvider } from './context/AuthContext';
+import { LoyaltyProvider } from './context/LoyaltyContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 
@@ -74,6 +75,7 @@ function App() {
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
+            <LoyaltyProvider>
           <CurrencyProvider>
             <CartProvider>
               <WishlistProvider>
@@ -98,6 +100,7 @@ function App() {
               </WishlistProvider>
             </CartProvider>
           </CurrencyProvider>
+            </LoyaltyProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

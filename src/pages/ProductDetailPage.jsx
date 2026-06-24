@@ -4,12 +4,14 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   Award, Check, ChevronRight, Heart, Home, MapPin, PackageCheck,
   Ruler, Share2, Shield, Globe, Star, X, ZoomIn,
-  Sparkles, ShoppingBag, Scale, Wrench, IndianRupee,
+  Sparkles, ShoppingBag, Scale, Wrench, IndianRupee, Coins,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useCurrency } from '../context/CurrencyContext';
+import { useAuth } from '../context/AuthContext';
+import { useLoyalty } from '../context/LoyaltyContext';
 import { getProductById, getRelatedProducts } from '../data/products';
 import { calculateDiscount } from '../utils/formatPrice';
 import { SILVER_RATE_PER_GRAM, computeWeightBasedPrice } from '../utils/silverRate';
@@ -166,6 +168,8 @@ export default function ProductDetailPage() {
   const { addItem } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
   const { formatPrice } = useCurrency();
+  const { isAuthenticated } = useAuth();
+  const { balance, pointsEarned } = useLoyalty();
   const [product] = useState(getProductById(id));
   const relatedProducts = product ? getRelatedProducts(product, 4) : [];
 
@@ -374,6 +378,37 @@ export default function ProductDetailPage() {
                   <p className="mt-1.5 text-[11px] text-text-muted">+ 3% GST · Fixed MRP price</p>
                 </>
               )}
+
+              {/* ── Sterling Points badge (logged-in users only) ── */}
+              {isAuthenticated && (() => {
+                const basePrice = product.pricingType === 'weight'
+                  ? computeWeightBasedPrice(product.weightGrams, product.makingCharges)
+                  : product.price;
+                const earnOnThis = pointsEarned(basePrice);
+                return (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="mt-3 pt-3 border-t border-[#F4A0B0]/30 flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#D4527A] to-[#F4A0B0] flex items-center justify-center shadow-sm flex-shrink-0">
+                        <Coins size={13} className="text-white" />
+                      </div>
+                      <div>
+                        <p className="font-sans text-[11px] font-bold text-[#D4527A]">
+                          Earn <span className="text-[13px]">{earnOnThis}</span> Sterling Points
+                        </p>
+                        <p className="font-sans text-[10px] text-text-muted">Balance: {balance} pts · 1 pt = ₹1 off next order</p>
+                      </div>
+                    </div>
+                    <span className="shrink-0 bg-[#D4527A]/10 border border-[#D4527A]/20 text-[#D4527A] text-[9px] font-bold uppercase tracking-[0.8px] px-2 py-1 rounded-full">
+                      Loyalty
+                    </span>
+                  </motion.div>
+                );
+              })()}
             </div>
 
             {/* International Payments Banner */}

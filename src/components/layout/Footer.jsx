@@ -25,16 +25,16 @@ export default function Footer() {
   if (location.pathname.startsWith('/admin')) return null;
 
   return (
-    <footer 
-      className="pt-24 pb-10 text-white relative overflow-hidden border-t border-[#D4527A]/20"
+    <footer
+      className="pt-24 pb-28 sm:pb-10 text-white relative overflow-hidden border-t border-[#D4527A]/20"
       style={{ background: 'linear-gradient(135deg, #1E0912 0%, #2A0D1A 50%, #1A0810 100%)' }}
     >
       {/* 3D Floating Ring Background Element */}
-      <div 
+      <div
         className="absolute right-[-10%] md:right-[-5%] lg:right-0 top-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[450px] md:h-[450px] lg:w-[550px] lg:h-[550px] opacity-90 pointer-events-none z-0 select-none mix-blend-lighten"
-        style={{ 
-          maskImage: 'radial-gradient(circle at center, black 40%, transparent 70%)', 
-          WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 70%)' 
+        style={{
+          maskImage: 'radial-gradient(circle at center, black 40%, transparent 70%)',
+          WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 70%)'
         }}
       >
         <img src="/footer-ring.png" alt="" className="w-full h-full object-cover" />
@@ -44,11 +44,15 @@ export default function Footer() {
       <div className="absolute top-0 left-1/4 w-full max-w-[800px] h-[300px] bg-[#D4527A]/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0" />
 
       <div className="mx-auto max-w-[1320px] px-6 md:px-10 relative z-10">
-        
-        {/* Top Section: Brand & Newsletter */}
+
+        {/* Top Section: Brand & Nav */}
         <div className="grid gap-12 lg:grid-cols-12 mb-16 border-b border-[#D4527A]/20 pb-16">
+
+          {/* Brand column */}
           <div className="lg:col-span-5 flex flex-col pr-4">
-            <Link to="/" className="inline-flex flex-col items-start leading-none mb-6">
+
+            {/* ── Logo: centered on mobile, left on desktop ── */}
+            <Link to="/" className="inline-flex flex-col items-center lg:items-start leading-none mb-6 self-center lg:self-start">
               <span className="brand-wordmark whitespace-nowrap text-[28px] text-white">
                 STERLING KART
               </span>
@@ -56,21 +60,25 @@ export default function Footer() {
                 925 SILVER JEWELS
               </span>
             </Link>
-            <p className="text-[14px] leading-relaxed text-white/70 max-w-[380px] font-serif italic">
+
+            {/* Tagline: centered on mobile, left on desktop */}
+            <p className="text-[14px] leading-relaxed text-white/70 max-w-[380px] font-serif italic text-center lg:text-left">
               Elevating everyday elegance with bespoke 925 sterling silver jewelry. Crafted with passion, designed for luxury.
             </p>
-            <div className="mt-8 mb-10 flex items-center gap-4">
-              <a 
-                href="https://www.instagram.com/sterling.kart/" 
-                target="_blank" 
-                rel="noreferrer" 
+
+            {/* ── Social icons: centered on mobile, left on desktop ── */}
+            <div className="mt-8 mb-10 flex items-center justify-center lg:justify-start gap-4">
+              <a
+                href="https://www.instagram.com/sterling.kart/"
+                target="_blank"
+                rel="noreferrer"
                 className="flex items-center justify-center w-11 h-11 rounded-full border border-[#D4527A]/40 text-[#F4A0B0] hover:bg-[#D4527A]/20 hover:text-white hover:border-[#D4527A] transition-all duration-500"
                 aria-label="Instagram"
               >
                 <InstagramIcon size={18} />
               </a>
-              <a 
-                href="mailto:contact@sterlingkart.com" 
+              <a
+                href="mailto:contact@sterlingkart.com"
                 className="flex items-center justify-center w-11 h-11 rounded-full border border-[#D4527A]/40 text-[#F4A0B0] hover:bg-[#D4527A]/20 hover:text-white hover:border-[#D4527A] transition-all duration-500"
                 aria-label="Email Us"
               >
@@ -78,6 +86,7 @@ export default function Footer() {
               </a>
             </div>
 
+            {/* Visit Us: left-aligned always */}
             <div>
               <h4 className="mb-5 text-[10px] font-bold uppercase tracking-[2px] text-[#F4A0B0]">Visit Us</h4>
               <ul className="flex flex-col gap-3 text-[13px] text-white/60">
@@ -93,6 +102,7 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* Nav link columns: left-aligned always */}
           <div className="lg:col-span-4 grid gap-8 sm:grid-cols-2 lg:pl-10">
             <FooterLinks title="Explore" links={[
               ['Shop All', '/shop'],
@@ -100,7 +110,6 @@ export default function Footer() {
               ['Our Story', '/about'],
               ['Gifting', '/shop?occasion=gifting'],
             ]} />
-
             <FooterLinks title="Client Care" links={[
               ['Track Order', '/track-order'],
               ['Shipping Policy', '#'],
@@ -110,14 +119,19 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="flex flex-col gap-4 text-[11px] font-medium tracking-wide text-white/50 sm:flex-row sm:items-center sm:justify-between uppercase">
-          <p>© {new Date().getFullYear()} Sterling Kart. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <Link to="#" className="hover:text-white hover:underline transition-colors">Privacy</Link>
-            <Link to="#" className="hover:text-white hover:underline transition-colors">Terms</Link>
-            <span className="flex items-center gap-1 ml-4 border-l border-[#D4527A]/30 pl-8">
-              Designed by <a href="#" className="text-[#F4A0B0] hover:text-white transition-colors">hypenbloom</a>
+        {/* Bottom Bar — stacked & centred on mobile, row on sm+ */}
+        <div className="flex flex-col items-center gap-3 text-[11px] font-medium tracking-wide text-white/50 sm:flex-row sm:items-center sm:justify-between uppercase">
+          {/* Copyright — left on desktop, centered on mobile */}
+          <p className="text-center sm:text-left order-2 sm:order-1">© {new Date().getFullYear()} Sterling Kart. All rights reserved.</p>
+
+          {/* Privacy + Terms + Designed by — right on desktop, stacked center on mobile */}
+          <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-4 order-1 sm:order-2">
+            <div className="flex items-center gap-4">
+              <Link to="#" className="hover:text-white hover:underline transition-colors">Privacy</Link>
+              <Link to="#" className="hover:text-white hover:underline transition-colors">Terms</Link>
+            </div>
+            <span className="flex items-center gap-1 sm:ml-4 sm:border-l sm:border-[#D4527A]/30 sm:pl-8 order-3">
+              Designed by <a href="#" className="text-[#F4A0B0] hover:text-white transition-colors ml-1">hypenbloom</a>
             </span>
           </div>
         </div>
@@ -133,8 +147,8 @@ function FooterLinks({ title, links }) {
       <ul className="flex flex-col gap-3.5">
         {links.map(([name, path]) => (
           <li key={name}>
-            <Link 
-              to={path} 
+            <Link
+              to={path}
               className="group flex items-center text-[13px] text-white/60 transition-colors hover:text-white"
             >
               <span className="relative overflow-hidden">

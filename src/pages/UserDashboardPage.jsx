@@ -3,11 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Package, Heart, MapPin, User, Truck, LogOut, ShoppingCart,
-  Download, ChevronRight, Home, Plus, Star, Trash2, X, Edit, Menu, Lock
+  Download, ChevronRight, Home, Plus, Star, Trash2, X, Edit, Menu, Lock, Coins, TrendingUp, Gift
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
+import { useLoyalty } from '../context/LoyaltyContext';
 import { mockOrders } from '../data/orders';
 import { products } from '../data/products';
 import { formatPrice, formatDate } from '../utils/formatPrice';
@@ -25,6 +26,7 @@ const statusColors = {
 
 const sidebarTabs = [
   { id: 'orders', label: 'My Orders', icon: Package },
+  { id: 'rewards', label: 'Sterling Points', icon: Coins },
   { id: 'wishlist', label: 'Wishlist', icon: Heart },
   { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
   { id: 'profile', label: 'Profile Settings', icon: User },
@@ -66,6 +68,22 @@ const BackgroundBlobs = () => (
     />
   </div>
 );
+
+/* ── Loyalty Points pill shown in sidebar ── */
+const LoyaltyBalancePill = () => {
+  const { balance } = useLoyalty();
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.2 }}
+      className="mt-2 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#D4527A]/10 to-[#F4A0B0]/10 border border-[#D4527A]/20 rounded-full px-3 py-1 mx-auto"
+    >
+      <Coins size={12} className="text-[#D4527A]" />
+      <span className="font-sans text-[11px] font-bold text-[#D4527A]">{balance} Sterling Points</span>
+    </motion.div>
+  );
+};
 
 /* ==================== ORDERS TAB ==================== */
 const OrderCard = ({ order }) => {
@@ -515,7 +533,162 @@ const AddressesTab = () => {
   );
 };
 
-/* ==================== MAIN PAGE ==================== */
+/* ==================== REWARDS TAB ==================== */
+const RewardsTab = () => {
+  const { balance, history } = useLoyalty();
+
+  // Tier thresholds
+  const tiers = [
+    { name: 'Silver', min: 0, max: 499, color: '#9CA3AF', gradient: 'from-gray-300 to-gray-400' },
+    { name: 'Gold', min: 500, max: 999, color: '#D97706', gradient: 'from-yellow-400 to-amber-500' },
+    { name: 'Platinum', min: 1000, max: 2499, color: '#7C3AED', gradient: 'from-violet-500 to-purple-600' },
+    { name: 'Diamond', min: 2500, max: Infinity, color: '#D4527A', gradient: 'from-[#D4527A] to-[#B94B68]' },
+  ];
+  const currentTier = tiers.find((t) => balance >= t.min && balance <= t.max) || tiers[0];
+  const nextTier = tiers[tiers.indexOf(currentTier) + 1];
+  const progressPct = nextTier
+    ? Math.min(100, ((balance - currentTier.min) / (nextTier.min - currentTier.min)) * 100)
+    : 100;
+
+  return (
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-3xl font-serif text-charcoal tracking-tight">Sterling Points</h2>
+      </div>
+
+      {/* Balance hero card */}
+      <motion.div
+        variants={fadeUpItem}
+        className="relative rounded-[28px] overflow-hidden shadow-[0_16px_48px_rgba(212,82,122,0.2)]"
+      >
+        {/* BG gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#D4527A] via-[#C04070] to-[#8B2252]" />
+        {/* Decorative circles */}
+        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
+        <div className="absolute -bottom-10 -left-10 w-56 h-56 rounded-full bg-black/10" />
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-white/5 blur-2xl" />
+
+        <div className="relative z-10 p-7 md:p-10">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="font-sans text-[11px] uppercase tracking-[2.5px] font-bold text-white/60 mb-2">Your Balance</p>
+              <div className="flex items-end gap-3">
+                <motion.span
+                  key={balance}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="font-serif text-[56px] font-bold text-white leading-none"
+                >
+                  {balance}
+                </motion.span>
+                <span className="font-sans text-[18px] font-semibold text-white/70 mb-2">pts</span>
+              </div>
+              <p className="font-sans text-[13px] text-white/60 mt-1">≈ ₹{balance} redeemable value</p>
+            </div>
+
+            {/* Animated coin icon */}
+            <motion.div
+              animate={{ rotate: [0, 8, -8, 8, 0], y: [0, -4, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              className="w-16 h-16 rounded-full bg-white/15 border border-white/20 flex items-center justify-center shadow-[0_0_24px_rgba(255,255,255,0.2)]"
+            >
+              <Coins size={32} className="text-white" />
+            </motion.div>
+          </div>
+
+          {/* Tier + progress */}
+          <div className="mt-6">
+            <div className="flex items-center justify-between text-[12px] font-sans mb-2">
+              <span className="flex items-center gap-1.5 font-bold text-white">
+                <span className="w-2 h-2 rounded-full" style={{ background: currentTier.color }} />
+                {currentTier.name} Member
+              </span>
+              {nextTier && (
+                <span className="text-white/60">
+                  {nextTier.min - balance} pts to {nextTier.name}
+                </span>
+              )}
+            </div>
+            <div className="h-2 rounded-full bg-white/20 overflow-hidden">
+              <motion.div
+                className={`h-full rounded-full bg-gradient-to-r ${currentTier.gradient}`}
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPct}%` }}
+                transition={{ duration: 1.2, ease: 'easeOut', delay: 0.3 }}
+              />
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* How it works strip */}
+      <motion.div
+        variants={fadeUpItem}
+        className="grid grid-cols-3 gap-3"
+      >
+        {[
+          { icon: '🛍️', title: 'Shop', desc: 'Earn 10% of order as points' },
+          { icon: '🪙', title: 'Collect', desc: 'Points auto-added after delivery' },
+          { icon: '🎁', title: 'Redeem', desc: 'Up to 5% off on next order' },
+        ].map((step, i) => (
+          <div key={i} className="bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl p-4 text-center shadow-sm">
+            <span className="text-[24px]">{step.icon}</span>
+            <p className="font-serif text-[14px] text-charcoal mt-2 mb-1">{step.title}</p>
+            <p className="font-sans text-[10px] text-silver-500 leading-relaxed">{step.desc}</p>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* History */}
+      <motion.div variants={fadeUpItem}>
+        <h3 className="font-serif text-xl text-charcoal mb-4">Transaction History</h3>
+        {history.length === 0 ? (
+          <div className="bg-white/40 backdrop-blur-md rounded-3xl border border-white/50 p-10 text-center">
+            <Coins size={36} className="text-[#D4527A]/30 mx-auto mb-3" />
+            <p className="text-silver-500 text-sm">No transactions yet. Start shopping to earn points!</p>
+            <Link to="/shop" className="inline-flex items-center gap-1.5 mt-4 px-5 py-2.5 bg-[#D4527A] text-white rounded-full font-semibold text-sm hover:bg-[#B94B68] transition-all">
+              <ShoppingCart size={14} /> Browse Collection
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {history.map((item, i) => (
+              <motion.div
+                key={item.id}
+                variants={fadeUpItem}
+                className="flex items-center gap-4 bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl p-4 shadow-sm hover:shadow-[0_8px_24px_rgba(212,82,122,0.08)] transition-shadow"
+              >
+                {/* Icon */}
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                  item.type === 'earned'
+                    ? 'bg-green-100 text-green-600'
+                    : 'bg-[#FFF0F5] text-[#D4527A]'
+                }`}>
+                  {item.type === 'earned' ? <TrendingUp size={17} /> : <Gift size={17} />}
+                </div>
+                {/* Details */}
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans text-[13px] font-semibold text-charcoal truncate">{item.description}</p>
+                  <p className="font-sans text-[11px] text-silver-500 mt-0.5">
+                    {new Date(item.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </p>
+                </div>
+                {/* Points */}
+                <div className={`font-sans text-[15px] font-bold shrink-0 ${
+                  item.type === 'earned' ? 'text-green-600' : 'text-[#D4527A]'
+                }`}>
+                  {item.type === 'earned' ? '+' : '−'}{item.points} pts
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+};
+
+/* ==================== MAIN PAGE ====================*/
 const UserDashboardPage = () => {
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
   const navigate = useNavigate();
@@ -548,6 +721,7 @@ const UserDashboardPage = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'orders': return <OrdersTab />;
+      case 'rewards': return <RewardsTab />;
       case 'wishlist': return <WishlistTab />;
       case 'profile': return <ProfileTab />;
       case 'addresses': return <AddressesTab />;
@@ -637,6 +811,8 @@ const UserDashboardPage = () => {
                 </div>
                 <h3 className="font-serif text-charcoal text-xl leading-tight mb-1">{user?.name}</h3>
                 <p className="text-xs text-silver-500 font-medium bg-white/80 px-3 py-1 rounded-full">{user?.phone}</p>
+                {/* Points balance pill */}
+                <LoyaltyBalancePill />
               </div>
 
               {/* Nav Links */}

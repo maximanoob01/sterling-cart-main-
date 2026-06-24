@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift } from 'lucide-react';
+import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift, Coins, Star, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
+import { useAuth } from '../context/AuthContext';
+import { useLoyalty } from '../context/LoyaltyContext';
 import { getItemPrice } from '../context/CartContext';
 import { generateOrderId } from '../utils/formatPrice';
 import toast from 'react-hot-toast';
@@ -42,6 +44,8 @@ const CheckoutPage = () => {
     clearCart,
   } = useCart();
   const { formatPrice, currency } = useCurrency();
+  const { isAuthenticated } = useAuth();
+  const { balance, addPoints, redeemPoints, maxRedeemable, pointsEarned } = useLoyalty();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedPayment, setSelectedPayment] = useState('upi');
@@ -49,13 +53,43 @@ const CheckoutPage = () => {
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
   const [orderSuccessData, setOrderSuccessData] = useState(null);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [isGiftWrapped, setIsGiftWrapped] = useState(false);
   const [giftNote, setGiftNote] = useState('');
   const [isGiftDetailsOpen, setIsGiftDetailsOpen] = useState(false);
+  const [loyaltyApplied, setLoyaltyApplied] = useState(false);
+  const [loyaltyInput, setLoyaltyInput] = useState('');
+  const [appliedPoints, setAppliedPoints] = useState(0);
+  const [showLoyaltyEarnedDialog, setShowLoyaltyEarnedDialog] = useState(false);
 
   const codFee = selectedPayment === 'cod' ? 9 : 0;
   const giftWrapFee = isGiftWrapped ? 49 : 0;
-  const finalTotalAmount = totalAmount + codFee + giftWrapFee;
+  const loyaltyDiscount = appliedPoints; // 1 pt = ₹1
+  const finalTotalAmount = Math.max(0, totalAmount + codFee + giftWrapFee - loyaltyDiscount);
+
+  // How many points this order will earn (10% of final)
+  const willEarnPoints = pointsEarned(finalTotalAmount);
+  // Max redeemable for this order
+  const orderMaxRedeemable = maxRedeemable(totalAmount + codFee + giftWrapFee, balance);
+
+  const handleApplyLoyalty = () => {
+    const pts = parseInt(loyaltyInput, 10);
+    if (!pts || pts <= 0) { toast.error('Enter a valid number of points'); return; }
+    if (pts > balance) { toast.error(`You only have ${balance} pts`); return; }
+    if (pts > orderMaxRedeemable) { toast.error(`Max redeemable for this order is ${orderMaxRedeemable} pts`); return; }
+    setAppliedPoints(pts);
+    setLoyaltyApplied(true);
+    toast.success(`✨ ${pts} Sterling Points applied!`, {
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #F4A0B0' },
+      iconTheme: { primary: '#D4527A', secondary: '#FFF' },
+    });
+  };
+
+  const handleRemoveLoyalty = () => {
+    setAppliedPoints(0);
+    setLoyaltyApplied(false);
+    setLoyaltyInput('');
+  };
 
   const [form, setForm] = useState({
     fullName: '',
@@ -75,13 +109,23 @@ const CheckoutPage = () => {
     }
   }, [items, navigate, isPlacingOrder, orderSuccessData]);
 
-  // Auto-redirect to shop after 4 seconds of celebration
+  // Sequence: success screen (3 s) → exit animation (0.8 s) → loyalty dialog → redirect
   useEffect(() => {
     if (orderSuccessData) {
-      const timer = setTimeout(() => {
+      setShowSuccessScreen(true);
+      // Hide success card after 3 s (exit animation takes ~0.8 s)
+      const hideSuccessTimer = setTimeout(() => setShowSuccessScreen(false), 3000);
+      // Show loyalty dialog after success card is fully gone
+      const dialogTimer = setTimeout(() => setShowLoyaltyEarnedDialog(true), 3900);
+      // Auto-redirect if user doesn't interact with dialog
+      const redirectTimer = setTimeout(() => {
         navigate('/shop', { state: { showTrackOrderPointer: true } });
-      }, 4000);
-      return () => clearTimeout(timer);
+      }, 9000);
+      return () => {
+        clearTimeout(hideSuccessTimer);
+        clearTimeout(dialogTimer);
+        clearTimeout(redirectTimer);
+      };
     }
   }, [orderSuccessData, navigate]);
 
@@ -126,6 +170,14 @@ const CheckoutPage = () => {
     setIsPlacingOrder(true);
     const orderId = generateOrderId();
 
+    // Deduct redeemed points first
+    if (isAuthenticated && appliedPoints > 0) {
+      redeemPoints(appliedPoints, orderId);
+    }
+
+    // Earn new points (10% of final amount)
+    const earned = isAuthenticated ? addPoints(finalTotalAmount, orderId) : 0;
+
     const payload = {
       orderId,
       form,
@@ -140,19 +192,15 @@ const CheckoutPage = () => {
     try {
       const response = await fetch('http://localhost:5000/api/orders/confirmation', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      
       const data = await response.json();
-      
       if (!response.ok) {
         console.error('Email sending failed:', data.error);
-        toast.error("Order placed, but email confirmation failed.");
+        toast.error('Order placed, but email confirmation failed.');
       } else {
-        toast.success("Order placed and email sent!");
+        toast.success('Order placed and email sent!');
       }
     } catch (error) {
       console.error('Error connecting to email server:', error);
@@ -161,7 +209,7 @@ const CheckoutPage = () => {
 
     clearCart();
     setIsPlacingOrder(false);
-    setOrderSuccessData({ orderId });
+    setOrderSuccessData({ orderId, earnedPoints: earned });
   };
 
   const steps = [
@@ -184,12 +232,7 @@ const CheckoutPage = () => {
               top: '50%',
               left: '50%',
             }}
-            initial={{ 
-              x: 0, 
-              y: 0, 
-              opacity: 1,
-              scale: 0
-            }}
+            initial={{ x: 0, y: 0, opacity: 1, scale: 0 }}
             animate={{ 
               x: (Math.random() - 0.5) * (typeof window !== 'undefined' ? window.innerWidth : 800) * 1.5,
               y: (Math.random() - 0.5) * (typeof window !== 'undefined' ? window.innerHeight : 800) * 1.5,
@@ -197,71 +240,149 @@ const CheckoutPage = () => {
               scale: Math.random() * 1.5 + 0.5,
               rotate: Math.random() * 360
             }}
-            transition={{ 
-              duration: Math.random() * 2 + 1.5, 
-              ease: "easeOut",
-            }}
+            transition={{ duration: Math.random() * 2 + 1.5, ease: 'easeOut' }}
           />
         ))}
 
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", duration: 0.8, bounce: 0.4 }}
-          className="relative z-10 glass-panel bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-[32px] text-center max-w-md w-full shadow-2xl"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", delay: 0.2, duration: 0.6 }}
-            className="w-24 h-24 bg-[#D4527A] rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_60px_rgba(212,82,122,0.6)] relative"
-          >
-            <Check size={48} strokeWidth={3} className="text-white" />
-            <motion.div 
-              animate={{ rotate: 360 }} 
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 border-[4px] border-dashed border-white/40 rounded-full" 
-            />
-          </motion.div>
+        {/* ── Success Card (exits after 3 s) ── */}
+        <AnimatePresence mode="wait">
+          {showSuccessScreen && (
+            <motion.div
+              key="success-card"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0, y: -30 }}
+              transition={{ type: 'spring', duration: 0.8, bounce: 0.4 }}
+              className="relative z-10 glass-panel bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-[32px] text-center max-w-md w-full shadow-2xl"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', delay: 0.2, duration: 0.6 }}
+                className="w-24 h-24 bg-[#D4527A] rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_60px_rgba(212,82,122,0.6)] relative"
+              >
+                <Check size={48} strokeWidth={3} className="text-white" />
+                <motion.div 
+                  animate={{ rotate: 360 }} 
+                  transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+                  className="absolute inset-0 border-[4px] border-dashed border-white/40 rounded-full" 
+                />
+              </motion.div>
 
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <h1 className="font-serif text-[32px] md:text-[40px] text-white mb-2 flex items-center justify-center gap-3">
-              <Sparkles className="text-[#F4A0B0]" size={28} />
-              Success!
-              <Sparkles className="text-[#F4A0B0]" size={28} />
-            </h1>
-            <p className="font-sans text-[14px] text-white/70 mb-8 max-w-[280px] mx-auto leading-relaxed">
-              Your order is confirmed. We're packing it with care and getting it ready for delivery.
-            </p>
-          </motion.div>
+              <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}>
+                <h1 className="font-serif text-[32px] md:text-[40px] text-white mb-2 flex items-center justify-center gap-3">
+                  <Sparkles className="text-[#F4A0B0]" size={28} />
+                  Success!
+                  <Sparkles className="text-[#F4A0B0]" size={28} />
+                </h1>
+                <p className="font-sans text-[14px] text-white/70 mb-8 max-w-[280px] mx-auto leading-relaxed">
+                  Your order is confirmed. We're packing it with care and getting it ready for delivery.
+                </p>
+              </motion.div>
 
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-8"
-          >
-            <p className="font-sans text-[11px] uppercase tracking-[2px] font-bold text-[#D4527A] mb-1">Order Number</p>
-            <p className="font-sans text-[20px] font-bold tracking-[1.5px] text-white">{orderSuccessData.orderId}</p>
-          </motion.div>
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-6"
+              >
+                <p className="font-sans text-[11px] uppercase tracking-[2px] font-bold text-[#D4527A] mb-1">Order Number</p>
+                <p className="font-sans text-[20px] font-bold tracking-[1.5px] text-white">{orderSuccessData.orderId}</p>
+              </motion.div>
 
-          <motion.button
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ delay: 0.6 }}
-            onClick={() => navigate('/shop', { state: { showTrackOrderPointer: true } })}
-            className="w-full h-[54px] bg-white text-[#1A1A1A] rounded-full font-bold text-[13px] tracking-[1.5px] uppercase flex items-center justify-center gap-2 hover:bg-[#D4527A] hover:text-white transition-all duration-300 shadow-lg"
-          >
-            Continue Shopping
-            <ArrowRight size={18} strokeWidth={2.5} />
-          </motion.button>
-        </motion.div>
+              <motion.button
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ delay: 0.6 }}
+                onClick={() => navigate('/shop', { state: { showTrackOrderPointer: true } })}
+                className="w-full h-[54px] bg-white text-[#1A1A1A] rounded-full font-bold text-[13px] tracking-[1.5px] uppercase flex items-center justify-center gap-2 hover:bg-[#D4527A] hover:text-white transition-all duration-300 shadow-lg"
+              >
+                Continue Shopping
+                <ArrowRight size={18} strokeWidth={2.5} />
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Loyalty Points Earned Dialog ── */}
+        <AnimatePresence>
+          {showLoyaltyEarnedDialog && isAuthenticated && orderSuccessData.earnedPoints > 0 && (
+            <motion.div
+              initial={{ scale: 0.7, y: 50, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.85, y: 20, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+              className="relative z-10 max-w-sm w-full rounded-[28px] overflow-hidden shadow-[0_32px_80px_rgba(212,82,122,0.5)]"
+            >
+                {/* Gradient top band */}
+                <div className="h-2 w-full bg-gradient-to-r from-[#D4527A] via-[#F4A0B0] to-[#D4527A]" />
+
+                <div className="bg-[#1A1A1A] border border-white/10 px-8 py-8 text-center relative">
+                  <button
+                    onClick={() => setShowLoyaltyEarnedDialog(false)}
+                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 transition-all"
+                  >
+                    <X size={14} />
+                  </button>
+
+                  {/* Coin animation */}
+                  <motion.div
+                    animate={{ rotate: [0, 10, -10, 10, 0], y: [0, -6, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-[#D4527A] to-[#F4A0B0] flex items-center justify-center shadow-[0_0_40px_rgba(212,82,122,0.5)]"
+                  >
+                    <Coins size={36} className="text-white" />
+                  </motion.div>
+
+                  {/* Sparkle dots */}
+                  {[...Array(6)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-1.5 h-1.5 rounded-full bg-[#F4A0B0]"
+                      style={{
+                        top: `${20 + Math.sin(i * 60 * Math.PI / 180) * 50}%`,
+                        left: `${50 + Math.cos(i * 60 * Math.PI / 180) * 40}%`,
+                      }}
+                      animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.25 }}
+                    />
+                  ))}
+
+                  <p className="font-sans text-[11px] uppercase tracking-[2.5px] font-bold text-[#F4A0B0] mb-2">Congratulations!</p>
+                  <h2 className="font-serif text-[28px] text-white leading-tight mb-1">
+                    You earned
+                  </h2>
+                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4527A]/20 to-[#F4A0B0]/10 border border-[#D4527A]/30 rounded-full px-5 py-2 my-3">
+                    <Coins size={18} className="text-[#F4A0B0]" />
+                    <span className="font-sans text-[26px] font-black text-white">{orderSuccessData.earnedPoints}</span>
+                    <span className="font-sans text-[13px] font-bold text-[#F4A0B0]">Sterling Points</span>
+                  </div>
+                  <p className="font-sans text-[13px] text-white/60 leading-relaxed mt-2">
+                    Redeem them on your next order for an instant discount!
+                  </p>
+
+                  <div className="mt-6 flex flex-col gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => navigate('/dashboard')}
+                      className="w-full h-11 bg-gradient-to-r from-[#D4527A] to-[#B94B68] text-white rounded-full font-bold text-[12px] tracking-[1.2px] uppercase flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(212,82,122,0.4)] hover:shadow-[0_6px_28px_rgba(212,82,122,0.5)] transition-all"
+                    >
+                      <Star size={14} className="fill-white" /> View in My Profile
+                    </motion.button>
+                    <button
+                      onClick={() => { setShowLoyaltyEarnedDialog(false); navigate('/shop'); }}
+                      className="w-full h-11 border border-white/15 rounded-full text-white/60 font-semibold text-[12px] hover:text-white hover:border-white/30 transition-all"
+                    >
+                      Continue Shopping
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -767,7 +888,7 @@ const CheckoutPage = () => {
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between items-center text-[#D4527A]">
-                      <span>Discount</span>
+                      <span>Coupon Discount</span>
                       <span className="font-medium">-{formatPrice(discount)}</span>
                     </div>
                   )}
@@ -787,12 +908,99 @@ const CheckoutPage = () => {
                       <span className="font-medium">{formatPrice(giftWrapFee)}</span>
                     </div>
                   )}
+                  {loyaltyApplied && appliedPoints > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1.5 text-[#D4527A] font-semibold">
+                        <Coins size={12} /> Sterling Points
+                      </span>
+                      <span className="font-bold text-[#D4527A]">−{formatPrice(appliedPoints)}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Free Delivery Progress */}
                 <div className="mt-[20px] relative z-10">
                   <FreeDeliveryBar subtotal={subtotal} threshold={2499} compact />
                 </div>
+
+                {/* ── Sterling Points Card ── */}
+                {isAuthenticated && (
+                  <div className="mt-[20px] relative z-10">
+                    <div className="rounded-[16px] overflow-hidden border border-[#F4A0B0]/30 shadow-[0_4px_20px_rgba(212,82,122,0.08)]">
+                      {/* Header */}
+                      <div className="bg-gradient-to-r from-[#D4527A] to-[#B94B68] px-4 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                            <Coins size={13} className="text-white" />
+                          </div>
+                          <span className="font-sans text-[11px] font-bold uppercase tracking-[1px] text-white">Sterling Points</span>
+                        </div>
+                        <div className="flex items-center gap-1 bg-white/20 rounded-full px-2.5 py-0.5">
+                          <Coins size={10} className="text-white" />
+                          <span className="font-sans text-[11px] font-black text-white">{balance} pts</span>
+                        </div>
+                      </div>
+
+                      {/* Body */}
+                      <div className="bg-gradient-to-br from-[#FFF0F5] to-[#FDF5F8] px-4 py-3">
+                        {balance === 0 ? (
+                          <p className="font-sans text-[12px] text-text-muted text-center py-1">
+                            No points yet. You'll earn {willEarnPoints} pts on this order!
+                          </p>
+                        ) : loyaltyApplied ? (
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-sans text-[12px] font-semibold text-[#D4527A] flex items-center gap-1.5">
+                                <Check size={13} strokeWidth={3} /> {appliedPoints} pts applied · saves {formatPrice(appliedPoints)}
+                              </p>
+                              <p className="font-sans text-[11px] text-text-muted mt-0.5">Remaining: {balance - appliedPoints} pts</p>
+                            </div>
+                            <button
+                              onClick={handleRemoveLoyalty}
+                              className="font-sans text-[11px] font-bold text-[#D4527A] hover:text-[#B94B68] underline transition-colors ml-3"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="font-sans text-[12px] text-text-muted mb-2">
+                              Use up to{' '}
+                              <span className="font-bold text-[#D4527A]">{orderMaxRedeemable} pts</span>
+                              {' '}= {formatPrice(orderMaxRedeemable)} off
+                            </p>
+                            <div className="flex gap-2">
+                              <input
+                                type="number"
+                                min={1}
+                                max={orderMaxRedeemable}
+                                value={loyaltyInput}
+                                onChange={(e) => setLoyaltyInput(e.target.value)}
+                                placeholder={`Max ${orderMaxRedeemable} pts`}
+                                className="flex-1 h-[34px] px-3 text-[12px] font-medium border border-[#F4A0B0]/50 rounded-[10px] bg-white outline-none focus:border-[#D4527A] transition-colors placeholder:text-text-muted/50"
+                              />
+                              <button
+                                onClick={handleApplyLoyalty}
+                                disabled={orderMaxRedeemable === 0}
+                                className="h-[34px] px-4 bg-[#D4527A] text-white rounded-[10px] font-bold text-[11px] tracking-[0.5px] uppercase hover:bg-[#B94B68] transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                              >
+                                Apply
+                              </button>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Will earn info */}
+                        <div className="mt-2.5 pt-2.5 border-t border-[#F4A0B0]/20 flex items-center gap-1.5">
+                          <Star size={10} className="text-[#D4527A] fill-[#D4527A]" />
+                          <p className="font-sans text-[11px] text-text-muted">
+                            You'll earn <span className="font-bold text-[#D4527A]">{willEarnPoints} pts</span> after this order
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Gift Wrapping Option */}
                 <div className="mt-[20px] pt-[20px] border-t border-white/40 relative z-10">
