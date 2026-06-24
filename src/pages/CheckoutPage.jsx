@@ -10,7 +10,7 @@ import { getItemPrice } from '../context/CartContext';
 import { generateOrderId } from '../utils/formatPrice';
 import toast from 'react-hot-toast';
 import FreeDeliveryBar from '../components/cart/FreeDeliveryBar';
-import { VisaLogo, MastercardLogo, AmexLogo, RazorpayLogo } from '../components/ui/PaymentLogos';
+import { VisaLogo, MastercardLogo, AmexLogo, RazorpayLogo, GPayLogo, PhonePeLogo, PaytmLogo, RupayLogo, AmazonPayLogo, MobikwikLogo, BankLogo, CashLogo } from '../components/ui/PaymentLogos';
 
 const indianStates = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -24,11 +24,11 @@ const indianStates = [
 ];
 
 const paymentMethods = [
-  { id: 'upi', name: 'UPI', description: 'Google Pay, PhonePe, Paytm', icon: Smartphone },
-  { id: 'netbanking', name: 'Net Banking', description: 'All major banks supported', icon: Building2 },
-  { id: 'card', name: 'Credit / Debit Card', description: 'Visa, Mastercard, Rupay', icon: CreditCard },
-  { id: 'wallet', name: 'Wallet', description: 'Paytm, MobiKwik, Amazon Pay', icon: Wallet },
-  { id: 'cod', name: 'Cash on Delivery', description: 'Pay when you receive', icon: Banknote },
+  { id: 'upi', name: 'UPI', description: 'Google Pay, PhonePe, Paytm', icon: Smartphone, logos: [GPayLogo, PhonePeLogo, PaytmLogo] },
+  { id: 'netbanking', name: 'Net Banking', description: 'All major banks supported', icon: Building2, logos: [BankLogo] },
+  { id: 'card', name: 'Credit / Debit Card', description: 'Visa, Mastercard, Rupay', icon: CreditCard, logos: [VisaLogo, MastercardLogo, RupayLogo] },
+  { id: 'wallet', name: 'Wallet', description: 'Paytm, MobiKwik, Amazon Pay', icon: Wallet, logos: [PaytmLogo, MobikwikLogo, AmazonPayLogo] },
+  { id: 'cod', name: 'Cash on Delivery', description: 'Pay when you receive', icon: Banknote, logos: [CashLogo] },
 ];
 
 const CheckoutPage = () => {
@@ -754,7 +754,7 @@ const CheckoutPage = () => {
                           return (
                             <label
                               key={method.id}
-                              className={`flex items-center gap-[16px] p-[16px] rounded-[16px] border-2 cursor-pointer transition-all duration-300 ${
+                              className={`group flex items-center gap-[12px] sm:gap-[16px] p-[12px] sm:p-[16px] rounded-[16px] border-2 cursor-pointer transition-all duration-300 ${
                                 selectedPayment === method.id
                                   ? 'border-[#1A1A1A] bg-white/80 shadow-md transform scale-[1.01]'
                                   : 'border-white/60 glass bg-white/40 hover:bg-white/60'
@@ -787,8 +787,15 @@ const CheckoutPage = () => {
                                 <Icon size={20} strokeWidth={selectedPayment === method.id ? 2 : 1.5} />
                               </div>
                               <div>
-                                <p className="font-sans text-[14px] font-semibold text-text-main">{method.name}</p>
-                                <p className="font-sans text-[12px] text-[#A8A8A8] mt-[2px] italic">{method.description}</p>
+                                <p className="font-sans text-[13px] sm:text-[14px] font-semibold text-text-main">{method.name}</p>
+                                <p className="font-sans text-[11px] sm:text-[12px] text-[#A8A8A8] mt-[2px] italic line-clamp-1">{method.description}</p>
+                              </div>
+                              <div className="ml-auto flex items-center gap-[4px] shrink-0">
+                                {method.logos?.map((Logo, idx) => (
+                                  <div key={idx} className={`shrink-0 scale-[0.7] sm:scale-[0.85] transition-opacity duration-300 ${selectedPayment === method.id ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`}>
+                                    <Logo />
+                                  </div>
+                                ))}
                               </div>
                             </label>
                           );
