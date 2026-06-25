@@ -713,20 +713,20 @@ const CheckoutPage = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-[16px]">
+                  <div className="flex flex-col sm:flex-row gap-[12px] sm:gap-[16px]">
                     <button
                       onClick={() => setCurrentStep(1)}
-                      className="h-[48px] px-[32px] rounded-full glass bg-white/60 text-text-main border border-white text-[12px] font-bold uppercase tracking-[1px] hover:bg-white transition-all duration-300 flex items-center justify-center gap-[8px] shadow-sm"
+                      className="self-start sm:self-auto h-[44px] sm:h-[48px] px-[24px] sm:px-[32px] rounded-full glass bg-white/60 text-text-main border border-white text-[12px] font-bold uppercase tracking-[1px] hover:bg-white transition-all duration-300 flex items-center justify-center gap-[8px] shadow-sm"
                     >
                       <ArrowLeft size={14} strokeWidth={2.5} />
                       Back
                     </button>
                     <button
                       onClick={handleContinueToPayment}
-                      className="flex-1 h-[48px] rounded-full bg-[#1A1A1A] text-white text-[12px] font-bold uppercase tracking-[1.5px] hover:bg-[#D4527A] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-[8px] shadow-lg"
+                      className="w-full sm:flex-1 h-[58px] sm:h-[48px] rounded-full bg-[#1A1A1A] text-white text-[15px] sm:text-[12px] font-bold uppercase tracking-[1.5px] hover:bg-[#D4527A] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-[10px] shadow-lg"
                     >
                       Continue to Payment
-                      <ChevronRight size={16} strokeWidth={2.5} />
+                      <ChevronRight size={20} strokeWidth={2.5} />
                     </button>
                   </div>
                 </motion.div>
@@ -836,10 +836,10 @@ const CheckoutPage = () => {
                   </div>
 
                   {/* Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-[16px]">
+                  <div className="flex flex-col sm:flex-row gap-[12px] sm:gap-[16px]">
                     <button
                       onClick={() => setCurrentStep(2)}
-                      className="h-[48px] px-[32px] rounded-full glass bg-white/60 text-text-main border border-white text-[12px] font-bold uppercase tracking-[1px] hover:bg-white transition-all duration-300 flex items-center justify-center gap-[8px] shadow-sm"
+                      className="self-start sm:self-auto h-[44px] sm:h-[48px] px-[24px] sm:px-[32px] rounded-full glass bg-white/60 text-text-main border border-white text-[12px] font-bold uppercase tracking-[1px] hover:bg-white transition-all duration-300 flex items-center justify-center gap-[8px] shadow-sm"
                     >
                       <ArrowLeft size={14} strokeWidth={2.5} />
                       Back
@@ -847,11 +847,11 @@ const CheckoutPage = () => {
                     <button
                       onClick={handlePlaceOrder}
                       disabled={isPlacingOrder}
-                      className="flex-1 h-[48px] rounded-full bg-[#1A1A1A] text-white text-[12px] font-bold uppercase tracking-[1.5px] hover:bg-[#D4527A] transition-all duration-300 flex items-center justify-center gap-[8px] shadow-lg disabled:opacity-70 disabled:cursor-not-allowed hover:shadow-xl hover:-translate-y-0.5"
+                      className="w-full sm:flex-1 h-[58px] sm:h-[48px] rounded-full bg-[#1A1A1A] text-white text-[15px] sm:text-[12px] font-bold uppercase tracking-[1.5px] hover:bg-[#D4527A] transition-all duration-300 flex items-center justify-center gap-[10px] shadow-lg disabled:opacity-70 disabled:cursor-not-allowed hover:shadow-xl hover:-translate-y-0.5"
                     >
                       {isPlacingOrder ? (
                         <>
-                          <svg className="animate-spin h-[18px] w-[18px]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <svg className="animate-spin h-[20px] w-[20px]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
@@ -860,7 +860,7 @@ const CheckoutPage = () => {
                       ) : (
                         <>
                           Pay {formatPrice(finalTotalAmount)}
-                          <Lock size={14} strokeWidth={2.5} />
+                          <Lock size={16} strokeWidth={2.5} />
                         </>
                       )}
                     </button>
