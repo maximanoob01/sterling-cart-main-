@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User, Phone, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -217,7 +217,7 @@ export default function LoginPage() {
 
                 <div className="col-span-1 pt-2">
                   <p className="text-[11px] text-gray-500 mb-4">
-                    By continuing, I agree to <a href="#" className="text-[#D4527A] font-semibold hover:underline">Terms of use</a> and <a href="#" className="text-[#D4527A] font-semibold hover:underline">Privacy Policy</a>
+                    By continuing, I agree to <Link to="/legal" className="text-[#D4527A] font-semibold hover:underline">Terms of use & Privacy Policy</Link>
                   </p>
                   
                   <button type="submit" disabled={isSubmitting} className="w-full py-3 bg-[#E5E5E5] hover:bg-[#D4527A] text-gray-500 hover:text-white font-semibold rounded-full transition-all duration-300 text-[14px] flex justify-center items-center">

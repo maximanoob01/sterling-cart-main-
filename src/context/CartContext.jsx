@@ -5,22 +5,25 @@ import { SILVER_RATE_PER_GRAM, computeWeightBasedPrice } from '../utils/silverRa
 const CartContext = createContext();
 
 /**
- * Returns the base price for an item (before GST).
- * - weight: (silverRate × weightGrams) + makingCharges
- * - mrp: product.price (fixed)
+ * Returns the price for an item inclusive of 3% GST.
+ * - weight: ((silverRate × weightGrams) + makingCharges) * 1.03
+ * - mrp: product.price * 1.03
  */
 export const getItemPrice = (item, silverRate = SILVER_RATE_PER_GRAM) => {
+  let basePrice = item.price;
   if (item.pricingType === 'weight' && item.weightGrams != null && item.makingCharges != null) {
-    return computeWeightBasedPrice(item.weightGrams, item.makingCharges, silverRate);
+    basePrice = computeWeightBasedPrice(item.weightGrams, item.makingCharges, silverRate);
   }
-  return item.price;
+  return Math.round(basePrice * 1.03);
 };
 
 const cartReducer = (state, action) => {
   switch (action.type) {
     case 'ADD_ITEM': {
       const existingIndex = state.items.findIndex(
-        item => item.id === action.payload.id && item.selectedSize === action.payload.selectedSize
+        item => item.id === action.payload.id && 
+                item.selectedSize === action.payload.selectedSize &&
+                item.engravingText === action.payload.engravingText
       );
       if (existingIndex >= 0) {
         const newItems = [...state.items];
@@ -39,12 +42,16 @@ const cartReducer = (state, action) => {
       return {
         ...state,
         items: state.items.filter(
-          item => !(item.id === action.payload.id && item.selectedSize === action.payload.selectedSize)
+          item => !(item.id === action.payload.id && 
+                    item.selectedSize === action.payload.selectedSize &&
+                    item.engravingText === action.payload.engravingText)
         ),
       };
     case 'UPDATE_QUANTITY': {
       const newItems = state.items.map(item => {
-        if (item.id === action.payload.id && item.selectedSize === action.payload.selectedSize) {
+        if (item.id === action.payload.id && 
+            item.selectedSize === action.payload.selectedSize &&
+            item.engravingText === action.payload.engravingText) {
           return { ...item, quantity: Math.max(1, action.payload.quantity) };
         }
         return item;
@@ -65,27 +72,24 @@ const cartReducer = (state, action) => {
 export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [], coupon: null });
 
-  const addItem = useCallback((product, selectedSize = null, quantity = 1) => {
-    dispatch({
-      type: 'ADD_ITEM',
-      payload: { ...product, selectedSize, quantity },
-    });
+  const addItem = useCallback((product, selectedSize, quantity = 1, engravingText = '') => {
+    dispatch({ type: 'ADD_ITEM', payload: { ...product, selectedSize, quantity, engravingText } });
     toast.success(`${product.name} added to cart`, {
       style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
   }, []);
 
-  const removeItem = useCallback((id, selectedSize = null) => {
-    dispatch({ type: 'REMOVE_ITEM', payload: { id, selectedSize } });
+  const removeItem = useCallback((productId, selectedSize, engravingText = '') => {
+    dispatch({ type: 'REMOVE_ITEM', payload: { id: productId, selectedSize, engravingText } });
     toast.success('Item removed from cart', {
       style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
   }, []);
 
-  const updateQuantity = useCallback((id, selectedSize, quantity) => {
-    dispatch({ type: 'UPDATE_QUANTITY', payload: { id, selectedSize, quantity } });
+  const updateQuantity = useCallback((productId, selectedSize, quantity, engravingText = '') => {
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { id: productId, selectedSize, quantity, engravingText } });
   }, []);
 
   const applyCoupon = useCallback((coupon) => {
@@ -102,7 +106,7 @@ export const CartProvider = ({ children }) => {
 
   const totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Subtotal: use computed price (weight-based or mrp) × quantity
+  // Subtotal: use computed GST-inclusive price × quantity
   const subtotal = state.items.reduce(
     (sum, item) => sum + getItemPrice(item) * item.quantity,
     0
@@ -122,9 +126,9 @@ export const CartProvider = ({ children }) => {
   const DELIVERY_FEE = 69;
   const shipping = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
 
-  // 3% GST on (subtotal − discount)
-  const gst = Math.round((subtotal - discount) * 0.03);
-  const totalAmount = subtotal - discount + shipping + gst;
+  // GST is now included in the item price, so no additional GST calculation is needed
+  const gst = 0; 
+  const totalAmount = subtotal - discount + shipping;
 
   return (
     <CartContext.Provider

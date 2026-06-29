@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift, Coins, Star, X } from 'lucide-react';
+import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift, Coins, Star, X, PenTool } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useAuth } from '../context/AuthContext';
@@ -184,7 +184,9 @@ const CheckoutPage = () => {
       items: items.map(item => ({
         name: item.name,
         quantity: item.quantity,
-        price: getItemPrice(item)
+        price: getItemPrice(item),
+        size: item.selectedSize,
+        engravingText: item.engravingText
       })),
       finalTotalAmount
     };
@@ -704,6 +706,11 @@ const CheckoutPage = () => {
                                 <Scale size={10} /> {item.weightGrams}g silver + making charges
                               </p>
                             )}
+                            {item.engravingText && (
+                              <div className="mt-1.5 inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#FFF0F5] border border-[#F4A0B0]/30 text-[#D4527A] font-medium text-[10.5px]">
+                                <PenTool size={10} /> Engraving: "{item.engravingText}"
+                              </div>
+                            )}
                           </div>
                           <p className="font-sans text-[16px] font-semibold text-text-main shrink-0">
                             {formatPrice(getItemPrice(item) * item.quantity)}
@@ -899,10 +906,7 @@ const CheckoutPage = () => {
                       <span className="font-medium">-{formatPrice(discount)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center">
-                    <span className="text-text-muted">GST (3%)</span>
-                    <span className="text-text-main font-medium">{formatPrice(gst)}</span>
-                  </div>
+
                   {selectedPayment === 'cod' && (
                     <div className="flex justify-between items-center">
                       <span className="text-text-muted">Handling Fee (COD)</span>

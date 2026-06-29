@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Minus, Plus, X, Trash2, ShoppingBag, Shield, ChevronRight, Home, Heart, Star, Scale } from 'lucide-react';
+import { Minus, Plus, X, Trash2, ShoppingBag, Shield, ChevronRight, Home, Heart, Star, Scale, PenTool } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { getItemPrice } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -206,9 +206,14 @@ export default function CartPage() {
                           </div>
                         )}
                         
+                        {item.engravingText && (
+                          <div className="text-[11px] font-medium text-[#D4527A] flex items-center gap-1.5 mb-2 bg-[#FFF0F5] inline-flex px-2 py-1 rounded-md border border-[#F4A0B0]/30">
+                            <PenTool size={11} /> Engraving: "{item.engravingText}"
+                          </div>
+                        )}
+                        
                         <div className="font-sans font-semibold text-text-main text-[14px] md:text-[15px]">
                           {formatPrice(getItemPrice(item))}
-                          <span className="text-[10px] font-normal text-text-muted ml-1 italic tracking-[0.5px]">(+3% GST)</span>
                         </div>
                       </div>
                       
@@ -306,14 +311,10 @@ export default function CartPage() {
                        : <>{formatPrice(shipping)} <span className="text-[11px] text-text-muted">(free above ₹2,499)</span></>}
                    </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-text-muted">GST (3%)</span>
-                  <span className="font-medium text-text-main">{formatPrice(gst)}</span>
-                </div>
               </div>
               
               <div className="flex justify-between items-end py-[28px] border-t border-[#E8DDD5] mb-[32px] relative z-10">
-                <span className="font-serif text-[22px] text-text-main">Grand Total</span>
+                <span className="font-serif text-[22px] text-text-main">Total Payable</span>
                 <span className="font-sans text-[28px] font-semibold text-text-main">{formatPrice(totalAmount)}</span>
               </div>
               

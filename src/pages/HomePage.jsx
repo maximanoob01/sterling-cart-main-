@@ -4,7 +4,8 @@ import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck } from 'lucide-react';
 import MagneticButton from '../components/ui/MagneticButton';
 import CircularGallery from '../components/ui/CircularGallery';
-import { categories, products } from '../data/products';
+import { categories } from '../data/products';
+import { useProducts } from '../context/ProductContext';
 import { testimonials } from '../data/orders';
 import heroLifestyle1 from '../assets/images/hero_lifestyle_1.png';
 import heroLifestyle2 from '../assets/images/hero_lifestyle_2.png';
@@ -41,10 +42,10 @@ const occasions = [
 ];
 
 const promises = [
-  { image: promise1, icon: Shield, title: '925 sterling silver' },
-  { image: promise2, icon: Award, title: 'Hallmarked and certified' },
-  { image: promise3, icon: Truck, title: 'Free delivery above Rs. 1,999' },
-  { image: promise4, icon: RotateCcw, title: 'Easy 7-day returns' },
+  { icon: Shield, title: '925 sterling silver', description: 'Authentic & hallmarked purity' },
+  { icon: Award, title: 'Hallmarked and certified', description: 'Certified by the highest standards' },
+  { icon: Truck, title: 'Free delivery above Rs. 1,999', description: 'Swift, secure & fully insured' },
+  { icon: RotateCcw, title: '15-day exchange policy', description: 'Hassle-free process if you change your mind' },
 ];
 
 const heroSlides = [
@@ -147,6 +148,7 @@ function MinimalProductCard({ product }) {
 }
 
 export default function HomePage() {
+  const { products } = useProducts();
   const [email, setEmail] = useState('');
   const [heroIndex, setHeroIndex] = useState(0);
   const [isHeroPaused, setIsHeroPaused] = useState(false);
@@ -524,27 +526,35 @@ export default function HomePage() {
         <div className="mt-5 text-center md:mt-9"><Link to="/shop" className="btn-secondary">View all jewellery</Link></div>
       </section>
 
-      <section className="bg-bg-surface px-4 py-6 md:px-8 md:py-8 bg-pattern-diamond">
-        <div className="mx-auto grid max-w-[1320px] grid-cols-2 gap-3 md:gap-5 md:grid-cols-4">
-          {promises.map((promise, idx) => {
-            const Icon = promise.icon;
-            return (
-              <div key={idx} className="relative group overflow-hidden rounded-xl aspect-[7/3] md:aspect-[3/1] bg-pink-50 flex items-center justify-center p-3 md:p-4">
-                <img src={promise.image} alt={promise.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-black/65 group-hover:bg-black/75 transition-colors duration-300" />
-                <div className="relative z-10 flex flex-col items-center gap-1.5 md:gap-2 text-center">
-                  <Icon size={18} className="text-[#F4A0B0] drop-shadow-md md:size-[22px]" />
-                  <span className="font-serif text-[12px] md:text-[17px] text-white tracking-[0.5px] leading-tight drop-shadow-xl">
-                    {promise.title}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+      <section className="bg-bg-surface px-3 py-6 md:px-8 md:py-8 bg-pattern-diamond">
+        <div className="mx-auto max-w-[1100px]">
+          <div className="relative overflow-hidden rounded-[24px] md:rounded-[32px] bg-white border border-[#F4A0B0]/30 shadow-[0_10px_40px_rgba(212,82,122,0.06)] px-2 py-6 md:px-10 md:py-10">
+            <div className="pointer-events-none absolute top-0 right-0 h-40 w-40 rounded-full bg-gradient-to-br from-[#FFF0F5] to-transparent blur-[60px]" />
+            <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 rounded-full bg-gradient-to-tr from-[#FFF0F5] to-transparent blur-[60px]" />
+            
+            <div className="relative z-10 grid grid-cols-4 gap-x-2 md:gap-x-8 divide-x-0 md:divide-x divide-[#F4A0B0]/20">
+              {promises.map((promise, idx) => {
+                const Icon = promise.icon;
+                return (
+                  <div key={idx} className="flex flex-col items-center text-center group px-1 sm:px-2 md:px-5">
+                    <div className="flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#FFF0F5] to-[#FDF5F8] border border-[#F4A0B0]/20 shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:shadow-[0_8px_30px_rgba(212,82,122,0.15)] mb-2.5 md:mb-4">
+                      <Icon className="text-[#D4527A] size-[18px] md:size-[24px]" strokeWidth={1.5} />
+                    </div>
+                    <h3 className="font-serif text-[9px] min-[400px]:text-[10px] md:text-[15px] font-medium text-text-main leading-[1.2] mb-1.5 md:mb-2 tracking-[0.2px] max-w-[80px] sm:max-w-none mx-auto break-words">
+                      {promise.title}
+                    </h3>
+                    <p className="text-[11px] text-text-muted leading-relaxed hidden sm:block">
+                      {promise.description}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="border-y border-[#EEE8E5] bg-[#F7E1E8] px-4 py-8 md:px-8 md:py-20 bg-pattern-diamond">
+      <section className="border-y border-[#EEE8E5] bg-[#F7E1E8] px-4 pt-6 pb-8 md:px-8 md:pt-10 md:pb-20 bg-pattern-diamond">
         <SectionHeading eyebrow="Just dropped" title="New arrivals" />
         
         <div className="relative max-w-[1320px] mx-auto group">
@@ -691,7 +701,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-bg-alt px-4 py-10 md:px-8 md:py-20 relative overflow-hidden bg-pattern-diamond">
+      <section className="bg-bg-alt px-4 pt-10 pb-6 md:px-8 md:pt-20 md:pb-8 relative overflow-hidden bg-pattern-diamond">
         <div className="mx-auto max-w-[1320px] relative z-10">
           <div className="mb-10 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
             <SectionHeading eyebrow="Kind words" title="Loved by our customers" align="left" />
@@ -718,7 +728,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="relative px-4 py-12 md:px-8 md:py-24 text-text-main overflow-hidden bg-bg-surface bg-pattern-diamond">
+      <section className="relative px-4 pt-6 pb-12 md:px-8 md:pt-10 md:pb-24 text-text-main overflow-hidden bg-bg-surface bg-pattern-diamond">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,160,176,0.1)_0%,transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(232,221,213,0.3)_0%,transparent_50%)]" />
         

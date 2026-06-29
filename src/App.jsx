@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext';
 import { LoyaltyProvider } from './context/LoyaltyContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { CurrencyProvider } from './context/CurrencyContext';
+import { ProductProvider } from './context/ProductContext';
 
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -28,6 +29,8 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage';
 import GiftingPage from './pages/GiftingPage';
+import ReturnExchangePage from './pages/ReturnExchangePage';
+import LegalPage from './pages/LegalPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -54,6 +57,8 @@ function AnimatedRoutes() {
         <Route path="/about" element={<PageTransition><AboutPage /></PageTransition>} />
         <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
         <Route path="/gifting" element={<PageTransition><GiftingPage /></PageTransition>} />
+        <Route path="/return-exchange" element={<PageTransition><ReturnExchangePage /></PageTransition>} />
+        <Route path="/legal" element={<PageTransition><LegalPage /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFoundPage /></PageTransition>} />
       </Routes>
     </AnimatePresence>
@@ -74,6 +79,7 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
+        <ProductProvider>
         <AuthProvider>
             <LoyaltyProvider>
           <CurrencyProvider>
@@ -102,6 +108,7 @@ function App() {
           </CurrencyProvider>
             </LoyaltyProvider>
         </AuthProvider>
+        </ProductProvider>
       </ThemeProvider>
     </BrowserRouter>
   );

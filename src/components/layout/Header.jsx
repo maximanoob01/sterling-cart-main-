@@ -10,7 +10,7 @@ import { products } from '../../data/products';
 import { formatPrice } from '../../utils/formatPrice';
 
 const announcements = [
-  "Free shipping above Rs. 1,999 | Easy 7-day returns",
+  "Free shipping above Rs. 1,999 | Exchange within 15 days",
   "Use code SILVER10 for 10% off your first order!",
   "New arrivals are here ✨ Shop the latest 925 silver trends",
   "Hallmarked authenticity with every piece you buy"
@@ -22,6 +22,7 @@ const categoryLinks = [
   ['Necklaces', 'necklaces'],
   ['Bracelets', 'bracelets'],
   ['Pendants', 'pendants'],
+  ['Silver Coins', 'coins'],
   ['Anklets', 'anklets'],
   ['Bangles', 'bangles'],
   ['Chains', 'chains'],
@@ -36,6 +37,7 @@ const navLinks = [
   { name: 'Necklaces', path: '/shop?category=necklaces', megaMenu: true },
   { name: 'Bracelets', path: '/shop?category=bracelets', megaMenu: true },
   { name: 'Pendants', path: '/shop?category=pendants', megaMenu: true },
+  { name: 'Silver Coins', path: '/shop?category=coins', megaMenu: true },
 ];
 
 export default function Header() {
@@ -239,64 +241,36 @@ export default function Header() {
               </HeaderIcon>
             </motion.span>
 
-            <motion.div variants={itemFade} className="lg:hidden">
-              <Link
-                to="/shop?category=coins"
-                className="group relative flex h-[42px] w-[42px] items-center justify-center overflow-hidden rounded-full border border-white/25 bg-white/10 shadow-[0_8px_28px_rgba(244,160,176,0.24)] backdrop-blur-xl transition-all duration-300 active:scale-95"
-                aria-label="Shop silver coins"
-              >
-                <motion.span
-                  aria-hidden="true"
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 7, ease: 'linear' }}
-                  className="absolute inset-[3px] rounded-full bg-[conic-gradient(from_90deg,transparent,rgba(255,255,255,0.7),transparent,rgba(244,160,176,0.65),transparent)] opacity-80"
-                />
-                <span className="absolute inset-[5px] rounded-full bg-[#1E0912]/70 backdrop-blur-md" />
-                <motion.span
-                  aria-hidden="true"
-                  animate={{ x: ['-130%', '130%'] }}
-                  transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut', repeatDelay: 1.2 }}
-                  className="absolute inset-y-0 z-10 w-5 -skew-x-12 bg-gradient-to-r from-transparent via-white/70 to-transparent"
-                />
-                <span className="relative z-20 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-white via-[#DDE2E8] to-[#8B95A3] shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),inset_0_-3px_5px_rgba(57,67,82,0.35),0_4px_12px_rgba(255,255,255,0.22)] ring-1 ring-white/70">
-                  <span className="absolute inset-[4px] rounded-full border border-white/60" />
-                  <span className="font-serif text-[8px] font-black tracking-[-0.5px] text-[#28313D] drop-shadow-sm">999</span>
-                </span>
-              </Link>
-            </motion.div>
+            <motion.button variants={itemFade} type="button" onClick={() => setIsSilverPriceOpen(true)} className="lg:hidden" aria-label="Silver Price Today">
+              <HeaderIcon label="Silver Price Today" heroMode={true}>
+                <IndianRupee size={18} />
+              </HeaderIcon>
+            </motion.button>
+
+
 
             <motion.button
               variants={itemFade}
               type="button"
               onClick={() => setIsSilverPriceOpen(true)}
-              className="hidden h-[42px] w-[42px] items-center justify-center rounded-full transition-all duration-300 lg:flex border border-white/20 bg-white/10 hover:bg-white/20 backdrop-blur-md"
+              className="hidden h-[42px] items-center gap-2.5 overflow-hidden rounded-full border border-white/25 bg-white/10 px-3 xl:px-4 shadow-[0_4px_20px_rgba(212,82,122,0.18)] backdrop-blur-md transition-all duration-300 lg:flex hover:bg-white/20 hover:border-white/40 hover:shadow-[0_6px_28px_rgba(212,82,122,0.3)]"
               aria-label="View today's silver price"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#D4527A] text-white shadow-[0_2px_8px_rgba(212,82,122,0.5)]">
-                <IndianRupee size={15} strokeWidth={2.5} />
+              {/* Animated shimmer */}
+              <motion.span
+                animate={{ x: ['-200%', '300%'] }}
+                transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut', repeatDelay: 2 }}
+                className="absolute inset-0 z-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none"
+              />
+              <span className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#D4527A] text-white shadow-[0_2px_8px_rgba(212,82,122,0.55)]">
+                <IndianRupee size={14} strokeWidth={2.5} />
               </span>
+              <span className="relative z-10 hidden flex-col items-start xl:flex">
+                <span className="text-[10px] font-black uppercase tracking-[1.2px] text-white leading-none">Silver Price</span>
+                <span className="text-[9px] font-semibold tracking-[0.5px] text-white/55 leading-none mt-0.5">Today</span>
+              </span>
+              <span className="relative z-10 flex xl:hidden text-[11px] font-bold uppercase tracking-[1px] text-white drop-shadow-sm">Silver</span>
             </motion.button>
-
-            <motion.div variants={itemFade} className="hidden lg:block">
-              <Link to="/shop?category=coins" className="group relative flex h-[42px] items-center gap-2 overflow-hidden rounded-full border border-[#D4527A]/50 bg-gradient-to-r from-[#D4527A]/20 to-[#B94B68]/40 px-3 xl:px-4 shadow-[0_4px_20px_rgba(212,82,122,0.2)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_6px_25px_rgba(212,82,122,0.4)] hover:border-[#D4527A] backdrop-blur-md">
-                {/* Animated Shine */}
-                <motion.div 
-                  animate={{ x: ['-200%', '300%'] }} 
-                  transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut', repeatDelay: 1.5 }}
-                  className="absolute inset-0 z-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent" 
-                />
-                
-                {/* Coin Icon */}
-                <div className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 via-gray-300 to-gray-400 shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_2px_5px_rgba(0,0,0,0.3)] ring-1 ring-gray-400/50">
-                  <span className="font-serif text-[10px] font-black text-gray-800 tracking-tighter">999</span>
-                </div>
-                
-                {/* Text */}
-                <span className="relative z-10 hidden text-[11px] font-bold uppercase tracking-[1px] text-white xl:block drop-shadow-md">
-                  Buy Silver Coin
-                </span>
-              </Link>
-            </motion.div>
             <motion.div variants={itemFade} className="hidden lg:block relative">
               <Link to="/track-order">
                 <HeaderIcon label="Track order" text="Track order" attention={showTrackPointer} heroMode={true}><PackageSearch size={19} /></HeaderIcon>
@@ -625,7 +599,7 @@ function SilverPriceModal({ onClose }) {
         aria-modal="true"
         aria-labelledby="silver-price-title"
         onMouseDown={(event) => event.stopPropagation()}
-        className="flex max-h-[90vh] w-full max-w-[760px] flex-col overflow-hidden rounded-2xl bg-bg-surface shadow-modal"
+        className="flex max-h-[90vh] w-full max-w-[980px] flex-col overflow-hidden rounded-2xl bg-bg-surface shadow-modal"
       >
         <div className="flex items-start justify-between border-b border-[#EEEAE8] px-5 py-5 sm:px-7">
           <div>
@@ -639,10 +613,10 @@ function SilverPriceModal({ onClose }) {
         </div>
 
         <div className="overflow-y-auto px-5 py-5 sm:px-7">
-          <div className="rounded-2xl bg-[#1C1C2E] p-5 text-white sm:flex sm:items-end sm:justify-between">
+          <div className="rounded-2xl bg-[#1C1C2E] p-6 sm:p-8 text-white sm:flex sm:items-end sm:justify-between">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[1.3px] text-[#E7BCC5]">925 silver · per gram</p>
-              <p className="mt-2 font-serif text-[42px] leading-none">Rs. {silverSnapshot.today.toFixed(2)}</p>
+              <p className="mt-3 font-serif text-[48px] sm:text-[64px] leading-none text-[#F4A0B0]">Rs. {silverSnapshot.today.toFixed(2)}</p>
             </div>
             <p className="mt-3 flex items-center gap-1 text-[12px] font-semibold text-[#98D9B0] sm:mt-0">
               <TrendingUp size={15} /> +Rs. {dailyChange.toFixed(2)} ({dailyChangePercent.toFixed(2)}%) vs previous close
@@ -851,7 +825,7 @@ function MegaMenu({ activeDropdown, onClose }) {
 
   const activeCategory = activeDropdown === 'All Jewellery' || activeDropdown === 'Gifting'
     ? null
-    : activeDropdown.toLowerCase();
+    : (activeDropdown === 'Silver Coins' ? 'coins' : activeDropdown.toLowerCase());
   const featuredProducts = products
     .filter((product) => !activeCategory || product.category === activeCategory)
     .sort((a, b) => b.rating - a.rating)
@@ -1009,7 +983,7 @@ function OffersMegaMenu({ onClose }) {
           <div className="grid grid-cols-3 gap-3">
             <GiftOfferCard eyebrow="Welcome offer" title="10% off" text="Save on your first order." to="/shop" tone="pink" onClose={onClose} />
             <GiftOfferCard eyebrow="Free delivery" title="Ship free" text="On orders above Rs. 1,999." to="/shop" tone="dark" onClose={onClose} />
-            <GiftOfferCard eyebrow="Easy returns" title="7 days" text="Shop gifts with confidence." to="/shop?occasion=gifting" tone="pink" onClose={onClose} />
+            <GiftOfferCard eyebrow="Policy" title="No Returns" text="Exchange within 15 days of delivery." to="/return-exchange" tone="pink" onClose={onClose} />
           </div>
         </div>
       </div>

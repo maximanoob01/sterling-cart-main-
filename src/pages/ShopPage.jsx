@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, Star, SlidersHorizontal, X, ChevronRight, Home, ShoppingBag, SlidersHorizontal as FilterIcon, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { products, categories, stoneTypes, occasions, styles, colors, designs, collections } from '../data/products';
+import { categories, stoneTypes, occasions, styles, colors, designs, collections } from '../data/products';
+import { useProducts } from '../context/ProductContext';
 import { calculateDiscount } from '../utils/formatPrice';
 import { useCurrency } from '../context/CurrencyContext';
 
@@ -179,6 +180,7 @@ function SkeletonCard() {
 
 /* ─────────────────────────  MAIN PAGE  ────────────────────────────────── */
 export default function ShopPage() {
+  const { products } = useProducts();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(12);

@@ -113,7 +113,7 @@ export default function Footer() {
             <FooterLinks title="Client Care" links={[
               ['Track Order', '/track-order'],
               ['Shipping Policy', '#'],
-              ['Returns & Exchanges', '#'],
+              ['Return & Exchange Policy', '/return-exchange'],
               ['Contact Us', '/contact'],
             ]} />
           </div>

@@ -4,10 +4,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   Award, Check, ChevronRight, Heart, Home, MapPin, PackageCheck,
   Ruler, Share2, Shield, Globe, Star, X, ZoomIn,
-  Sparkles, ShoppingBag, Scale, Wrench, IndianRupee, Coins,
+  Sparkles, ShoppingBag, Scale, Wrench, IndianRupee, Coins, PenTool
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useCart } from '../context/CartContext';
+import { useCart, getItemPrice } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useAuth } from '../context/AuthContext';
@@ -181,6 +181,8 @@ export default function ProductDetailPage() {
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [isProductDetailsOpen, setIsProductDetailsOpen] = useState(false);
+  const [isEngravingEnabled, setIsEngravingEnabled] = useState(false);
+  const [engravingText, setEngravingText] = useState('');
 
   if (!product) {
     return (
@@ -199,7 +201,7 @@ export default function ProductDetailPage() {
   const isRing = product.category === 'rings';
   const isWished = isWishlisted(product.id);
 
-  const addToCart = () => addItem(product, selectedSize, quantity);
+  const addToCart = () => addItem(product, selectedSize, quantity, isEngravingEnabled ? engravingText : '');
   const buyNow = () => { addToCart(); navigate('/checkout'); };
   const checkDelivery = () => {
     if (!/^\d{6}$/.test(pincode)) { setDeliveryMessage('Enter a valid 6-digit pincode.'); return; }
@@ -333,49 +335,30 @@ export default function ProductDetailPage() {
             <div className="mt-5 rounded-2xl bg-gradient-to-br from-[#FFF0F5] to-[#FDF5F8] border border-[#F4A0B0]/20 p-3.5 sm:p-4">
               {product.pricingType === 'weight' ? (
                 <>
-                  {/* Weight-based: show live breakdown */}
-                  <div className="flex flex-wrap items-end gap-2 mb-3">
+                  <div className="flex flex-wrap items-end gap-2">
                     <span className="font-serif text-[32px] font-medium text-text-main leading-none">
-                      {formatPrice(computeWeightBasedPrice(product.weightGrams, product.makingCharges))}
+                      {formatPrice(getItemPrice(product))}
                     </span>
-                    <span className="mb-0.5 rounded-full bg-[#1C1C2E]/90 text-white px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.8px]">+ 3% GST</span>
                   </div>
-                  <div className="grid grid-cols-1 gap-2 text-center min-[380px]:grid-cols-3">
-                    <div className="rounded-xl bg-white/70 border border-[#F4A0B0]/30 px-2 py-2">
-                      <p className="flex items-center justify-center gap-0.5 text-[9px] font-bold uppercase tracking-[1px] text-[#D4527A] mb-1"><Scale size={10} />Silver</p>
-                      <p className="text-[13px] font-semibold text-text-main">{formatPrice(SILVER_RATE_PER_GRAM)}/g</p>
-                      <p className="text-[10px] text-text-muted">{product.weightGrams}g</p>
-                    </div>
-                    <div className="rounded-xl bg-white/70 border border-[#F4A0B0]/30 px-2 py-2">
-                      <p className="flex items-center justify-center gap-0.5 text-[9px] font-bold uppercase tracking-[1px] text-[#D4527A] mb-1"><Wrench size={10} />Making</p>
-                      <p className="text-[13px] font-semibold text-text-main">{formatPrice(product.makingCharges)}</p>
-                      <p className="text-[10px] text-text-muted">charges</p>
-                    </div>
-                    <div className="rounded-xl bg-white/70 border border-[#F4A0B0]/30 px-2 py-2">
-                      <p className="flex items-center justify-center gap-0.5 text-[9px] font-bold uppercase tracking-[1px] text-[#D4527A] mb-1"><IndianRupee size={10} />GST</p>
-                      <p className="text-[13px] font-semibold text-text-main">3%</p>
-                      <p className="text-[10px] text-text-muted">at checkout</p>
-                    </div>
-                  </div>
-                  <p className="mt-2.5 text-[11px] text-[#D4527A] flex items-center gap-1">
-                    <Scale size={11} /> Price based on live silver rate: {formatPrice(SILVER_RATE_PER_GRAM)}/g · Final price confirmed at checkout
+                  <p className="mt-2 text-[11px] text-[#D4527A] flex items-center gap-1">
+                    <Scale size={11} /> Price based on live silver rate · GST included
                   </p>
                 </>
               ) : (
                 <>
                   <div className="flex flex-wrap items-end gap-2">
-                    <span className="font-serif text-[28px] font-medium text-text-main leading-none sm:text-[32px]">{formatPrice(product.price)}</span>
+                    <span className="font-serif text-[28px] font-medium text-text-main leading-none sm:text-[32px]">{formatPrice(getItemPrice(product))}</span>
                     {discount > 0 && (
                       <>
-                        <span className="text-[15px] text-text-muted line-through mb-0.5">{formatPrice(product.mrp)}</span>
+                        <span className="text-[15px] text-text-muted line-through mb-0.5">{formatPrice(Math.round(product.mrp * 1.03))}</span>
                         <span className="mb-0.5 rounded-full bg-white border border-[#F4A0B0]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#D4527A]">{discount}% off</span>
                       </>
                     )}
                   </div>
                   {discount > 0 && (
-                    <p className="mt-1.5 text-[12px] text-[#D4527A]">You save {formatPrice(product.mrp - product.price)} on this piece</p>
+                    <p className="mt-1.5 text-[12px] text-[#D4527A]">You save {formatPrice(Math.round(product.mrp * 1.03) - getItemPrice(product))} on this piece</p>
                   )}
-                  <p className="mt-1.5 text-[11px] text-text-muted">+ 3% GST · Fixed MRP price</p>
+                  <p className="mt-1.5 text-[11px] text-text-muted">GST included</p>
                 </>
               )}
 
@@ -462,6 +445,39 @@ export default function ProductDetailPage() {
               <p className="flex items-center gap-2">
                 <span className="flex items-center justify-center w-3 h-3 rounded-full bg-[#E8F5EF]"><span className="w-1.5 h-1.5 rounded-full bg-[#3A8C5A]"></span></span> In stock, ready to ship
               </p>
+            </div>
+
+            {/* Free Engraving Option */}
+            <div className="mt-5 rounded-2xl border border-[#F4A0B0]/40 bg-gradient-to-r from-[#FFF0F5]/50 to-white p-4 shadow-sm">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 rounded border-[#D4527A] text-[#D4527A] focus:ring-[#D4527A] cursor-pointer" 
+                  checked={isEngravingEnabled} 
+                  onChange={(e) => { setIsEngravingEnabled(e.target.checked); if (!e.target.checked) setEngravingText(''); }} 
+                />
+                <span className="font-bold text-[13px] text-text-main flex items-center gap-1.5">
+                  <PenTool size={15} className="text-[#D4527A]" /> Add Free Engraving
+                </span>
+                <span className="ml-auto text-[10px] uppercase font-bold tracking-wider text-[#D4527A] bg-[#FFF0F5] px-2 py-1 rounded-md">Complimentary</span>
+              </label>
+              
+              {isEngravingEnabled && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-3 overflow-hidden">
+                  <input
+                    type="text"
+                    value={engravingText}
+                    onChange={(e) => setEngravingText(e.target.value)}
+                    placeholder="Enter name, date, or message..."
+                    className="w-full rounded-xl border border-[#F0E8EA] px-4 py-2.5 text-[13px] outline-none transition-all focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] bg-white"
+                    maxLength={20}
+                  />
+                  <p className="mt-1.5 text-[10.5px] text-text-muted flex justify-between">
+                    <span>Will be engraved exactly as entered</span>
+                    <span className={engravingText.length >= 20 ? 'text-[#D4527A]' : ''}>{engravingText.length}/20</span>
+                  </p>
+                </motion.div>
+              )}
             </div>
 
             {/* CTA buttons */}
