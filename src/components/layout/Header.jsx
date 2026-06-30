@@ -466,39 +466,71 @@ export default function Header() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-black/35 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
-            <motion.aside initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'tween', duration: 0.25 }} className="fixed inset-y-0 left-0 z-[70] w-[290px] overflow-y-auto bg-bg-surface p-6 shadow-modal lg:hidden">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
+            <motion.aside initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="fixed inset-y-0 left-0 z-[70] w-[320px] max-w-[85vw] overflow-y-auto bg-white p-6 shadow-[20px_0_40px_rgba(0,0,0,0.1)] lg:hidden">
               <div className="mb-8 flex items-center justify-between">
                 <LogoMark compact />
-                <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Close menu"><X size={22} /></button>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-800" aria-label="Close menu"><X size={18} /></button>
               </div>
-              <nav className="flex flex-col gap-5">
-                <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="text-[15px] font-medium">Home</Link>
+              <nav className="flex flex-col gap-6">
                 <button
                   type="button"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                     setIsSilverPriceOpen(true);
                   }}
-                  className="flex items-center justify-between rounded-xl border border-[#F1D8DE] bg-[#FFF6E3] px-3 py-3 text-left"
+                  className="group flex items-center justify-between rounded-2xl border border-pink-100 bg-gradient-to-br from-[#FFF0F5] to-white px-4 py-4 text-left shadow-sm transition-all hover:shadow-md"
                 >
                   <span>
-                    <span className="block text-[13px] font-semibold text-[#55483F]">Silver Price Today</span>
-                    <span className="mt-0.5 block text-[11px] text-[#9B806B]">View today's silver snapshot</span>
+                    <span className="block text-[14px] font-bold text-[#8A3B56]">Silver Price Today</span>
+                    <span className="mt-1 block text-[12px] font-medium text-[#B94B68]/70">Live market update</span>
                   </span>
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#D4527A] text-white"><IndianRupee size={16} /></span>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D4527A] text-white shadow-lg shadow-pink-200 transition-transform group-hover:scale-105"><IndianRupee size={18} strokeWidth={2.5} /></span>
                 </button>
-                {navLinks.map((link) => (
-                  <div key={link.name}>
-                    <Link to={link.path} onClick={() => setIsMobileMenuOpen(false)} className="text-[15px] font-medium">{link.name}</Link>
-                    {link.name === 'All Jewellery' && (
-                      <div className="mt-3 grid grid-cols-2 gap-2 border-l border-[#FFF0F5] pl-3">
-                        {categoryLinks.map(([name, id]) => <Link key={id} to={`/shop?category=${id}`} onClick={() => setIsMobileMenuOpen(false)} className="text-[13px] text-text-muted">{name}</Link>)}
-                      </div>
-                    )}
+
+                <div className="flex flex-col gap-4">
+                  <div className="text-[11px] font-bold uppercase tracking-[1.5px] text-gray-400">Discover</div>
+                  
+                  <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between text-[16px] font-semibold text-gray-800 transition-colors hover:text-[#D4527A]">
+                    Home
+                  </Link>
+
+                  <div className="flex flex-col gap-3">
+                    <Link to="/shop" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between text-[16px] font-semibold text-gray-800 transition-colors hover:text-[#D4527A]">
+                      All Jewellery
+                    </Link>
+                    <div className="grid grid-cols-2 gap-2 border-l-2 border-pink-50 pl-4">
+                      {categoryLinks.map(([name, id]) => (
+                        <Link key={id} to={`/shop?category=${id}`} onClick={() => setIsMobileMenuOpen(false)} className="py-1 text-[14px] font-medium text-gray-500 transition-colors hover:text-[#D4527A]">
+                          {name}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                ))}
-                <Link to="/track-order" onClick={() => setIsMobileMenuOpen(false)} className="text-[15px] font-medium">Track Order</Link>
+
+                  <Link to="/shop?occasion=gifting" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between text-[16px] font-semibold text-gray-800 transition-colors hover:text-[#D4527A]">
+                    <span className="flex items-center gap-2.5"><Gift size={18} className="text-[#D4527A]" /> Gifts & Gifting</span>
+                  </Link>
+
+                  <Link to="/shop?badge=Bestseller" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between text-[16px] font-semibold text-gray-800 transition-colors hover:text-[#D4527A]">
+                    <span className="flex items-center gap-2.5"><TrendingUp size={18} className="text-[#D4527A]" /> Offers & Bestsellers</span>
+                  </Link>
+                  
+                  {navLinks.filter(l => l.name !== 'All Jewellery').map((link) => (
+                    <Link key={link.name} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between text-[16px] font-semibold text-gray-800 transition-colors hover:text-[#D4527A]">
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="mt-2 flex flex-col gap-4 border-t border-gray-100 pt-6">
+                  <Link to="/track-order" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-[15px] font-medium text-gray-600 transition-colors hover:text-gray-900">
+                    <PackageSearch size={18} className="text-gray-400" /> Track Order
+                  </Link>
+                  <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-[15px] font-medium text-gray-600 transition-colors hover:text-gray-900">
+                    <Sun size={18} className="text-gray-400" /> Our Story
+                  </Link>
+                </div>
               </nav>
             </motion.aside>
           </>
