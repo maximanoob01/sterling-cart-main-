@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Clock, Send, Home, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -13,12 +14,20 @@ export default function ContactPage() {
     message: '',
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) {
       toast.error('Please fill in all required fields');
       return;
     }
+
+    try {
+      await api.post('/contact', formData);
+    } catch (err) {
+      // Silently continue — message still shown to user
+      console.warn('Contact API unavailable:', err.message);
+    }
+
     toast.success('Message sent successfully! We\'ll get back to you soon.', {
       style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },

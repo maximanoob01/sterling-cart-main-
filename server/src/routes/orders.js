@@ -1,0 +1,316 @@
+import { Router } from 'express';
+import { body } from 'express-validator';
+import { Order, OrderItem, OrderTimeline, Product, Loyalty, LoyaltyHistory, Coupon, sequelize } from '../models/index.js';
+import { authenticate, requireAdmin, optionalAuth } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
+import { sendOrderConfirmation } from '../services/emailService.js';
+import {
+  generateOrderId, getItemPrice, FREE_DELIVERY_THRESHOLD,
+  DELIVERY_FEE, COD_FEE, GIFT_WRAP_FEE, LOYALTY_EARN_RATE, LOYALTY_REDEEM_CAP,
+} from '../config/constants.js';
+
+const router = Router();
+
+// ─── POST /api/orders — Create order ─────────────────────────────────────────
+router.post('/', optionalAuth, [
+  body('form.fullName').trim().notEmpty(),
+  body('form.email').isEmail(),
+  body('form.phone').trim().notEmpty(),
+  body('form.addressLine1').trim().notEmpty(),
+  body('form.city').trim().notEmpty(),
+  body('form.state').trim().notEmpty(),
+  body('form.pincode').matches(/^\d{6}$/),
+  body('items').isArray({ min: 1 }),
+  body('paymentMethod').trim().notEmpty(),
+], validate, async (req, res, next) => {
+  const t = await sequelize.transaction();
+  try {
+    const { form, items, paymentMethod, razorpayPaymentId, razorpayOrderId,
+            isGiftWrapped, giftNote, couponCode, loyaltyPointsUsed } = req.body;
+
+    const orderId = generateOrderId();
+    let subtotal = 0;
+    const orderItems = [];
+
+    // 1. Process items and check stock
+    for (const item of items) {
+      const product = await Product.findByPk(item.productId, { transaction: t });
+      if (!product) continue;
+
+      const unitPrice = getItemPrice(product);
+      subtotal += unitPrice * item.qty;
+
+      orderItems.push({
+        productId: product.id,
+        name: product.name,
+        qty: item.qty,
+        price: unitPrice,
+        size: item.size || null,
+        engravingText: item.engravingText || '',
+        image: product.images?.[0] || '',
+      });
+
+      if (product.stockQty > 0) {
+        await product.update({
+          stockQty: Math.max(0, product.stockQty - item.qty),
+          inStock: (product.stockQty - item.qty) > 0
+        }, { transaction: t });
+      }
+    }
+
+    // 2. Apply Coupon
+    let discount = 0;
+    if (couponCode) {
+      const coupon = await Coupon.findOne({ where: { code: couponCode.toUpperCase() }, transaction: t });
+      if (coupon) {
+        const validity = coupon.isValid(subtotal);
+        if (validity.valid) {
+          discount = coupon.calculateDiscount(subtotal);
+          await coupon.increment('usedCount', { by: 1, transaction: t });
+        }
+      }
+    }
+
+    const shipping = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+    const codFee = paymentMethod === 'cod' ? COD_FEE : 0;
+    const giftWrapFee = isGiftWrapped ? GIFT_WRAP_FEE : 0;
+
+    // 3. Apply Loyalty
+    let loyaltyDiscount = 0;
+    let loyaltyAccount = null;
+    if (req.dbUser && loyaltyPointsUsed > 0) {
+      loyaltyAccount = await Loyalty.findOne({ where: { userId: req.dbUser.id }, transaction: t });
+      if (loyaltyAccount) {
+        const maxRedeem = Math.min(loyaltyAccount.balance, Math.floor((subtotal + codFee + giftWrapFee) * LOYALTY_REDEEM_CAP));
+        loyaltyDiscount = Math.min(loyaltyPointsUsed, maxRedeem);
+      }
+    }
+
+    const totalAmount = Math.max(0, subtotal - discount + shipping + codFee + giftWrapFee - loyaltyDiscount);
+    const paymentStatus = paymentMethod === 'cod' ? 'pending' : (razorpayPaymentId ? 'paid' : 'pending');
+
+    // 4. Create Order
+    const order = await Order.create({
+      orderId,
+      userId: req.dbUser?.id || null,
+      customerName: form.fullName,
+      customerEmail: form.email,
+      customerPhone: form.phone,
+      shippingAddress: {
+        fullName: form.fullName,
+        addressLine1: form.addressLine1,
+        addressLine2: form.addressLine2 || '',
+        city: form.city,
+        state: form.state,
+        pincode: form.pincode,
+        landmark: form.landmark || '',
+      },
+      subtotal,
+      shipping,
+      discount,
+      gst: 0,
+      codFee,
+      giftWrapFee,
+      loyaltyDiscount,
+      totalAmount,
+      couponCode: couponCode || null,
+      paymentMethod,
+      razorpayOrderId: razorpayOrderId || null,
+      razorpayPaymentId: razorpayPaymentId || null,
+      paymentStatus,
+      orderStatus: 'Confirmed',
+      isGiftWrapped: isGiftWrapped || false,
+      giftNote: giftNote || '',
+    }, { transaction: t });
+
+    // 5. Create Order Items
+    await OrderItem.bulkCreate(
+      orderItems.map(item => ({ ...item, orderId: order.id })),
+      { transaction: t }
+    );
+
+    // 6. Create Timeline
+    await OrderTimeline.bulkCreate([
+      { orderId: order.id, status: 'Order Placed', date: new Date(), completed: true },
+      { orderId: order.id, status: 'Order Confirmed', date: new Date(), completed: true },
+      { orderId: order.id, status: 'Packed', completed: false },
+      { orderId: order.id, status: 'Shipped', completed: false },
+      { orderId: order.id, status: 'Out for Delivery', completed: false },
+      { orderId: order.id, status: 'Delivered', completed: false },
+    ], { transaction: t });
+
+    // 7. Loyalty transactions (Earn / Redeem)
+    let earnedPoints = 0;
+    if (req.dbUser) {
+      if (!loyaltyAccount) {
+        loyaltyAccount = await Loyalty.create({ userId: req.dbUser.id, balance: 0 }, { transaction: t });
+      }
+
+      if (loyaltyDiscount > 0) {
+        await loyaltyAccount.decrement('balance', { by: loyaltyDiscount, transaction: t });
+        await LoyaltyHistory.create({
+          loyaltyId: loyaltyAccount.id,
+          type: 'redeemed',
+          points: loyaltyDiscount,
+          description: `Redeemed on order #${orderId}`,
+          orderId,
+          date: new Date()
+        }, { transaction: t });
+      }
+
+      earnedPoints = Math.floor(totalAmount * LOYALTY_EARN_RATE);
+      await loyaltyAccount.increment('balance', { by: earnedPoints, transaction: t });
+      await LoyaltyHistory.create({
+        loyaltyId: loyaltyAccount.id,
+        type: 'earned',
+        points: earnedPoints,
+        description: `Order #${orderId}`,
+        orderId,
+        date: new Date()
+      }, { transaction: t });
+    }
+
+    await t.commit();
+
+    // Send confirmation email (non-blocking)
+    sendOrderConfirmation(orderId, form, orderItems, totalAmount).catch(console.error);
+
+    res.status(201).json({
+      success: true,
+      order: { orderId: order.orderId, totalAmount: order.totalAmount, orderStatus: order.orderStatus },
+      earnedPoints,
+    });
+  } catch (error) {
+    await t.rollback();
+    next(error);
+  }
+});
+
+// ─── GET /api/orders — User's orders ─────────────────────────────────────────
+router.get('/', authenticate, async (req, res, next) => {
+  try {
+    const orders = await Order.findAll({
+      where: { userId: req.dbUser.id },
+      order: [['createdAt', 'DESC']],
+      include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }]
+    });
+    res.json({ success: true, orders });
+  } catch (error) { next(error); }
+});
+
+// ─── GET /api/orders/track/:orderId — Public order tracking ──────────────────
+router.get('/track/:orderId', async (req, res, next) => {
+  try {
+    const order = await Order.findOne({
+      where: { orderId: req.params.orderId },
+      include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }]
+    });
+    if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+
+    res.json({
+      success: true,
+      order: {
+        orderId: order.orderId,
+        orderStatus: order.orderStatus,
+        timeline: order.timeline,
+        items: order.items.map(i => ({ name: i.name, qty: i.qty, price: i.price, size: i.size, image: i.image })),
+        totalAmount: order.totalAmount,
+        trackingNumber: order.trackingNumber,
+        courierName: order.courierName,
+        createdAt: order.createdAt,
+      },
+    });
+  } catch (error) { next(error); }
+});
+
+// ─── GET /api/orders/:orderId — Single order detail ──────────────────────────
+router.get('/:orderId', authenticate, async (req, res, next) => {
+  try {
+    const order = await Order.findOne({
+      where: { orderId: req.params.orderId },
+      include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }]
+    });
+    if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+
+    // Check ownership or admin
+    if (req.dbUser.role !== 'admin' && order.userId !== req.dbUser.id) {
+      return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    res.json({ success: true, order });
+  } catch (error) { next(error); }
+});
+
+// ─── Admin: GET /api/orders/admin/all — All orders ───────────────────────────
+router.get('/admin/all', authenticate, requireAdmin, async (req, res, next) => {
+  try {
+    const { status, page = 1, limit = 50 } = req.query;
+    const where = {};
+    if (status) where.orderStatus = status;
+
+    const limitNum = Number(limit);
+    const offset = (Number(page) - 1) * limitNum;
+
+    const { count, rows: orders } = await Order.findAndCountAll({
+      where,
+      order: [['createdAt', 'DESC']],
+      limit: limitNum,
+      offset,
+      include: [{ model: OrderItem, as: 'items' }]
+    });
+
+    res.json({
+      success: true,
+      orders,
+      pagination: { page: Number(page), total: count, pages: Math.ceil(count / limitNum) }
+    });
+  } catch (error) { next(error); }
+});
+
+// ─── Admin: PUT /api/orders/:orderId/status — Update order status ────────────
+router.put('/:orderId/status', authenticate, requireAdmin, [
+  body('status').isIn(['Pending', 'Confirmed', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled']),
+], validate, async (req, res, next) => {
+  const t = await sequelize.transaction();
+  try {
+    const order = await Order.findOne({
+      where: { orderId: req.params.orderId },
+      include: [{ model: OrderTimeline, as: 'timeline' }],
+      transaction: t
+    });
+    if (!order) {
+      await t.rollback();
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+
+    const { status, trackingNumber, courierName } = req.body;
+
+    const updates = { orderStatus: status };
+    if (trackingNumber) updates.trackingNumber = trackingNumber;
+    if (courierName) updates.courierName = courierName;
+    if (status === 'Delivered') updates.paymentStatus = 'paid';
+    if (status === 'Cancelled') updates.paymentStatus = 'refunded';
+
+    await order.update(updates, { transaction: t });
+
+    // Update timelines
+    const statusOrder = ['Order Placed', 'Order Confirmed', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered'];
+    const currentIdx = statusOrder.indexOf(status === 'Confirmed' ? 'Order Confirmed' : status);
+    
+    for (const timelineEntry of order.timeline) {
+      const entryIdx = statusOrder.indexOf(timelineEntry.status);
+      if (entryIdx <= currentIdx && !timelineEntry.completed) {
+        await timelineEntry.update({ completed: true, date: new Date() }, { transaction: t });
+      }
+    }
+
+    await t.commit();
+    await order.reload(); // Refresh to get updated timeline
+    res.json({ success: true, order });
+  } catch (error) {
+    await t.rollback();
+    next(error);
+  }
+});
+
+export default router;

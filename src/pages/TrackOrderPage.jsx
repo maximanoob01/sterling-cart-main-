@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Package, Check, Home, ChevronRight, ExternalLink, HelpCircle } from 'lucide-react';
-import { mockOrders } from '../data/orders';
 import { formatPrice, formatDateTime } from '../utils/formatPrice';
+import api from '../services/api';
 
 export default function TrackOrderPage() {
   const [orderId, setOrderId] = useState('');
@@ -12,7 +12,7 @@ export default function TrackOrderPage() {
   const [error, setError] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
 
-  const handleTrack = (e) => {
+  const handleTrack = async (e) => {
     e.preventDefault();
     setHasSearched(true);
     
@@ -22,13 +22,31 @@ export default function TrackOrderPage() {
       return;
     }
 
-    const found = mockOrders.find(o => o.id.toLowerCase() === orderId.trim().toLowerCase());
-    if (found) {
-      setOrder(found);
-      setError('');
-    } else {
-      setOrder(null);
-      setError('Order not found. Please check your Order ID and try again.');
+    try {
+      const res = await api.get(`/orders/track/${orderId.trim()}`);
+      if (res.success && res.order) {
+        setOrder(res.order);
+        setError('');
+      } else {
+        setOrder(null);
+        setError('Order not found. Please check your Order ID and try again.');
+      }
+    } catch (err) {
+      // Fallback: try local mock data
+      try {
+        const { mockOrders } = await import('../data/orders');
+        const found = mockOrders.find(o => o.id.toLowerCase() === orderId.trim().toLowerCase());
+        if (found) {
+          setOrder(found);
+          setError('');
+        } else {
+          setOrder(null);
+          setError('Order not found. Please check your Order ID and try again.');
+        }
+      } catch {
+        setOrder(null);
+        setError('Order not found. Please check your Order ID and try again.');
+      }
     }
   };
 

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import api from '../services/api';
 
 const LoyaltyContext = createContext();
 
@@ -10,109 +11,73 @@ export const pointsEarned = (orderValue) => Math.floor(orderValue * 0.1);
 export const maxRedeemable = (orderValue, balance) =>
   Math.min(balance, Math.floor(orderValue * 0.05));
 
-const STORAGE_KEY = (userId) => `sterling_loyalty_${userId}`;
-
-const DEFAULT_STATE = { balance: 0, history: [] };
-
 export const LoyaltyProvider = ({ children }) => {
   const { user } = useAuth();
-  const [loyaltyData, setLoyaltyData] = useState(DEFAULT_STATE);
+  const [loyaltyData, setLoyaltyData] = useState({ balance: 0, history: [] });
 
-  // Load from localStorage whenever user changes
+  // Load loyalty data from API when user changes
   useEffect(() => {
-    if (user?.id) {
-      const stored = localStorage.getItem(STORAGE_KEY(user.id));
-      if (stored) {
-        try {
-          setLoyaltyData(JSON.parse(stored));
-        } catch {
-          setLoyaltyData(DEFAULT_STATE);
-        }
-      } else {
-        // Give demo user 200 starting points so the feature is visible
-        const initial = { balance: 200, history: [
-          {
-            id: 1,
-            type: 'earned',
-            points: 200,
-            description: 'Welcome bonus',
-            date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          }
-        ]};
-        setLoyaltyData(initial);
-        localStorage.setItem(STORAGE_KEY(user.id), JSON.stringify(initial));
+    const fetchLoyalty = async () => {
+      if (!user) {
+        setLoyaltyData({ balance: 0, history: [] });
+        return;
       }
-    } else {
-      setLoyaltyData(DEFAULT_STATE);
-    }
-  }, [user?.id]);
 
-  const persist = useCallback((newData) => {
-    if (user?.id) {
-      localStorage.setItem(STORAGE_KEY(user.id), JSON.stringify(newData));
-    }
-    setLoyaltyData(newData);
-  }, [user?.id]);
+      try {
+        const res = await api.get('/loyalty');
+        if (res.success) {
+          setLoyaltyData({ balance: res.balance, history: res.history });
+        }
+      } catch (err) {
+        console.warn('Loyalty API unavailable, using localStorage fallback:', err.message);
+        // Fallback to localStorage
+        const key = `sterling_loyalty_${user._id || user.id || 'guest'}`;
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          try { setLoyaltyData(JSON.parse(stored)); } catch { /* ignore */ }
+        } else {
+          const initial = {
+            balance: 200,
+            history: [{ id: 1, type: 'earned', points: 200, description: 'Welcome bonus', date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() }],
+          };
+          setLoyaltyData(initial);
+          localStorage.setItem(key, JSON.stringify(initial));
+        }
+      }
+    };
+
+    fetchLoyalty();
+  }, [user]);
 
   // Add points after a successful order
   const addPoints = useCallback((orderValue, orderId) => {
     const earned = pointsEarned(orderValue);
-    setLoyaltyData((prev) => {
+    setLoyaltyData(prev => {
       const updated = {
         balance: prev.balance + earned,
         history: [
-          {
-            id: Date.now(),
-            type: 'earned',
-            points: earned,
-            description: `Order #${orderId}`,
-            date: new Date().toISOString(),
-          },
+          { id: Date.now(), type: 'earned', points: earned, description: `Order #${orderId}`, date: new Date().toISOString() },
           ...prev.history,
         ],
       };
-      if (user?.id) {
-        localStorage.setItem(STORAGE_KEY(user.id), JSON.stringify(updated));
-      }
       return updated;
     });
     return earned;
-  }, [user?.id]);
+  }, []);
 
   // Deduct points when redeemed at checkout
   const redeemPoints = useCallback((pointsToRedeem, orderId) => {
-    setLoyaltyData((prev) => {
-      const updated = {
-        balance: Math.max(0, prev.balance - pointsToRedeem),
-        history: [
-          {
-            id: Date.now(),
-            type: 'redeemed',
-            points: pointsToRedeem,
-            description: `Redeemed on order #${orderId}`,
-            date: new Date().toISOString(),
-          },
-          ...prev.history,
-        ],
-      };
-      if (user?.id) {
-        localStorage.setItem(STORAGE_KEY(user.id), JSON.stringify(updated));
-      }
-      return updated;
-    });
-  }, [user?.id]);
+    setLoyaltyData(prev => ({
+      balance: Math.max(0, prev.balance - pointsToRedeem),
+      history: [
+        { id: Date.now(), type: 'redeemed', points: pointsToRedeem, description: `Redeemed on order #${orderId}`, date: new Date().toISOString() },
+        ...prev.history,
+      ],
+    }));
+  }, []);
 
   return (
-    <LoyaltyContext.Provider
-      value={{
-        balance: loyaltyData.balance,
-        history: loyaltyData.history,
-        addPoints,
-        redeemPoints,
-        pointsEarned,
-        maxRedeemable,
-      }}
-    >
+    <LoyaltyContext.Provider value={{ balance: loyaltyData.balance, history: loyaltyData.history, addPoints, redeemPoints, pointsEarned, maxRedeemable }}>
       {children}
     </LoyaltyContext.Provider>
   );

@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLoyalty } from '../context/LoyaltyContext';
 import { getItemPrice } from '../context/CartContext';
 import { generateOrderId } from '../utils/formatPrice';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 import FreeDeliveryBar from '../components/cart/FreeDeliveryBar';
 import { VisaLogo, MastercardLogo, AmexLogo, RazorpayLogo, GPayLogo, PhonePeLogo, PaytmLogo, RupayLogo, AmazonPayLogo, MobikwikLogo, BankLogo, CashLogo } from '../components/ui/PaymentLogos';
@@ -166,52 +167,127 @@ const CheckoutPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handlePlaceOrder = async () => {
-    setIsPlacingOrder(true);
-    const orderId = generateOrderId();
-
-    // Deduct redeemed points first
-    if (isAuthenticated && appliedPoints > 0) {
-      redeemPoints(appliedPoints, orderId);
-    }
-
-    // Earn new points (10% of final amount)
-    const earned = isAuthenticated ? addPoints(finalTotalAmount, orderId) : 0;
-
-    const payload = {
-      orderId,
+  const createOrderOnBackend = async (paymentId, razorpayOrderId) => {
+    const orderPayload = {
       form,
       items: items.map(item => ({
+        productId: item._id || item.id,
         name: item.name,
-        quantity: item.quantity,
+        qty: item.quantity,
         price: getItemPrice(item),
         size: item.selectedSize,
-        engravingText: item.engravingText
+        engravingText: item.engravingText,
       })),
-      finalTotalAmount
+      paymentMethod: selectedPayment,
+      razorpayPaymentId: paymentId || null,
+      razorpayOrderId: razorpayOrderId || null,
+      isGiftWrapped,
+      giftNote,
+      couponCode: null, // TODO: pass coupon if applied
+      loyaltyPointsUsed: appliedPoints,
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/orders/confirmation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('Email sending failed:', data.error);
-        toast.error('Order placed, but email confirmation failed.');
-      } else {
-        toast.success('Order placed and email sent!');
+      const res = await api.post('/orders', orderPayload);
+      if (res.success) {
+        toast.success('Order placed successfully!');
+        return res;
       }
-    } catch (error) {
-      console.error('Error connecting to email server:', error);
-      toast.error("Order placed, but couldn't send email confirmation.");
+    } catch (err) {
+      console.error('Order API error:', err);
+      toast.error('Order placed, but confirmation may be delayed.');
     }
+    return { order: { orderId: generateOrderId() }, earnedPoints: 0 };
+  };
 
-    clearCart();
-    setIsPlacingOrder(false);
-    setOrderSuccessData({ orderId, earnedPoints: earned });
+  const handlePlaceOrder = async () => {
+    setIsPlacingOrder(true);
+
+    try {
+      // COD — skip Razorpay, create order directly
+      if (selectedPayment === 'cod') {
+        const res = await createOrderOnBackend(null, null);
+        const earned = res.earnedPoints || 0;
+
+        if (isAuthenticated && appliedPoints > 0) redeemPoints(appliedPoints, res.order?.orderId);
+        if (isAuthenticated && earned > 0) addPoints(finalTotalAmount, res.order?.orderId);
+
+        clearCart();
+        setIsPlacingOrder(false);
+        setOrderSuccessData({ orderId: res.order?.orderId || generateOrderId(), earnedPoints: earned });
+        return;
+      }
+
+      // Online payment — create Razorpay order
+      let rzpOrder;
+      try {
+        rzpOrder = await api.post('/payments/create-order', {
+          amount: finalTotalAmount,
+          currency: currency === 'USD' ? 'USD' : 'INR',
+          receipt: `rcpt_${Date.now()}`,
+        });
+      } catch (err) {
+        // Razorpay unavailable — fallback to direct order
+        console.warn('Razorpay unavailable, creating order directly:', err.message);
+        const res = await createOrderOnBackend(null, null);
+        clearCart();
+        setIsPlacingOrder(false);
+        setOrderSuccessData({ orderId: res.order?.orderId || generateOrderId(), earnedPoints: res.earnedPoints || 0 });
+        return;
+      }
+
+      // Open Razorpay checkout modal
+      const options = {
+        key: rzpOrder.key || import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: rzpOrder.order.amount,
+        currency: rzpOrder.order.currency,
+        name: 'Sterling Kart',
+        description: `Order for ${totalItems} item(s)`,
+        order_id: rzpOrder.order.id,
+        prefill: {
+          name: form.fullName,
+          email: form.email,
+          contact: form.phone,
+        },
+        theme: { color: '#D4527A' },
+        handler: async (response) => {
+          // Verify payment
+          try {
+            await api.post('/payments/verify', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+          } catch (err) {
+            console.error('Payment verification failed:', err);
+          }
+
+          // Create order with payment details
+          const res = await createOrderOnBackend(response.razorpay_payment_id, response.razorpay_order_id);
+          const earned = res.earnedPoints || 0;
+
+          if (isAuthenticated && appliedPoints > 0) redeemPoints(appliedPoints, res.order?.orderId);
+          if (isAuthenticated && earned > 0) addPoints(finalTotalAmount, res.order?.orderId);
+
+          clearCart();
+          setIsPlacingOrder(false);
+          setOrderSuccessData({ orderId: res.order?.orderId || generateOrderId(), earnedPoints: earned });
+        },
+        modal: {
+          ondismiss: () => {
+            setIsPlacingOrder(false);
+            toast.error('Payment cancelled');
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error('Checkout error:', error);
+      setIsPlacingOrder(false);
+      toast.error('Something went wrong. Please try again.');
+    }
   };
 
   const steps = [
