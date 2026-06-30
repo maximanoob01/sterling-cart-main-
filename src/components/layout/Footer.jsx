@@ -63,7 +63,7 @@ export default function Footer() {
 
             {/* Tagline: centered on mobile, left on desktop */}
             <p className="text-[14px] leading-relaxed text-white/70 max-w-[380px] font-serif italic text-center lg:text-left">
-              Elevating everyday elegance with bespoke 925 sterling silver jewelry. Crafted with passion, designed for luxury.
+              Elevating everyday elegance with bespoke 925 sterling silver jewellery. Crafted with passion, designed for luxury.
             </p>
 
             {/* ── Social icons: centered on mobile, left on desktop ── */}

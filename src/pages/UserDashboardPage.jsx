@@ -12,7 +12,9 @@ import { useLoyalty } from '../context/LoyaltyContext';
 import { mockOrders } from '../data/orders';
 import { products } from '../data/products';
 import { formatPrice, formatDate } from '../utils/formatPrice';
+import { generateInvoice } from '../utils/generateInvoice';
 import toast from 'react-hot-toast';
+import api from '../services/api';
 
 const statusColors = {
   Pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -26,7 +28,7 @@ const statusColors = {
 
 const sidebarTabs = [
   { id: 'orders', label: 'My Orders', icon: Package },
-  { id: 'rewards', label: 'Sterling Points', icon: Coins },
+  { id: 'rewards', label: 'Sterling Pints', icon: Coins },
   { id: 'wishlist', label: 'Wishlist', icon: Heart },
   { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
   { id: 'profile', label: 'Profile Settings', icon: User },
@@ -80,15 +82,24 @@ const LoyaltyBalancePill = () => {
       className="mt-2 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#D4527A]/10 to-[#F4A0B0]/10 border border-[#D4527A]/20 rounded-full px-3 py-1 mx-auto"
     >
       <Coins size={12} className="text-[#D4527A]" />
-      <span className="font-sans text-[11px] font-bold text-[#D4527A]">{balance} Sterling Points</span>
+      <span className="font-sans text-[11px] font-bold text-[#D4527A]">{balance} Sterling Pints</span>
     </motion.div>
   );
 };
 
 /* ==================== ORDERS TAB ==================== */
 const OrderCard = ({ order }) => {
+  const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const totalItems = order.items.reduce((acc, item) => acc + item.qty, 0);
+
+  const handleDownloadInvoice = () => {
+    generateInvoice(order, user);
+    toast.success('Invoice downloaded successfully', {
+      style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
+      iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
+    });
+  };
 
   return (
     <motion.div variants={fadeUpItem} className="bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl p-4 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_32px_rgba(212,82,122,0.08)] transition-shadow duration-300">
@@ -109,7 +120,7 @@ const OrderCard = ({ order }) => {
             </Link>
           )}
           <button
-            onClick={() => toast.success('Invoice downloading...')}
+            onClick={handleDownloadInvoice}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-silver-600 hover:text-charcoal border border-silver-200 hover:border-silver-300 rounded-full text-[12px] font-semibold transition-colors shadow-sm"
           >
             <Download size={14} /> Invoice
@@ -134,7 +145,7 @@ const OrderCard = ({ order }) => {
             <div className="mt-6 pt-5 border-t border-pink-100/50 grid grid-cols-1 md:grid-cols-2 gap-4">
               {order.items.map((item, idx) => {
                 const product = products.find(p => p.id === item.productId);
-                const imageUrl = product ? product.images[0] : null;
+                const imageUrl = item.image || (product ? product.images[0] : null);
                 return (
                   <div key={idx} className="flex items-center gap-4 bg-white/40 p-3 rounded-2xl border border-white/50">
                     <div className="w-20 h-20 rounded-xl overflow-hidden bg-pink-50 shrink-0 shadow-sm relative group">
@@ -168,7 +179,48 @@ const OrderCard = ({ order }) => {
 };
 
 const OrdersTab = () => {
-  const orders = mockOrders;
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await api.get('/orders');
+        if (res.success) {
+          const formatted = res.orders.map(o => ({
+            id: o.orderId,
+            status: o.orderStatus,
+            date: o.createdAt,
+            total: o.totalAmount,
+            trackingNumber: o.trackingNumber,
+            items: o.items.map(i => ({
+              productId: i.productId,
+              name: i.name,
+              qty: i.qty,
+              size: i.size,
+              price: i.price,
+              image: i.image,
+            }))
+          }));
+          setOrders(formatted);
+        }
+      } catch (err) {
+        console.error('Failed to fetch orders:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchOrders();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-12 h-12 border-4 border-pink-200 border-t-[#D4527A] rounded-full animate-spin mb-4" />
+        <p className="text-silver-500">Loading your orders...</p>
+      </div>
+    );
+  }
 
   if (orders.length === 0) {
     return (
@@ -218,7 +270,7 @@ const WishlistTab = () => {
           Curate your perfect collection here. Explore our exquisite pieces!
         </p>
         <Link to="/shop" className="px-8 py-3 bg-[#D4527A] text-white rounded-full font-semibold hover:bg-[#B94B68] transition-all shadow-lg hover:shadow-pink-500/25 flex items-center gap-2">
-          <ShoppingCart size={18} /> Discover Jewelry
+          <ShoppingCart size={18} /> Discover Jewellery
         </Link>
       </motion.div>
     );
@@ -553,7 +605,7 @@ const RewardsTab = () => {
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-3xl font-serif text-charcoal tracking-tight">Sterling Points</h2>
+        <h2 className="text-3xl font-serif text-charcoal tracking-tight">Sterling Pints</h2>
       </div>
 
       {/* Balance hero card */}
@@ -627,9 +679,9 @@ const RewardsTab = () => {
         className="grid grid-cols-3 gap-3"
       >
         {[
-          { icon: '🛍️', title: 'Shop', desc: 'Earn 10% of order as points' },
+          { icon: '🛍️', title: 'Shop', desc: 'Earn 10 points for every 10k spent' },
           { icon: '🪙', title: 'Collect', desc: 'Points auto-added after delivery' },
-          { icon: '🎁', title: 'Redeem', desc: 'Up to 5% off on next order' },
+          { icon: '🎁', title: 'Redeem', desc: 'Up to 3% off on next order' },
         ].map((step, i) => (
           <div key={i} className="bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl p-4 text-center shadow-sm">
             <span className="text-[24px]">{step.icon}</span>

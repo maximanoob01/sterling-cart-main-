@@ -84,6 +84,7 @@ export const AuthProvider = ({ children }) => {
       toast.success('Logged out successfully', {
         style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
         iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
+      });
     }
   }, []);
 

@@ -73,12 +73,16 @@ export default function CircularGallery({
       video.style.opacity = '0';
       video.style.pointerEvents = 'none';
       document.body.appendChild(video);
-      video.play().catch(e => console.log('Video autoplay blocked:', e));
+      video.play().catch(e => {
+        if (e.name !== 'AbortError') {
+          console.warn('Video autoplay blocked:', e);
+        }
+      });
       
       videoElements.push(video);
 
+      // Create an empty texture first to avoid WebGL "no video" error
       const texture = new Texture(gl, {
-        image: video,
         generateMipmaps: false,
         wrapS: gl.CLAMP_TO_EDGE,
         wrapT: gl.CLAMP_TO_EDGE,
@@ -101,7 +105,8 @@ export default function CircularGallery({
         mesh,
         texture,
         video,
-        index: i
+        index: i,
+        imageSet: false, // track if image is attached
       });
     });
 
@@ -167,6 +172,10 @@ export default function CircularGallery({
       items.forEach((item, i) => {
         // Update video texture if playing
         if (item.video.readyState >= item.video.HAVE_CURRENT_DATA) {
+          if (!item.imageSet) {
+            item.texture.image = item.video;
+            item.imageSet = true;
+          }
           if (item.lastTime !== item.video.currentTime) {
             item.texture.needsUpdate = true;
             item.lastTime = item.video.currentTime;
