@@ -21,6 +21,10 @@ LoyaltyHistory.init({
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  status: {
+    type: DataTypes.ENUM('pending', 'confirmed', 'cancelled'),
+    defaultValue: 'confirmed'
+  },
   description: {
     type: DataTypes.STRING,
     defaultValue: ''

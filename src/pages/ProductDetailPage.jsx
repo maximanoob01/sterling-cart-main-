@@ -70,7 +70,7 @@ function RelatedCard({ product }) {
     >
       <div className="aspect-[4/5] overflow-hidden bg-[#FAF8F7]">
         <img
-          src={product.images?.[0] || ''} alt={product.name}
+          src={product.images?.[0]} alt={product.name}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.07]"
           loading="lazy"
         />

@@ -608,6 +608,7 @@ const silverSnapshot = {
 };
 
 function SilverPriceModal({ onClose }) {
+  const { products } = useProducts();
   const trendingProducts = [...products]
     .sort((a, b) => (b.reviewCount + b.rating * 20) - (a.reviewCount + a.rating * 20))
     .slice(0, 4);

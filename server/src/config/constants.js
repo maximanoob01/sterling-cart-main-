@@ -10,7 +10,7 @@ export const GIFT_WRAP_FEE = 49;
 
 // Loyalty
 export const LOYALTY_EARN_RATE = 0.001; // 10 points per 10k purchase
-export const LOYALTY_REDEEM_CAP = 0.03;  // max 3% of order value
+export const LOYALTY_REDEEM_CAP = 0.10;  // max 10% of order value
 
 // Pricing helpers
 export const computeWeightBasedPrice = (weightGrams, makingCharges, silverRate = SILVER_RATE_PER_GRAM) => {

@@ -18,10 +18,10 @@ export const CurrencyProvider = ({ children }) => {
           if (cachedCountry) {
             userCountry = cachedCountry;
           } else {
-            const locRes = await fetch('https://ipapi.co/json/');
+            const locRes = await fetch('https://ipinfo.io/json');
             if (locRes.ok) {
               const locData = await locRes.json();
-              userCountry = locData.country_code;
+              userCountry = locData.country;
               sessionStorage.setItem('user_country', userCountry);
             }
           }
