@@ -9,7 +9,7 @@ User.init({
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
-  firebaseUid: {
+  phone: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
@@ -22,10 +22,7 @@ User.init({
     type: DataTypes.STRING,
     defaultValue: ''
   },
-  phone: {
-    type: DataTypes.STRING,
-    defaultValue: ''
-  },
+
   role: {
     type: DataTypes.ENUM('user', 'admin'),
     defaultValue: 'user'

@@ -3,11 +3,11 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 import connectDB from './config/db.js';
-import { initializeFirebase } from './config/firebase.js';
 import errorHandler from './middleware/errorHandler.js';
 import { sequelize } from './models/index.js';
 
@@ -37,6 +37,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Rate limiting
 const limiter = rateLimit({
@@ -74,7 +75,6 @@ app.use(errorHandler);
 const startServer = async () => {
   await connectDB();
   await sequelize.sync(); // Create tables if they don't exist (no force)
-  initializeFirebase();
 
   app.listen(PORT, () => {
     console.log(`\n🚀 Sterling Kart API running on http://localhost:${PORT}`);

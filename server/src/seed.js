@@ -100,7 +100,6 @@ const seed = async () => {
 
     // Create admin user
     await User.create({
-      firebaseUid: 'admin-placeholder',
       name: 'Admin User',
       email: 'admin@sterlingkart.com',
       phone: '+919999900000',

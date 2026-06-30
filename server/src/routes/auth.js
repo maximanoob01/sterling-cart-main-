@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
+import jwt from 'jsonwebtoken';
 import { User, Address, Loyalty, LoyaltyHistory } from '../models/index.js';
 import { authenticate } from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
@@ -79,16 +80,47 @@ router.delete('/addresses/:id', authenticate, async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
-// ─── POST /api/auth/sync — Create/sync user after Firebase login ─────────────
-router.post('/sync', authenticate, async (req, res, next) => {
+// ─── POST /api/auth/request-otp — Mock send OTP ──────────────────────────────
+router.post('/request-otp', [
+  body('phone').trim().notEmpty().withMessage('Phone number is required'),
+], validate, async (req, res, next) => {
   try {
-    const user = req.dbUser;
-    const { name, email } = req.body;
+    // In a real app, send OTP via SMS here
+    res.json({ success: true, message: 'OTP sent successfully' });
+  } catch (error) { next(error); }
+});
 
-    let updated = false;
-    if (name && !user.name) { user.name = name; updated = true; }
-    if (email && !user.email) { user.email = email; updated = true; }
-    if (updated) await user.save();
+// ─── POST /api/auth/verify-otp — Verify OTP and login/signup ────────────────
+router.post('/verify-otp', [
+  body('phone').trim().notEmpty().withMessage('Phone number is required'),
+  body('otp').trim().notEmpty().withMessage('OTP is required'),
+], validate, async (req, res, next) => {
+  try {
+    const { phone, otp, name, email } = req.body;
+
+    // Hardcoded check for "1234" as per user instruction
+    if (otp !== '1234') {
+      return res.status(400).json({ success: false, error: 'Invalid OTP' });
+    }
+
+    // Find or create user
+    let user = await User.findOne({ where: { phone } });
+    let isNewUser = false;
+
+    if (!user) {
+      user = await User.create({
+        phone,
+        name: name || '',
+        email: email || '',
+        role: 'user',
+      });
+      isNewUser = true;
+    } else {
+      let updated = false;
+      if (name && !user.name) { user.name = name; updated = true; }
+      if (email && !user.email) { user.email = email; updated = true; }
+      if (updated) await user.save();
+    }
 
     // Ensure loyalty record exists
     let loyalty = await Loyalty.findOne({ where: { userId: user.id } });
@@ -103,9 +135,63 @@ router.post('/sync', authenticate, async (req, res, next) => {
       });
     }
 
-    // Refresh user to get full object for response
+    // Issue Access Token
+    const token = jwt.sign(
+      { userId: user.id, phone: user.phone, role: user.role },
+      process.env.JWT_SECRET || 'fallback-secret-key-for-dev',
+      { expiresIn: '15m' }
+    );
+
+    // Issue Refresh Token
+    const refreshToken = jwt.sign(
+      { userId: user.id, phone: user.phone, role: user.role },
+      process.env.JWT_REFRESH_SECRET || 'fallback-refresh-key-for-dev',
+      { expiresIn: '7d' }
+    );
+
+    // Set HTTP-Only Cookie
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
     await user.reload();
-    res.json({ success: true, user, loyaltyBalance: loyalty.balance });
+    res.json({ success: true, token, user, loyaltyBalance: loyalty.balance, isNewUser });
+  } catch (error) { next(error); }
+});
+
+// ─── POST /api/auth/refresh — Refresh access token ───────────────────────────
+router.post('/refresh', async (req, res, next) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) return res.status(401).json({ success: false, error: 'No refresh token provided' });
+
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'fallback-refresh-key-for-dev', (err, decoded) => {
+      if (err) return res.status(403).json({ success: false, error: 'Invalid or expired refresh token' });
+
+      // Generate new access token
+      const token = jwt.sign(
+        { userId: decoded.userId, phone: decoded.phone, role: decoded.role },
+        process.env.JWT_SECRET || 'fallback-secret-key-for-dev',
+        { expiresIn: '15m' }
+      );
+
+      res.json({ success: true, token });
+    });
+  } catch (error) { next(error); }
+});
+
+// ─── POST /api/auth/logout — Logout and clear cookie ─────────────────────────
+router.post('/logout', async (req, res, next) => {
+  try {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+    res.json({ success: true, message: 'Logged out successfully' });
   } catch (error) { next(error); }
 });
 
