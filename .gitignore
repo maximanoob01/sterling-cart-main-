@@ -32,3 +32,6 @@ server/uploads/
 *.njsproj
 *.sln
 *.sw?
+
+# AI Agent Skills
+.agents/
