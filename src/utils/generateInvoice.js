@@ -1,8 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { formatPrice, formatDate } from './formatPrice';
-import { products } from '../data/products';
-
 export const generateInvoice = (order, user) => {
   const doc = new jsPDF();
 
@@ -46,9 +44,8 @@ export const generateInvoice = (order, user) => {
   const tableRows = [];
 
   order.items.forEach(item => {
-    const product = products.find(p => p.id === item.productId);
-    const itemName = product ? product.name : `Product #${item.productId}`;
-    const price = product ? product.price : (order.total / item.qty);
+    const itemName = item.name || `Product #${item.productId}`;
+    const price = item.price || (order.total / item.qty);
     
     const rowData = [
       itemName,

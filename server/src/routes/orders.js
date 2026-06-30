@@ -159,15 +159,7 @@ router.post('/', optionalAuth, [
       }
 
       earnedPoints = Math.floor(totalAmount * LOYALTY_EARN_RATE);
-      await loyaltyAccount.increment('balance', { by: earnedPoints, transaction: t });
-      await LoyaltyHistory.create({
-        loyaltyId: loyaltyAccount.id,
-        type: 'earned',
-        points: earnedPoints,
-        description: `Order #${orderId}`,
-        orderId,
-        date: new Date()
-      }, { transaction: t });
+      // Points will be deposited when order status changes to 'Delivered'
     }
 
     await t.commit();
@@ -194,6 +186,13 @@ router.get('/', authenticate, async (req, res, next) => {
       order: [['createdAt', 'DESC']],
       include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }]
     });
+    
+    orders.forEach(o => {
+      if (o.timeline) {
+        o.timeline.sort((a, b) => (TIMELINE_ORDER[a.status] || 99) - (TIMELINE_ORDER[b.status] || 99));
+      }
+    });
+    
     res.json({ success: true, orders });
   } catch (error) { next(error); }
 });
@@ -206,6 +205,10 @@ router.get('/track/:orderId', async (req, res, next) => {
       include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }]
     });
     if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+
+    if (order.timeline) {
+      order.timeline.sort((a, b) => (TIMELINE_ORDER[a.status] || 99) - (TIMELINE_ORDER[b.status] || 99));
+    }
 
     res.json({
       success: true,
@@ -235,6 +238,10 @@ router.get('/:orderId', authenticate, async (req, res, next) => {
     // Check ownership or admin
     if (req.dbUser.role !== 'admin' && order.userId !== req.dbUser.id) {
       return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    if (order.timeline) {
+      order.timeline.sort((a, b) => (TIMELINE_ORDER[a.status] || 99) - (TIMELINE_ORDER[b.status] || 99));
     }
 
     res.json({ success: true, order });
@@ -288,8 +295,38 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
     const updates = { orderStatus: status };
     if (trackingNumber) updates.trackingNumber = trackingNumber;
     if (courierName) updates.courierName = courierName;
-    if (status === 'Delivered') updates.paymentStatus = 'paid';
     if (status === 'Cancelled') updates.paymentStatus = 'refunded';
+
+    if (status === 'Delivered' && order.orderStatus !== 'Delivered') {
+      updates.paymentStatus = 'paid';
+      
+      // Deposit Royal Points
+      if (order.userId) {
+        const earnedPoints = Math.floor(order.totalAmount * LOYALTY_EARN_RATE);
+        if (earnedPoints > 0) {
+          const [loyaltyAccount] = await Loyalty.findOrCreate({
+            where: { userId: order.userId },
+            defaults: { balance: 0 },
+            transaction: t
+          });
+          
+          await loyaltyAccount.increment('balance', { by: earnedPoints, transaction: t });
+          
+          const expiresAt = new Date();
+          expiresAt.setMonth(expiresAt.getMonth() + 12); // 12-month expiry
+          
+          await LoyaltyHistory.create({
+            loyaltyId: loyaltyAccount.id,
+            type: 'earned',
+            points: earnedPoints,
+            description: `Order #${order.orderId}`,
+            orderId: order.orderId,
+            date: new Date(),
+            expiresAt
+          }, { transaction: t });
+        }
+      }
+    }
 
     await order.update(updates, { transaction: t });
 

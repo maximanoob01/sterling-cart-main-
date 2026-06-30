@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { Heart, ShoppingCart, Star, Gift, Sparkles, ChevronRight, ArrowRight, Search as SearchIcon, ChevronDown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { products, categories, stoneTypes, occasions, styles } from '../data/products';
+import { categories, stoneTypes, occasions, styles } from '../data/products';
+import { useProducts } from '../context/ProductContext';
 import { formatPrice } from '../utils/formatPrice';
 
 import giftingHero from '../assets/images/gifting_hero.png';
@@ -159,6 +160,7 @@ function RecipientSection({ id, title, subtitle, image, accentColor, textColor, 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function GiftingPage() {
   const navigate = useNavigate();
+  const { products } = useProducts();
   const [giftCardAmount, setGiftCardAmount] = useState(5000);
   const [activeTab, setActiveTab] = useState('Most Gifted');
   

@@ -14,7 +14,7 @@ LoyaltyHistory.init({
     allowNull: false
   },
   type: {
-    type: DataTypes.ENUM('earned', 'redeemed'),
+    type: DataTypes.ENUM('earned', 'redeemed', 'expired'),
     allowNull: false
   },
   points: {
@@ -32,6 +32,10 @@ LoyaltyHistory.init({
   date: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
+  },
+  expiresAt: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
 }, {
   sequelize,

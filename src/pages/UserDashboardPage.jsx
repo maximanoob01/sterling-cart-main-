@@ -9,8 +9,8 @@ import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { useLoyalty } from '../context/LoyaltyContext';
+import { useProducts } from '../context/ProductContext';
 import { mockOrders } from '../data/orders';
-import { products } from '../data/products';
 import { formatPrice, formatDate } from '../utils/formatPrice';
 import { generateInvoice } from '../utils/generateInvoice';
 import toast from 'react-hot-toast';
@@ -28,7 +28,7 @@ const statusColors = {
 
 const sidebarTabs = [
   { id: 'orders', label: 'My Orders', icon: Package },
-  { id: 'rewards', label: 'Sterling Pints', icon: Coins },
+  { id: 'rewards', label: 'Royal Points', icon: Coins },
   { id: 'wishlist', label: 'Wishlist', icon: Heart },
   { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
   { id: 'profile', label: 'Profile Settings', icon: User },
@@ -82,7 +82,7 @@ const LoyaltyBalancePill = () => {
       className="mt-2 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#D4527A]/10 to-[#F4A0B0]/10 border border-[#D4527A]/20 rounded-full px-3 py-1 mx-auto"
     >
       <Coins size={12} className="text-[#D4527A]" />
-      <span className="font-sans text-[11px] font-bold text-[#D4527A]">{balance} Sterling Pints</span>
+      <span className="font-sans text-[11px] font-bold text-[#D4527A]">{balance} Royal Points</span>
     </motion.div>
   );
 };
@@ -605,7 +605,7 @@ const RewardsTab = () => {
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-3xl font-serif text-charcoal tracking-tight">Sterling Pints</h2>
+        <h2 className="text-3xl font-serif text-charcoal tracking-tight">Royal Points</h2>
       </div>
 
       {/* Balance hero card */}

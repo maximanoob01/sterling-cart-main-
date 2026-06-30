@@ -80,7 +80,7 @@ const CheckoutPage = () => {
     if (pts > orderMaxRedeemable) { toast.error(`Max redeemable for this order is ${orderMaxRedeemable} pts`); return; }
     setAppliedPoints(pts);
     setLoyaltyApplied(true);
-    toast.success(`✨ ${pts} Sterling Pints applied!`, {
+    toast.success(`✨ ${pts} Royal Points applied!`, {
       style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #F4A0B0' },
       iconTheme: { primary: '#D4527A', secondary: '#FFF' },
     });
@@ -433,7 +433,7 @@ const CheckoutPage = () => {
                   <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4527A]/20 to-[#F4A0B0]/10 border border-[#D4527A]/30 rounded-full px-5 py-2 my-3">
                     <Coins size={18} className="text-[#F4A0B0]" />
                     <span className="font-sans text-[26px] font-black text-white">{orderSuccessData.earnedPoints}</span>
-                    <span className="font-sans text-[13px] font-bold text-[#F4A0B0]">Sterling Pints</span>
+                    <span className="font-sans text-[13px] font-bold text-[#F4A0B0]">Royal Points</span>
                   </div>
                   <p className="font-sans text-[13px] text-white/60 leading-relaxed mt-2">
                     Redeem them on your next order for an instant discount!
@@ -996,7 +996,7 @@ const CheckoutPage = () => {
                   {loyaltyApplied && appliedPoints > 0 && (
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-1.5 text-[#D4527A] font-semibold">
-                        <Coins size={12} /> Sterling Pints
+                        <Coins size={12} /> Royal Points
                       </span>
                       <span className="font-bold text-[#D4527A]">−{formatPrice(appliedPoints)}</span>
                     </div>
@@ -1008,7 +1008,7 @@ const CheckoutPage = () => {
                   <FreeDeliveryBar subtotal={subtotal} threshold={2499} compact />
                 </div>
 
-                {/* ── Sterling Pints Card ── */}
+                {/* ── Royal Points Card ── */}
                 {isAuthenticated && (
                   <div className="mt-[20px] relative z-10">
                     <div className="rounded-[16px] overflow-hidden border border-[#F4A0B0]/30 shadow-[0_4px_20px_rgba(212,82,122,0.08)]">
@@ -1018,7 +1018,7 @@ const CheckoutPage = () => {
                           <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
                             <Coins size={13} className="text-white" />
                           </div>
-                          <span className="font-sans text-[11px] font-bold uppercase tracking-[1px] text-white">Sterling Pints</span>
+                          <span className="font-sans text-[11px] font-bold uppercase tracking-[1px] text-white">Royal Points</span>
                         </div>
                         <div className="flex items-center gap-1 bg-white/20 rounded-full px-2.5 py-0.5">
                           <Coins size={10} className="text-white" />

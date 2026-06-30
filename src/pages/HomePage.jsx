@@ -148,7 +148,7 @@ function MinimalProductCard({ product }) {
 }
 
 export default function HomePage() {
-  const { products } = useProducts();
+  const { products, isLoaded } = useProducts();
   const [email, setEmail] = useState('');
   const [heroIndex, setHeroIndex] = useState(0);
   const [isHeroPaused, setIsHeroPaused] = useState(false);

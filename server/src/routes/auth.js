@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import { User, Address, Loyalty, LoyaltyHistory } from '../models/index.js';
+import { syncExpiredPoints } from '../services/loyaltyService.js';
 import { authenticate } from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
 
@@ -131,8 +132,11 @@ router.post('/verify-otp', [
         type: 'earned',
         points: 200,
         description: 'Welcome bonus',
-        date: new Date()
+        date: new Date(),
+        expiresAt: new Date(new Date().setMonth(new Date().getMonth() + 12))
       });
+    } else {
+      await syncExpiredPoints(loyalty);
     }
 
     // Issue Access Token

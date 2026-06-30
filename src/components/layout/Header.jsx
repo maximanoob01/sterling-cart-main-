@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useTheme } from '../../context/ThemeContext';
-import { products } from '../../data/products';
+import { useProducts } from '../../context/ProductContext';
 import { formatPrice } from '../../utils/formatPrice';
 
 const announcements = [
@@ -733,6 +733,7 @@ function LogoMark({ compact = false, heroMode = false }) {
 }
 
 function ProductSearch({ query, setQuery, navigate, onClose, autoFocus = false, heroMode = false }) {
+  const { products } = useProducts();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const containerRef = useRef(null);
   const normalizedQuery = query.trim().toLowerCase();
@@ -853,6 +854,7 @@ function ProductSearch({ query, setQuery, navigate, onClose, autoFocus = false, 
 }
 
 function MegaMenu({ activeDropdown, onClose }) {
+  const { products } = useProducts();
   if (activeDropdown === 'Gifts') return <GiftMegaMenu onClose={onClose} />;
   if (activeDropdown === 'Offers') return <OffersMegaMenu onClose={onClose} />;
 

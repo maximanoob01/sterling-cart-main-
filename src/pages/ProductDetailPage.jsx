@@ -377,7 +377,7 @@ export default function ProductDetailPage() {
                 </>
               )}
 
-              {/* ── Sterling Pints badge (logged-in users only) ── */}
+              {/* ── Royal Points badge (logged-in users only) ── */}
               {isAuthenticated && (() => {
                 const basePrice = product.pricingType === 'weight'
                   ? computeWeightBasedPrice(product.weightGrams, product.makingCharges)
@@ -396,9 +396,8 @@ export default function ProductDetailPage() {
                       </div>
                       <div>
                         <p className="font-sans text-[11px] font-bold text-[#D4527A]">
-                          Earn <span className="text-[13px]">{earnOnThis}</span> Sterling Pints
+                          Earn <span className="text-[13px]">{earnOnThis}</span> Royal Points
                         </p>
-                        <p className="font-sans text-[10px] text-text-muted">Balance: {balance} pts · 1 pt = ₹1 off next order</p>
                       </div>
                     </div>
                     <span className="shrink-0 bg-[#D4527A]/10 border border-[#D4527A]/20 text-[#D4527A] text-[9px] font-bold uppercase tracking-[0.8px] px-2 py-1 rounded-full">
