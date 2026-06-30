@@ -1,9 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, BarChart3, Settings,
   TrendingUp, TrendingDown, Clock, Search, Edit, Trash2, Eye, Download,
-  Plus, X, Scale, Wrench, ChevronRight, Phone, MapPin, Mail,
+  Plus, X, Scale, Wrench, ChevronRight, ChevronDown, ChevronUp, Phone, MapPin, Mail,
   CheckCircle, Circle, Printer, Star, ArrowUpRight, ArrowDownRight,
   Image as ImageIcon, Upload, Bell, CheckCheck, Info, AlertTriangle, PackageCheck
 } from 'lucide-react';
@@ -391,7 +391,7 @@ function ProductModal({ product, onSave, onClose, mode = 'edit' }) {
           </div>
 
           {/* Name & SKU */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Product Name *</label>
               <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. Floral CZ Ring" className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A]" />
@@ -403,7 +403,7 @@ function ProductModal({ product, onSave, onClose, mode = 'edit' }) {
           </div>
 
           {/* Category & Badge */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Category</label>
               <select value={form.category} onChange={e => set('category', e.target.value)} className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A] bg-white appearance-none">
@@ -468,7 +468,7 @@ function ProductModal({ product, onSave, onClose, mode = 'edit' }) {
           )}
 
           {/* Price & MRP */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Selling Price (₹) *</label>
               <input type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0" className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A]" />
@@ -484,7 +484,7 @@ function ProductModal({ product, onSave, onClose, mode = 'edit' }) {
           </div>
 
           {/* Metal & Stone */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Metal</label>
               <select value={form.metal || '925 Sterling Silver'} onChange={e => set('metal', e.target.value)} className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A] bg-white appearance-none">
@@ -641,7 +641,7 @@ function NotificationBell({ notifications, onMarkAllRead, onMarkRead }) {
       {/* Dropdown */}
       {open && (
         <div
-          className="absolute right-0 top-[calc(100%+10px)] w-[360px] bg-bg-surface rounded-[18px] shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-border-main z-[300] overflow-hidden"
+          className="fixed left-[16px] right-[16px] top-[72px] md:absolute md:left-auto md:right-0 md:top-[calc(100%+10px)] md:w-[360px] bg-bg-surface rounded-[18px] shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-border-main z-[300] overflow-hidden"
           style={{ animation: 'notifSlideDown 0.22s cubic-bezier(0.25,1,0.5,1)' }}
         >
           <style>{`@keyframes notifSlideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}`}</style>
@@ -754,6 +754,11 @@ export default function AdminDashboardPage() {
   const [orderStatusFilter, setOrderStatusFilter] = useState('All');
   const [orders, setOrders] = useState(mockOrders);
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+
+  const [expandedOrders, setExpandedOrders] = useState({});
+  const [expandedProducts, setExpandedProducts] = useState({});
+  const toggleOrderExpand = (id) => setExpandedOrders(prev => ({...prev, [id]: !prev[id]}));
+  const toggleProductExpand = (id) => setExpandedProducts(prev => ({...prev, [id]: !prev[id]}));
 
   const handleMarkAllRead = () => setNotifications(n => n.map(x => ({ ...x, read: true })));
   const handleMarkRead = (id) => setNotifications(n => n.map(x => x.id === id ? { ...x, read: true } : x));
@@ -942,7 +947,7 @@ export default function AdminDashboardPage() {
         {/* Status Pie */}
         <div className="bg-bg-surface rounded-[16px] p-[24px] shadow-product">
           <h3 className="font-serif text-[18px] font-bold text-text-main mb-[20px]">Orders by Status</h3>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="h-[200px] w-[200px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -1000,58 +1005,93 @@ export default function AdminDashboardPage() {
           <h3 className="font-serif text-[18px] font-bold text-text-main">Manage Orders</h3>
           <p className="font-sans text-[12px] text-text-muted mt-0.5">{filteredOrders.length} orders</p>
         </div>
-        <div className="flex gap-[10px] w-full md:w-auto flex-wrap">
-          <div className="relative flex-1 md:w-[220px]">
+        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          <div className="relative w-full md:w-[220px]">
             <Search size={15} className="absolute left-[11px] top-1/2 -translate-y-1/2 text-[#A8A8A8]"/>
             <input type="text" placeholder="Search orders..." value={orderSearch} onChange={e => setOrderSearch(e.target.value)} className="w-full pl-[34px] pr-[12px] h-[38px] border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A]"/>
           </div>
-          <select value={orderStatusFilter} onChange={e => setOrderStatusFilter(e.target.value)} className="h-[38px] px-3 border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A] bg-white appearance-none cursor-pointer">
-            <option>All</option>
-            {Object.keys(STATUS_COLORS).map(s => <option key={s}>{s}</option>)}
-          </select>
-          <button onClick={() => toast.success('Exporting CSV...')} className="btn-secondary h-[38px] px-[14px] flex items-center gap-[6px] font-sans text-[13px] whitespace-nowrap"><Download size={15}/> Export</button>
+          <div className="grid grid-cols-2 gap-3 w-full md:flex md:w-auto">
+            <select value={orderStatusFilter} onChange={e => setOrderStatusFilter(e.target.value)} className="w-full h-[38px] px-3 border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A] bg-white appearance-none cursor-pointer">
+              <option>All</option>
+              {Object.keys(STATUS_COLORS).map(s => <option key={s}>{s}</option>)}
+            </select>
+            <button onClick={() => toast.success('Exporting CSV...')} className="btn-secondary w-full justify-center h-[38px] px-[14px] flex items-center gap-[6px] font-sans text-[13px] whitespace-nowrap"><Download size={15}/> Export</button>
+          </div>
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="bg-pink-50">
-              <th className="px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Order ID</th>
-              <th className="px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Date</th>
-              <th className="px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Customer</th>
-              <th className="px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Total</th>
-              <th className="px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Payment</th>
-              <th className="px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Status</th>
-              <th className="px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px] text-right">Actions</th>
+              <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Order ID</th>
+              <th className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Date</th>
+              <th className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Customer</th>
+              <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Total</th>
+              <th className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Payment</th>
+              <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Status</th>
+              <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px] text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F0F0F0]">
             {filteredOrders.map(order => (
-              <tr key={order.id} className="hover:bg-[#FAFAFA] transition-colors">
-                <td className="px-[20px] py-[14px] font-sans font-semibold text-[13px] text-text-main">{order.id}</td>
-                <td className="px-[20px] py-[14px] font-sans text-[13px] text-text-muted">{order.date}</td>
-                <td className="px-[20px] py-[14px]">
-                  <p className="font-sans text-[13px] text-text-main font-medium">{order.customerName}</p>
-                  <p className="font-sans text-[11px] text-text-muted">{order.customerPhone}</p>
-                </td>
-                <td className="px-[20px] py-[14px] font-sans font-bold text-[13px] text-text-main">{formatPrice(order.total)}</td>
-                <td className="px-[20px] py-[14px] font-sans text-[13px] text-text-muted">{order.paymentMethod}</td>
-                <td className="px-[20px] py-[14px]">
-                  <select
-                    value={order.status}
-                    onChange={e => handleUpdateOrderStatus(order.id, e.target.value)}
-                    className="font-sans text-[11px] font-bold uppercase tracking-[0.5px] px-[8px] py-[4px] rounded-[6px] outline-none cursor-pointer appearance-none border-0"
-                    style={getStatusBadgeStyle(order.status)}
-                  >
-                    {Object.keys(STATUS_COLORS).map(s => <option key={s} value={s} className="bg-white text-[#1A1A1A]">{s}</option>)}
-                  </select>
-                </td>
-                <td className="px-[20px] py-[14px] text-right">
-                  <button onClick={() => setSelectedOrder(order)} className="text-[#A8A8A8] hover:text-[#D4527A] transition-colors p-[4px] ml-1">
-                    <Eye size={17}/>
-                  </button>
-                </td>
-              </tr>
+              <React.Fragment key={order.id}>
+                <tr className="hover:bg-[#FAFAFA] transition-colors">
+                  <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px]">
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => toggleOrderExpand(order.id)} className="md:hidden p-1 text-text-muted hover:text-[#D4527A]">
+                        {expandedOrders[order.id] ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                      </button>
+                      <div>
+                        <p className="font-sans font-semibold text-[12px] md:text-[13px] text-text-main">{order.id}</p>
+                        <p className="md:hidden font-sans text-[10px] text-text-muted mt-0.5">{order.customerName}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[13px] text-text-muted">{order.date}</td>
+                  <td className="hidden md:table-cell px-[20px] py-[14px]">
+                    <p className="font-sans text-[13px] text-text-main font-medium">{order.customerName}</p>
+                    <p className="font-sans text-[11px] text-text-muted">{order.customerPhone}</p>
+                  </td>
+                  <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans font-bold text-[12px] md:text-[13px] text-text-main">{formatPrice(order.total)}</td>
+                  <td className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[13px] text-text-muted">{order.paymentMethod}</td>
+                  <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px]">
+                    <select
+                      value={order.status}
+                      onChange={e => handleUpdateOrderStatus(order.id, e.target.value)}
+                      className="font-sans text-[10px] md:text-[11px] font-bold uppercase tracking-[0.5px] px-[6px] md:px-[8px] py-[4px] rounded-[6px] outline-none cursor-pointer appearance-none border-0"
+                      style={getStatusBadgeStyle(order.status)}
+                    >
+                      {Object.keys(STATUS_COLORS).map(s => <option key={s} value={s} className="bg-white text-[#1A1A1A]">{s}</option>)}
+                    </select>
+                  </td>
+                  <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] text-right">
+                    <button onClick={() => setSelectedOrder(order)} className="text-[#A8A8A8] hover:text-[#D4527A] transition-colors p-[4px] ml-1">
+                      <Eye size={17}/>
+                    </button>
+                  </td>
+                </tr>
+                {expandedOrders[order.id] && (
+                  <tr className="md:hidden bg-[#FAFAFA]">
+                    <td colSpan="4" className="px-[12px] py-[10px]">
+                      <div className="grid grid-cols-2 gap-2 text-[11px]">
+                        <div>
+                          <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Date</p>
+                          <p className="text-text-main">{order.date}</p>
+                        </div>
+                        <div>
+                          <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Payment</p>
+                          <p className="text-text-main">{order.paymentMethod}</p>
+                        </div>
+                        <div className="col-span-2 mt-1 border-t border-border-main pt-2">
+                          <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Customer Details</p>
+                          <p className="text-text-main mt-0.5">{order.customerName}</p>
+                          <p className="text-text-muted">{order.customerPhone} · {order.customerEmail}</p>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
@@ -1069,87 +1109,123 @@ export default function AdminDashboardPage() {
           <h3 className="font-serif text-[18px] font-bold text-text-main">Manage Products</h3>
           <p className="font-sans text-[12px] text-text-muted mt-0.5">{filteredProducts.length} products</p>
         </div>
-        <div className="flex gap-[10px] w-full md:w-auto flex-wrap md:flex-nowrap">
-          <div className="relative flex-1 md:w-[220px]">
+        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          <div className="relative w-full md:w-[220px]">
             <Search size={15} className="absolute left-[11px] top-1/2 -translate-y-1/2 text-[#A8A8A8]"/>
             <input type="text" placeholder="Search products..." value={productSearch} onChange={e => setProductSearch(e.target.value)} className="w-full pl-[34px] pr-[12px] h-[38px] border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A]"/>
           </div>
-          <select
-            value={productCategoryFilter}
-            onChange={(e) => setProductCategoryFilter(e.target.value)}
-            className="h-[38px] px-[12px] border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A] bg-white text-text-main"
-          >
-            <option value="All">All Categories</option>
-            {categories.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-          <select
-            value={productSort}
-            onChange={(e) => setProductSort(e.target.value)}
-            className="h-[38px] px-[12px] border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A] bg-white text-text-main"
-          >
-            <option value="newest">Newest First</option>
-            <option value="price-low-high">Price: Low to High</option>
-            <option value="price-high-low">Price: High to Low</option>
-            <option value="stock-low-high">Stock: Low to High</option>
-          </select>
-          <button onClick={() => setIsBulkUploadOpen(true)} className="btn-secondary h-[38px] px-[16px] flex items-center gap-[6px] font-sans text-[13px] whitespace-nowrap">Bulk Upload</button>
-          <button onClick={() => setIsAddingProduct(true)} className="btn-primary h-[38px] px-[16px] flex items-center gap-[6px] font-sans text-[13px] whitespace-nowrap"><Plus size={15}/> Add Product</button>
+          <div className="grid grid-cols-2 gap-3 w-full md:flex md:w-auto">
+            <select
+              value={productCategoryFilter}
+              onChange={(e) => setProductCategoryFilter(e.target.value)}
+              className="w-full h-[38px] px-[12px] border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A] bg-white text-text-main"
+            >
+              <option value="All">All Categories</option>
+              {categories.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+            <select
+              value={productSort}
+              onChange={(e) => setProductSort(e.target.value)}
+              className="w-full h-[38px] px-[12px] border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A] bg-white text-text-main"
+            >
+              <option value="newest">Newest First</option>
+              <option value="price-low-high">Price: Low to High</option>
+              <option value="price-high-low">Price: High to Low</option>
+              <option value="stock-low-high">Stock: Low to High</option>
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-3 w-full md:flex md:w-auto">
+            <button onClick={() => setIsBulkUploadOpen(true)} className="btn-secondary w-full justify-center h-[38px] px-[16px] flex items-center gap-[6px] font-sans text-[13px] whitespace-nowrap">Bulk Upload</button>
+            <button onClick={() => setIsAddingProduct(true)} className="btn-primary w-full justify-center h-[38px] px-[16px] flex items-center gap-[6px] font-sans text-[13px] whitespace-nowrap"><Plus size={15}/> Add Product</button>
+          </div>
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="bg-pink-50">
-              <th className="px-[16px] py-[13px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Product</th>
-              <th className="px-[16px] py-[13px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">SKU</th>
-              <th className="px-[16px] py-[13px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Category</th>
-              <th className="px-[16px] py-[13px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Pricing</th>
-              <th className="px-[16px] py-[13px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Price</th>
-              <th className="px-[16px] py-[13px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Stock</th>
-              <th className="px-[16px] py-[13px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px] text-right">Actions</th>
+              <th className="px-[12px] md:px-[16px] py-[10px] md:py-[13px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Product</th>
+              <th className="hidden md:table-cell px-[16px] py-[13px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">SKU</th>
+              <th className="hidden md:table-cell px-[16px] py-[13px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Category</th>
+              <th className="hidden md:table-cell px-[16px] py-[13px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Pricing</th>
+              <th className="px-[12px] md:px-[16px] py-[10px] md:py-[13px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Price</th>
+              <th className="px-[12px] md:px-[16px] py-[10px] md:py-[13px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Stock</th>
+              <th className="px-[12px] md:px-[16px] py-[10px] md:py-[13px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px] text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F0F0F0]">
             {filteredProducts.map(product => (
-              <tr key={product.id} className="hover:bg-[#FAFAFA] transition-colors">
-                <td className="px-[16px] py-[13px]">
-                  <div className="flex items-center gap-[10px]">
-                    <div className="w-[38px] h-[38px] rounded-[8px] bg-[#FAFAFA] overflow-hidden border border-border-main shrink-0">
-                      {product.images?.[0]
-                        ? <img src={product.images[0]} alt="" className="w-full h-full object-cover"/>
-                        : <div className="w-full h-full flex items-center justify-center text-text-muted"><ImageIcon size={14}/></div>
-                      }
+              <React.Fragment key={product.id}>
+                <tr className="hover:bg-[#FAFAFA] transition-colors">
+                  <td className="px-[12px] md:px-[16px] py-[10px] md:py-[13px]">
+                    <div className="flex items-center gap-[6px] md:gap-[10px]">
+                      <button onClick={() => toggleProductExpand(product.id)} className="md:hidden p-1 text-text-muted hover:text-[#D4527A] shrink-0">
+                        {expandedProducts[product.id] ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                      </button>
+                      <div className="w-[30px] h-[30px] md:w-[38px] md:h-[38px] rounded-[8px] bg-[#FAFAFA] overflow-hidden border border-border-main shrink-0">
+                        {product.images?.[0]
+                          ? <img src={product.images[0]} alt="" className="w-full h-full object-cover"/>
+                          : <div className="w-full h-full flex items-center justify-center text-text-muted"><ImageIcon size={14}/></div>
+                        }
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-sans font-medium text-[12px] md:text-[13px] text-text-main max-w-[100px] md:max-w-[140px] truncate">{product.name}</p>
+                        <div className="md:hidden flex items-center gap-1 mt-0.5">
+                          {product.badge && <StatusBadge status={product.badge} size="sm"/>}
+                        </div>
+                        <div className="hidden md:block mt-0.5">
+                          {product.badge && <StatusBadge status={product.badge}/>}
+                        </div>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-sans font-medium text-[13px] text-text-main max-w-[140px] truncate">{product.name}</p>
-                      {product.badge && <StatusBadge status={product.badge}/>}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-[16px] py-[13px] font-sans text-[11px] text-text-muted">{product.sku}</td>
-                <td className="px-[16px] py-[13px] font-sans text-[13px] text-text-main capitalize">{product.category?.replace('-',' ')}</td>
-                <td className="px-[16px] py-[13px]">
-                  {product.pricingType === 'weight'
-                    ? <span className="inline-flex items-center gap-1 text-[11px] font-bold px-[7px] py-[3px] rounded-[5px] bg-[#E0F2FE] text-[#0369A1]"><Scale size={10}/> Weight</span>
-                    : <span className="text-[11px] font-bold px-[7px] py-[3px] rounded-[5px] bg-[#E6F4EA] text-[#137333]">MRP</span>
-                  }
-                </td>
-                <td className="px-[16px] py-[13px]">
-                  <p className="font-sans font-bold text-[13px] text-text-main">{formatPrice(product.price)}</p>
-                  {product.mrp > product.price && <p className="font-sans text-[11px] text-text-muted line-through">{formatPrice(product.mrp)}</p>}
-                </td>
-                <td className="px-[16px] py-[13px]">
-                  <span className={`font-sans text-[11px] font-bold px-[7px] py-[3px] rounded-[5px] ${product.stockQty > 10 ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]'}`}>
-                    {product.stockQty} in stock
-                  </span>
-                </td>
-                <td className="px-[16px] py-[13px] text-right">
-                  <button onClick={() => setEditingProduct({...product, imagePreviewUrls: product.images || []})} className="text-[#A8A8A8] hover:text-[#0369A1] transition-colors p-[4px]"><Edit size={15}/></button>
-                  <button onClick={() => handleDeleteProduct(product.id)} className="text-[#A8A8A8] hover:text-[#C5221F] transition-colors p-[4px] ml-[6px]"><Trash2 size={15}/></button>
-                </td>
-              </tr>
+                  </td>
+                  <td className="hidden md:table-cell px-[16px] py-[13px] font-sans text-[11px] text-text-muted">{product.sku}</td>
+                  <td className="hidden md:table-cell px-[16px] py-[13px] font-sans text-[13px] text-text-main capitalize">{product.category?.replace('-',' ')}</td>
+                  <td className="hidden md:table-cell px-[16px] py-[13px]">
+                    {product.pricingType === 'weight'
+                      ? <span className="inline-flex items-center gap-1 text-[11px] font-bold px-[7px] py-[3px] rounded-[5px] bg-[#E0F2FE] text-[#0369A1]"><Scale size={10}/> Weight</span>
+                      : <span className="text-[11px] font-bold px-[7px] py-[3px] rounded-[5px] bg-[#E6F4EA] text-[#137333]">MRP</span>
+                    }
+                  </td>
+                  <td className="px-[12px] md:px-[16px] py-[10px] md:py-[13px]">
+                    <p className="font-sans font-bold text-[12px] md:text-[13px] text-text-main">{formatPrice(product.price)}</p>
+                    {product.mrp > product.price && <p className="font-sans text-[10px] md:text-[11px] text-text-muted line-through">{formatPrice(product.mrp)}</p>}
+                  </td>
+                  <td className="px-[12px] md:px-[16px] py-[10px] md:py-[13px]">
+                    <span className={`font-sans text-[10px] md:text-[11px] font-bold px-[6px] md:px-[7px] py-[3px] rounded-[5px] ${product.stockQty > 10 ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]'}`}>
+                      {product.stockQty} <span className="hidden md:inline">in stock</span>
+                    </span>
+                  </td>
+                  <td className="px-[12px] md:px-[16px] py-[10px] md:py-[13px] text-right">
+                    <button onClick={() => setEditingProduct({...product, imagePreviewUrls: product.images || []})} className="text-[#A8A8A8] hover:text-[#0369A1] transition-colors p-[4px]"><Edit size={14} className="md:w-[15px] md:h-[15px]"/></button>
+                    <button onClick={() => handleDeleteProduct(product.id)} className="text-[#A8A8A8] hover:text-[#C5221F] transition-colors p-[4px] ml-[2px] md:ml-[6px]"><Trash2 size={14} className="md:w-[15px] md:h-[15px]"/></button>
+                  </td>
+                </tr>
+                {expandedProducts[product.id] && (
+                  <tr className="md:hidden bg-[#FAFAFA]">
+                    <td colSpan="4" className="px-[12px] py-[10px]">
+                      <div className="grid grid-cols-2 gap-2 text-[11px]">
+                        <div>
+                          <p className="font-bold text-text-muted uppercase tracking-[0.5px]">SKU</p>
+                          <p className="text-text-main">{product.sku || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Category</p>
+                          <p className="text-text-main capitalize">{product.category?.replace('-',' ')}</p>
+                        </div>
+                        <div className="col-span-2 mt-1 border-t border-border-main pt-2">
+                          <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Pricing Details</p>
+                          <p className="text-text-main mt-0.5">
+                            {product.pricingType === 'weight' ? 'Weight-based' : 'Fixed MRP'}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
@@ -1252,7 +1328,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="bg-bg-surface rounded-[16px] p-6 shadow-product">
           <h3 className="font-serif text-[18px] font-bold text-text-main mb-5">Orders by Status</h3>
-          <div className="flex items-center gap-8">
+          <div className="flex flex-col sm:flex-row items-center gap-8">
             <div className="h-[200px] w-[180px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -1325,7 +1401,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="flex h-screen bg-[#F8F8FA] overflow-hidden">
       {/* Sidebar */}
-      <div className="w-[260px] bg-[#1C1C2E] text-white flex-shrink-0 flex flex-col h-full z-20">
+      <div className="hidden md:flex w-[260px] bg-[#1C1C2E] text-white flex-shrink-0 flex-col h-full z-20">
         <div className="p-[22px] pb-[16px]">
           <Link to="/" className="inline-flex items-center gap-[8px]">
             <span className="font-serif text-[22px] font-bold text-white tracking-[0.5px]">Sterling</span>
@@ -1367,9 +1443,16 @@ export default function AdminDashboardPage() {
       {/* Main */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Header */}
-        <header className="bg-bg-surface h-[68px] border-b border-border-main flex items-center justify-between px-[28px] flex-shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+        <header className="bg-bg-surface h-[68px] border-b border-border-main flex items-center justify-between px-[16px] md:px-[28px] flex-shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
           <h1 className="font-serif text-[22px] font-bold text-text-main capitalize">{activeTab}</h1>
           <div className="flex items-center gap-[10px]">
+            <button
+              onClick={() => setActiveTab('settings')}
+              className="md:hidden relative w-9 h-9 rounded-[8px] flex items-center justify-center transition-all duration-200 border bg-[#FAFAFA] border-border-main text-text-muted hover:bg-[#FFF0F5] hover:border-[#F4A0B0] hover:text-[#D4527A]"
+              aria-label="Settings"
+            >
+              <Settings size={16} />
+            </button>
             <NotificationBell
               notifications={notifications}
               onMarkAllRead={handleMarkAllRead}
@@ -1382,7 +1465,7 @@ export default function AdminDashboardPage() {
         </header>
 
         {/* Scrollable content */}
-        <main className="flex-1 overflow-y-auto p-[28px]">
+        <main className="flex-1 overflow-y-auto p-[16px] md:p-[28px] pb-[80px] md:pb-[28px]">
           {activeTab === 'dashboard'  && renderDashboard()}
           {activeTab === 'orders'     && renderOrders()}
           {activeTab === 'products'   && renderProducts()}
@@ -1390,6 +1473,29 @@ export default function AdminDashboardPage() {
           {activeTab === 'analytics'  && renderAnalytics()}
           {activeTab === 'settings'   && renderSettings()}
         </main>
+        
+        {/* Mobile Bottom Nav */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-bg-surface/95 backdrop-blur-md border-t border-border-main z-50 flex items-center justify-around px-2 py-2 pb-[calc(env(safe-area-inset-bottom)+8px)] shadow-[0_-4px_24px_rgba(0,0,0,0.06)]">
+          {sidebarLinks.slice(0, 5).map(link => (
+            <button
+              key={link.id}
+              onClick={() => setActiveTab(link.id)}
+              className={`flex flex-col items-center gap-1 p-2 transition-colors ${
+                activeTab === link.id ? 'text-[#D4527A]' : 'text-text-muted hover:text-[#D4527A]'
+              }`}
+            >
+              <div className="relative">
+                {link.icon}
+                {link.badge && (
+                  <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-[#D4527A] text-white text-[9px] font-bold flex items-center justify-center border border-bg-surface">
+                    {link.badge}
+                  </span>
+                )}
+              </div>
+              <span className="text-[9px] font-bold uppercase tracking-[0.5px]">{link.label}</span>
+            </button>
+          ))}
+        </nav>
       </div>
 
       {/* Order Detail Panel */}

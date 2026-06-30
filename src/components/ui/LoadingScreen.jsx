@@ -17,7 +17,7 @@ export default function LoadingScreen() {
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
       
-      <div className="relative flex flex-col items-center z-10 p-10">
+      <div className="relative flex w-full max-w-[100vw] flex-col items-center z-10 p-4 sm:p-10">
         
         {/* Luxury Morphing Liquid Ring (UI UX Pro Max - Liquid Glass style) */}
         <motion.div
@@ -31,13 +31,13 @@ export default function LoadingScreen() {
         />
         
         <motion.div 
-          className="relative glass-dark px-14 py-12 rounded-3xl flex flex-col items-center border border-white/10 shadow-2xl backdrop-blur-2xl"
+          className="relative glass-dark px-6 py-10 sm:px-14 sm:py-12 rounded-3xl flex flex-col items-center border border-white/10 shadow-2xl backdrop-blur-2xl w-[90%] sm:w-auto"
           initial={{ y: 20, opacity: 0, scale: 0.95 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
         >
           <motion.h1
-            className="brand-wordmark text-[32px] md:text-[42px] text-white/90 drop-shadow-lg"
+            className="brand-wordmark text-[24px] sm:text-[32px] md:text-[42px] text-white/90 drop-shadow-lg text-center whitespace-nowrap"
             initial={{ opacity: 0, filter: "blur(10px)" }}
             animate={{ opacity: 1, filter: "blur(0px)" }}
             transition={{ duration: 1.5, ease: 'easeOut', delay: 0.2 }}

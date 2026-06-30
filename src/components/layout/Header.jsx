@@ -13,7 +13,8 @@ const announcements = [
   "Free shipping above Rs. 1,999 | Exchange within 15 days",
   "Use code SILVER10 for 10% off your first order!",
   "New arrivals are here ✨ Shop the latest 925 silver trends",
-  "Hallmarked authenticity with every piece you buy"
+  "Hallmarked authenticity with every piece you buy",
+  "Free engraving on all products available"
 ];
 
 const categoryLinks = [
