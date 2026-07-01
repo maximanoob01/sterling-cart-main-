@@ -23,7 +23,8 @@ class ApiService {
 
   async request(endpoint, options = {}) {
     const url = `${this.baseUrl}${endpoint}`;
-    const headers = { 'Content-Type': 'application/json', ...options.headers };
+    const fetchOptions = { credentials: 'include', ...options };
+    const headers = { 'Content-Type': 'application/json', ...fetchOptions.headers };
 
     const token = this.getToken();
     if (token) {
@@ -31,13 +32,37 @@ class ApiService {
     }
 
     try {
-      const response = await fetch(url, { ...options, headers });
+      let response = await fetch(url, { ...fetchOptions, headers });
+      
+      // If unauthorized and not already trying to refresh/login
+      if (response.status === 401 && !endpoint.includes('/auth/refresh') && !endpoint.includes('/auth/verify-otp')) {
+        try {
+          const refreshRes = await fetch(`${this.baseUrl}/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include'
+          });
+          
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            if (refreshData.success && refreshData.token) {
+              this.setToken(refreshData.token);
+              // Retry original request
+              headers['Authorization'] = `Bearer ${refreshData.token}`;
+              response = await fetch(url, { ...fetchOptions, headers });
+            }
+          } else {
+            this.removeToken();
+          }
+        } catch (err) {
+          this.removeToken();
+        }
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
         if (response.status === 401) {
           this.removeToken();
-          // Don't throw — let the caller handle silently
         }
         throw new ApiError(data.error || 'Something went wrong', response.status, data.details);
       }
@@ -62,7 +87,7 @@ class ApiService {
     const token = this.getToken();
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const response = await fetch(url, { method: 'POST', headers, body: formData });
+    const response = await fetch(url, { method: 'POST', headers, body: formData, credentials: 'include' });
     const data = await response.json();
     if (!response.ok) throw new ApiError(data.error || 'Upload failed', response.status);
     return data;

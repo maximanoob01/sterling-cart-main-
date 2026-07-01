@@ -14,13 +14,19 @@ export const CurrencyProvider = ({ children }) => {
         // 1. Detect Location
         let userCountry = 'IN';
         try {
-          const locRes = await fetch('https://ipapi.co/json/');
-          if (locRes.ok) {
-            const locData = await locRes.json();
-            userCountry = locData.country_code;
+          const cachedCountry = sessionStorage.getItem('user_country');
+          if (cachedCountry) {
+            userCountry = cachedCountry;
+          } else {
+            const locRes = await fetch('https://ipinfo.io/json');
+            if (locRes.ok) {
+              const locData = await locRes.json();
+              userCountry = locData.country;
+              sessionStorage.setItem('user_country', userCountry);
+            }
           }
         } catch (err) {
-          console.warn('IP detection failed, defaulting to INR', err);
+          // Silent catch to prevent console spam when ipapi.co rate limits us (CORS/429)
         }
 
         // 2. Set Currency based on location
@@ -30,13 +36,22 @@ export const CurrencyProvider = ({ children }) => {
         // 3. Fetch Exchange Rate if USD
         if (targetCurrency === 'USD') {
           try {
-            const rateRes = await fetch('https://open.er-api.com/v6/latest/INR');
-            if (rateRes.ok) {
-              const rateData = await rateRes.json();
-              setExchangeRate(rateData.rates.USD || 0.012); // Fallback to ~0.012
+            const cachedRate = sessionStorage.getItem('exchange_rate');
+            if (cachedRate) {
+              setExchangeRate(parseFloat(cachedRate));
+            } else {
+              const rateRes = await fetch('https://open.er-api.com/v6/latest/INR');
+              if (rateRes.ok) {
+                const rateData = await rateRes.json();
+                const rate = rateData.rates.USD || 0.012;
+                setExchangeRate(rate);
+                sessionStorage.setItem('exchange_rate', rate.toString());
+              } else {
+                setExchangeRate(0.012);
+              }
             }
           } catch (err) {
-            console.warn('Exchange rate fetch failed', err);
+            // Silent catch to prevent console spam
             setExchangeRate(0.012); // Approximate fallback
           }
         }

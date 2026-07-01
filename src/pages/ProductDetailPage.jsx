@@ -12,7 +12,7 @@ import { useWishlist } from '../context/WishlistContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useAuth } from '../context/AuthContext';
 import { useLoyalty } from '../context/LoyaltyContext';
-import { getProductById, getRelatedProducts } from '../data/products';
+import { useProducts } from '../context/ProductContext';
 import { calculateDiscount } from '../utils/formatPrice';
 import { SILVER_RATE_PER_GRAM, computeWeightBasedPrice } from '../utils/silverRate';
 
@@ -70,7 +70,7 @@ function RelatedCard({ product }) {
     >
       <div className="aspect-[4/5] overflow-hidden bg-[#FAF8F7]">
         <img
-          src={product.images[0]} alt={product.name}
+          src={product.images?.[0]} alt={product.name}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.07]"
           loading="lazy"
         />
@@ -99,20 +99,19 @@ function ModalShell({ title, onClose, children }) {
       className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
       onMouseDown={onClose}
     >
-      <motion.section
-        initial={{ y: 40, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: 40, scale: 0.97 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        onMouseDown={(e) => e.stopPropagation()}
-        className="max-h-[90vh] w-full max-w-[560px] overflow-y-auto rounded-3xl bg-bg-surface p-6 shadow-[0_24px_60px_rgba(0,0,0,0.18)] md:p-8"
+      <motion.div
+        initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }}
+        className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+        onMouseDown={e => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 mb-5">
-          <h2 className="font-serif text-[26px] text-text-main">{title}</h2>
-          <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F5F0F1] text-text-muted hover:text-text-main" aria-label="Close">
+        <div className="flex items-center justify-between border-b border-[#F3EFED] px-5 py-4">
+          <h3 className="font-serif text-[18px] text-text-main">{title}</h3>
+          <button onClick={onClose} className="rounded-full bg-[#F9F6F5] p-2 text-text-muted hover:bg-[#F3EFED] hover:text-text-main">
             <X size={16} />
           </button>
         </div>
         {children}
-      </motion.section>
+      </motion.div>
     </motion.div>
   );
 }
@@ -170,10 +169,16 @@ export default function ProductDetailPage() {
   const { formatPrice } = useCurrency();
   const { isAuthenticated } = useAuth();
   const { balance, pointsEarned } = useLoyalty();
-  const [product] = useState(getProductById(id));
-  const relatedProducts = product ? getRelatedProducts(product, 4) : [];
+  const { products, isLoaded } = useProducts();
+  const decodedId = decodeURIComponent(id);
+  
+  // Find product by slug or id from global context
+  const product = products.find(p => p.slug === decodedId || String(p.id) === decodedId);
+  
+  // Get related products from context instead of mock data
+  const relatedProducts = product ? products.filter(p => p.category === product.category && String(p.id) !== String(product.id)).slice(0, 4) : [];
 
-  const [mainImage, setMainImage] = useState(product?.images[0] || '');
+  const [mainImage, setMainImage] = useState(product?.images?.[0] || '');
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || null);
   const [quantity] = useState(1);
   const [pincode, setPincode] = useState('');
@@ -185,6 +190,16 @@ export default function ProductDetailPage() {
   const [engravingText, setEngravingText] = useState('');
 
   if (!product) {
+    if (!isLoaded) {
+      return (
+        <div className="flex min-h-[65vh] flex-col items-center justify-center bg-bg-primary px-4 text-center">
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF0F5] text-[#D4527A] animate-pulse">
+            <ShoppingBag size={28} strokeWidth={1.5} />
+          </div>
+          <h1 className="font-serif text-[24px] text-text-main animate-pulse">Loading Product...</h1>
+        </div>
+      );
+    }
     return (
       <div className="flex min-h-[65vh] flex-col items-center justify-center bg-bg-primary px-4 text-center">
         <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF0F5] text-[#D4527A]">
@@ -362,7 +377,7 @@ export default function ProductDetailPage() {
                 </>
               )}
 
-              {/* ── Sterling Points badge (logged-in users only) ── */}
+              {/* ── Royal Points badge (logged-in users only) ── */}
               {isAuthenticated && (() => {
                 const basePrice = product.pricingType === 'weight'
                   ? computeWeightBasedPrice(product.weightGrams, product.makingCharges)
@@ -381,9 +396,8 @@ export default function ProductDetailPage() {
                       </div>
                       <div>
                         <p className="font-sans text-[11px] font-bold text-[#D4527A]">
-                          Earn <span className="text-[13px]">{earnOnThis}</span> Sterling Points
+                          Earn <span className="text-[13px]">{earnOnThis}</span> Royal Points
                         </p>
-                        <p className="font-sans text-[10px] text-text-muted">Balance: {balance} pts · 1 pt = ₹1 off next order</p>
                       </div>
                     </div>
                     <span className="shrink-0 bg-[#D4527A]/10 border border-[#D4527A]/20 text-[#D4527A] text-[9px] font-bold uppercase tracking-[0.8px] px-2 py-1 rounded-full">

@@ -1,4 +1,4 @@
-import { getAuth } from '../config/firebase.js';
+import jwt from 'jsonwebtoken';
 
 export const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -8,22 +8,15 @@ export const authenticate = async (req, res, next) => {
 
   const token = authHeader.split('Bearer ')[1];
   try {
-    const decoded = await getAuth().verifyIdToken(token);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret-key-for-dev');
     req.user = decoded;
 
     // Load DB user if exists (using Sequelize)
     const { User } = await import('../models/index.js');
-    let dbUser = await User.findOne({ where: { firebaseUid: decoded.uid } });
+    const dbUser = await User.findByPk(decoded.userId);
 
-    // Auto-create user on first verified login
     if (!dbUser) {
-      dbUser = await User.create({
-        firebaseUid: decoded.uid,
-        phone: decoded.phone_number || '',
-        name: decoded.name || '',
-        email: decoded.email || '',
-        role: 'user',
-      });
+      return res.status(401).json({ success: false, error: 'User not found' });
     }
 
     req.dbUser = dbUser;
@@ -42,11 +35,11 @@ export const optionalAuth = async (req, res, next) => {
 
   try {
     const token = authHeader.split('Bearer ')[1];
-    const decoded = await getAuth().verifyIdToken(token);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret-key-for-dev');
     req.user = decoded;
 
     const { User } = await import('../models/index.js');
-    req.dbUser = await User.findOne({ where: { firebaseUid: decoded.uid } });
+    req.dbUser = await User.findByPk(decoded.userId);
   } catch {
     // Token invalid — just continue without auth
   }

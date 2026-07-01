@@ -64,7 +64,7 @@ Product.init({
     defaultValue: 'No Stone'
   },
   images: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
+    type: DataTypes.JSON,
     defaultValue: []
   },
   rating: {
@@ -88,7 +88,7 @@ Product.init({
     defaultValue: 0
   },
   sizes: {
-    type: DataTypes.ARRAY(DataTypes.FLOAT),
+    type: DataTypes.JSON,
     defaultValue: []
   },
   occasion: {

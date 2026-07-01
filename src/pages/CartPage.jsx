@@ -4,7 +4,7 @@ import { Minus, Plus, X, Trash2, ShoppingBag, Shield, ChevronRight, Home, Heart,
 import { useCart } from '../context/CartContext';
 import { getItemPrice } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { products } from '../data/products';
+import { useProducts } from '../context/ProductContext';
 import { coupons } from '../data/orders';
 import { calculateDiscount } from '../utils/formatPrice';
 import { useState } from 'react';
@@ -107,6 +107,7 @@ export default function CartPage() {
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
   const [itemToRemove, setItemToRemove] = useState(null);
+  const { products } = useProducts();
 
   const handleApplyCoupon = () => {
     setCouponError('');

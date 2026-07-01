@@ -97,7 +97,7 @@ export default function LoginPage() {
             <motion.img
               key={slideIndex}
               src={slides[slideIndex]}
-              alt="Sterling Cart Jewelry"
+              alt="Sterling Cart Jewellery"
               className="absolute inset-0 w-full h-full object-cover"
               initial={{ opacity: 0, scale: 1.05 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -140,7 +140,7 @@ export default function LoginPage() {
               Sign in Or Sign up
             </h2>
             <p className="text-gray-500 mt-1 text-[14px]">
-              Access your personalized premium jewelry experience.
+              Access your personalized premium jewellery experience.
             </p>
           </div>
 

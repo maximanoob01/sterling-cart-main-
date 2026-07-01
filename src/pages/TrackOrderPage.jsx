@@ -16,16 +16,26 @@ export default function TrackOrderPage() {
     e.preventDefault();
     setHasSearched(true);
     
-    if (!orderId.trim()) {
+    // Strip '#' if the user copied it from the dashboard
+    const cleanOrderId = orderId.trim().replace(/^#/, '');
+
+    if (!cleanOrderId) {
       setError('Please enter a valid Order ID');
       setOrder(null);
       return;
     }
 
     try {
-      const res = await api.get(`/orders/track/${orderId.trim()}`);
+      const res = await api.get(`/orders/track/${cleanOrderId}`);
       if (res.success && res.order) {
-        setOrder(res.order);
+        // Map backend format to match what the UI expects
+        const mappedOrder = {
+          ...res.order,
+          id: res.order.orderId,
+          date: res.order.createdAt,
+          total: res.order.totalAmount
+        };
+        setOrder(mappedOrder);
         setError('');
       } else {
         setOrder(null);
@@ -35,7 +45,7 @@ export default function TrackOrderPage() {
       // Fallback: try local mock data
       try {
         const { mockOrders } = await import('../data/orders');
-        const found = mockOrders.find(o => o.id.toLowerCase() === orderId.trim().toLowerCase());
+        const found = mockOrders.find(o => o.id.toLowerCase() === cleanOrderId.toLowerCase());
         if (found) {
           setOrder(found);
           setError('');

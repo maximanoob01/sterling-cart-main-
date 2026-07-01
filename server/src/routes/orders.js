@@ -159,15 +159,17 @@ router.post('/', optionalAuth, [
       }
 
       earnedPoints = Math.floor(totalAmount * LOYALTY_EARN_RATE);
-      await loyaltyAccount.increment('balance', { by: earnedPoints, transaction: t });
-      await LoyaltyHistory.create({
-        loyaltyId: loyaltyAccount.id,
-        type: 'earned',
-        points: earnedPoints,
-        description: `Order #${orderId}`,
-        orderId,
-        date: new Date()
-      }, { transaction: t });
+      if (earnedPoints > 0) {
+        await LoyaltyHistory.create({
+          loyaltyId: loyaltyAccount.id,
+          type: 'earned',
+          points: earnedPoints,
+          status: 'pending',
+          description: `Earned from order #${orderId}`,
+          orderId,
+          date: new Date()
+        }, { transaction: t });
+      }
     }
 
     await t.commit();
@@ -194,6 +196,13 @@ router.get('/', authenticate, async (req, res, next) => {
       order: [['createdAt', 'DESC']],
       include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }]
     });
+    
+    orders.forEach(o => {
+      if (o.timeline) {
+        o.timeline.sort((a, b) => (TIMELINE_ORDER[a.status] || 99) - (TIMELINE_ORDER[b.status] || 99));
+      }
+    });
+    
     res.json({ success: true, orders });
   } catch (error) { next(error); }
 });
@@ -206,6 +215,10 @@ router.get('/track/:orderId', async (req, res, next) => {
       include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }]
     });
     if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+
+    if (order.timeline) {
+      order.timeline.sort((a, b) => (TIMELINE_ORDER[a.status] || 99) - (TIMELINE_ORDER[b.status] || 99));
+    }
 
     res.json({
       success: true,
@@ -235,6 +248,10 @@ router.get('/:orderId', authenticate, async (req, res, next) => {
     // Check ownership or admin
     if (req.dbUser.role !== 'admin' && order.userId !== req.dbUser.id) {
       return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    if (order.timeline) {
+      order.timeline.sort((a, b) => (TIMELINE_ORDER[a.status] || 99) - (TIMELINE_ORDER[b.status] || 99));
     }
 
     res.json({ success: true, order });
@@ -288,8 +305,54 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
     const updates = { orderStatus: status };
     if (trackingNumber) updates.trackingNumber = trackingNumber;
     if (courierName) updates.courierName = courierName;
-    if (status === 'Delivered') updates.paymentStatus = 'paid';
-    if (status === 'Cancelled') updates.paymentStatus = 'refunded';
+    if (status === 'Cancelled') {
+      updates.paymentStatus = 'refunded';
+      if (order.userId) {
+        const loyaltyAccount = await Loyalty.findOne({ where: { userId: order.userId }, transaction: t });
+        if (loyaltyAccount) {
+          const redeemedRow = await LoyaltyHistory.findOne({
+            where: { loyaltyId: loyaltyAccount.id, orderId: order.orderId, type: 'redeemed', status: 'confirmed' },
+            transaction: t
+          });
+          if (redeemedRow) {
+            await redeemedRow.update({ status: 'cancelled' }, { transaction: t });
+            await loyaltyAccount.increment('balance', { by: redeemedRow.points, transaction: t });
+          }
+          
+          const pendingPointsRow = await LoyaltyHistory.findOne({
+            where: { loyaltyId: loyaltyAccount.id, orderId: order.orderId, type: 'earned', status: 'pending' },
+            transaction: t
+          });
+          if (pendingPointsRow) {
+            await pendingPointsRow.update({ status: 'cancelled' }, { transaction: t });
+          }
+        }
+      }
+    }
+
+    if (status === 'Delivered' && order.orderStatus !== 'Delivered') {
+      updates.paymentStatus = 'paid';
+      
+      // Confirm pending Royal Points
+      if (order.userId) {
+        const loyaltyAccount = await Loyalty.findOne({ where: { userId: order.userId }, transaction: t });
+        if (loyaltyAccount) {
+          const pendingPointsRow = await LoyaltyHistory.findOne({
+            where: { loyaltyId: loyaltyAccount.id, orderId: order.orderId, type: 'earned', status: 'pending' },
+            transaction: t
+          });
+          if (pendingPointsRow) {
+            const expiresAt = new Date();
+            expiresAt.setMonth(expiresAt.getMonth() + 12);
+            await pendingPointsRow.update({ status: 'confirmed', expiresAt }, { transaction: t });
+            await loyaltyAccount.increment('balance', { by: pendingPointsRow.points, transaction: t });
+            
+            // Mock WhatsApp message
+            console.log(`\n[WHATSAPP MOCK] To User ${order.userId}: "You earned ${pendingPointsRow.points} Sterling Coins! Balance: ${loyaltyAccount.balance + pendingPointsRow.points} coins"\n`);
+          }
+        }
+      }
+    }
 
     await order.update(updates, { transaction: t });
 
