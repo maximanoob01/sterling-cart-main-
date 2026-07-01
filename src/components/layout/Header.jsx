@@ -508,7 +508,7 @@ export default function Header() {
                     </div>
                   </div>
 
-                  <Link to="/shop?occasion=gifting" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between text-[16px] font-semibold text-gray-800 transition-colors hover:text-[#D4527A]">
+                  <Link to="/gifting" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between text-[16px] font-semibold text-gray-800 transition-colors hover:text-[#D4527A]">
                     <span className="flex items-center gap-2.5"><Gift size={18} className="text-[#D4527A]" /> Gifts & Gifting</span>
                   </Link>
 

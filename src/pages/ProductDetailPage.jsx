@@ -96,21 +96,30 @@ function ModalShell({ title, onClose, children }) {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 sm:p-6 backdrop-blur-md"
       onMouseDown={onClose}
     >
       <motion.div
-        initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }}
-        className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+        initial={{ y: 50, opacity: 0, scale: 0.95 }} 
+        animate={{ y: 0, opacity: 1, scale: 1 }} 
+        exit={{ y: 50, opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+        className="w-full max-w-[500px] overflow-hidden rounded-[24px] bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] ring-1 ring-black/5 flex flex-col max-h-[90vh]"
         onMouseDown={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-[#F3EFED] px-5 py-4">
-          <h3 className="font-serif text-[18px] text-text-main">{title}</h3>
-          <button onClick={onClose} className="rounded-full bg-[#F9F6F5] p-2 text-text-muted hover:bg-[#F3EFED] hover:text-text-main">
-            <X size={16} />
+        <div className="flex items-center justify-between border-b border-black/5 bg-[#FAFAFA] px-6 py-5 shrink-0">
+          <h3 className="font-serif text-[20px] md:text-[22px] tracking-wide text-[#1A1A1A]">{title}</h3>
+          <button 
+            onClick={onClose} 
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#666] shadow-sm ring-1 ring-black/5 transition-all hover:bg-black/5 hover:text-black focus:outline-none"
+            aria-label="Close"
+          >
+            <X size={16} strokeWidth={2} />
           </button>
         </div>
-        {children}
+        <div className="p-6 md:p-8 overflow-y-auto">
+          {children}
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -119,28 +128,41 @@ function ModalShell({ title, onClose, children }) {
 function RingSizeGuide({ onClose }) {
   return (
     <ModalShell title="Find your ring size" onClose={onClose}>
-      <p className="text-[13px] leading-6 text-text-muted">Wrap a strip of paper around the base of your finger, mark where it overlaps, then measure the length. Match that circumference to the guide below. Measure at the end of the day for a comfortable fit.</p>
-      <div className="mt-5 overflow-x-auto rounded-2xl border border-[#F0E8EA]">
-        <table className="w-full text-left text-[12px]">
-          <thead className="bg-gradient-to-r from-[#FFF0F5] to-[#FDF5F8]">
-            <tr>
-              {['Ring size', 'Circumference', 'Diameter'].map(h => (
-                <th key={h} className="px-4 py-3 font-bold uppercase tracking-[0.5px] text-[#D4527A] text-[10px]">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {[[5, 44.2, 14.1], [7, 46.8, 14.9], [9, 49.3, 15.7], [11, 51.9, 16.5], [13, 54.4, 17.3], [15, 57, 18.1]].map(([size, circ, dia]) => (
-              <tr key={size} className="border-t border-[#F0E8EA] hover:bg-[#FFFBFC] transition-colors">
-                <td className="px-4 py-3 font-semibold text-text-main">{size}</td>
-                <td className="px-4 py-3 text-text-muted">{circ} mm</td>
-                <td className="px-4 py-3 text-text-muted">{dia} mm</td>
+      <p className="text-[13px] md:text-[14px] leading-relaxed text-[#666] mb-6">
+        Wrap a strip of paper around the base of your finger, mark where it overlaps, then measure the length. Match that circumference to the guide below. Measure at the end of the day for a comfortable fit.
+      </p>
+      
+      <div className="overflow-hidden rounded-xl border border-black/5 bg-white shadow-sm ring-1 ring-black/5">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[13px] whitespace-nowrap">
+            <thead className="bg-[#FAF7F8]">
+              <tr>
+                {['Ring size', 'Circumference', 'Diameter'].map(h => (
+                  <th key={h} className="px-5 py-4 font-semibold uppercase tracking-wider text-[#D4527A] text-[10px] md:text-[11px] border-b border-black/5">{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-black/5">
+              {[[5, 44.2, 14.1], [7, 46.8, 14.9], [9, 49.3, 15.7], [11, 51.9, 16.5], [13, 54.4, 17.3], [15, 57, 18.1]].map(([size, circ, dia]) => (
+                <tr key={size} className="hover:bg-[#FCFAFB] transition-colors duration-200">
+                  <td className="px-5 py-4 font-medium text-[#1A1A1A]">{size}</td>
+                  <td className="px-5 py-4 text-[#666]">{circ} mm</td>
+                  <td className="px-5 py-4 text-[#666]">{dia} mm</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-      <p className="mt-4 text-[11px] text-text-muted">Between sizes? Choose the larger size for a comfortable fit.</p>
+      
+      <div className="mt-6 flex items-start gap-3 rounded-xl bg-[#F5F8FA] p-4 text-[#4A5568]">
+        <div className="mt-0.5 text-[#3182CE] shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        </div>
+        <p className="text-[12px] md:text-[12.5px] leading-snug">
+          <span className="font-medium text-[#2D3748]">Between sizes?</span> Choose the larger size for a more comfortable and secure fit.
+        </p>
+      </div>
     </ModalShell>
   );
 }

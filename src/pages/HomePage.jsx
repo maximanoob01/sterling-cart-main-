@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck } from 'lucide-react';
+import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck, Gift } from 'lucide-react';
 import MagneticButton from '../components/ui/MagneticButton';
 import CircularGallery from '../components/ui/CircularGallery';
 import { categories } from '../data/products';
@@ -96,7 +96,7 @@ function StarRating({ rating, size = 13 }) {
   );
 }
 
-function CategorySlideCard({ category }) {
+function CategorySlideCard({ category, slideIndex }) {
   return (
     <Link to={`/shop?category=${category.id}`} className="group flex flex-col items-center p-1.5 md:p-2">
       {/* Circular Image Container with Liquid Glass Ring */}
@@ -104,7 +104,10 @@ function CategorySlideCard({ category }) {
         {/* Subtle glass overlay border */}
         <div className="absolute inset-0 rounded-full border border-white/40 z-10 pointer-events-none" />
         
-        <div className="absolute inset-0 h-full w-full">
+        <div 
+          className="absolute inset-0 h-full transition-transform duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)]"
+          style={{ width: '300%', transform: `translateX(-${(slideIndex * 100) / 3}%)` }}
+        >
           <img 
             src={category.image} 
             alt={category.name} 
@@ -118,6 +121,13 @@ function CategorySlideCard({ category }) {
       <h3 className="font-serif text-[14px] sm:text-[16px] md:text-[20px] tracking-wide text-text-main group-hover:text-[#D4527A] transition-colors duration-300 text-center">
         {category.name}
       </h3>
+      
+      {/* Elegant slide indicators */}
+      <div className="mt-3 flex gap-1.5 pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity">
+        {[0, 1, 2].map((idx) => (
+          <div key={idx} className={`h-[2px] rounded-full transition-all duration-500 ${idx === slideIndex ? 'w-4 bg-[#D4527A]' : 'w-1.5 bg-[#A8A8A8]'}`} />
+        ))}
+      </div>
     </Link>
   );
 }
@@ -134,6 +144,52 @@ function MinimalProductCard({ product }) {
         <h3 className="text-[12px] md:text-[16px] font-serif tracking-wide leading-tight text-text-main transition-colors group-hover:text-[#D4527A]">{product.name}</h3>
       </div>
     </Link>
+  );
+}
+
+function MobileFloatingGift() {
+  return (
+    <motion.div
+      initial={{ x: -120, opacity: 0 }}
+      animate={{ 
+        x: [-120, 0, 0, -120], 
+        opacity: [0, 1, 1, 0] 
+      }}
+      transition={{ 
+        duration: 6.5, 
+        times: [0, 0.115, 0.885, 1], // ~0.75s slide in, 5 seconds stay, ~0.75s slide out
+        repeat: Infinity,
+        repeatDelay: 1.5, // 1.5 seconds wait before sliding back in
+        ease: [0.25, 1, 0.5, 1] // Super smooth cubic bezier easing
+      }}
+      className="fixed bottom-24 left-0 z-50 md:hidden"
+    >
+      <Link 
+        to="/gifting"
+        className="group relative flex items-center justify-center overflow-hidden rounded-r-full border border-l-0 border-white/60 bg-gradient-to-r from-[#D4527A] to-[#B94B68] p-3.5 pr-4 pl-3.5 shadow-[0_12px_40px_-5px_rgba(212,82,122,0.6)] backdrop-blur-xl transition-transform active:scale-95"
+      >
+        {/* Shimmer effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2.5s_infinite]" />
+        
+        <motion.div
+          animate={{ 
+            rotate: [0, -12, 12, -12, 12, 0],
+            scale: [1, 1.15, 1.15, 1.15, 1.15, 1]
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            repeatDelay: 3,
+            ease: "easeInOut"
+          }}
+          className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 shadow-inner backdrop-blur-sm cursor-pointer"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-[26px] h-[26px] text-white drop-shadow-md">
+            <path d="M9.375 3a1.875 1.875 0 000 3.75h1.875v4.5H3.375A1.875 1.875 0 011.5 9.375v-.75c0-1.036.84-1.875 1.875-1.875h3.193A3.375 3.375 0 0112 2.753a3.375 3.375 0 015.432 3.997h3.193c1.036 0 1.875.84 1.875 1.875v.75c0 1.036-.84 1.875-1.875 1.875H12.75v-4.5h1.875a1.875 1.875 0 10-1.875-1.875V6.75h-1.5V4.875C11.25 3.839 10.41 3 9.375 3zM11.25 12.75H3v6.75a2.25 2.25 0 002.25 2.25h6v-9zM12.75 12.75v9h6a2.25 2.25 0 002.25-2.25v-6.75h-8.25z" />
+          </svg>
+        </motion.div>
+      </Link>
+    </motion.div>
   );
 }
 
@@ -734,6 +790,8 @@ export default function HomePage() {
           </form>
         </div>
       </section>
+      
+      <MobileFloatingGift />
     </div>
   );
 }
