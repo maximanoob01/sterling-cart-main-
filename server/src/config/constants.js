@@ -9,7 +9,7 @@ export const COD_FEE = 9;
 export const GIFT_WRAP_FEE = 49;
 
 // Loyalty
-export const LOYALTY_EARN_RATE = 0.001; // 10 points per 10k purchase
+export const LOYALTY_EARN_RATE = 0.01;  // 1 point per ₹100 spent
 export const LOYALTY_REDEEM_CAP = 0.10;  // max 10% of order value
 
 // Pricing helpers

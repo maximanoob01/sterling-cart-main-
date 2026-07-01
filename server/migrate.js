@@ -8,7 +8,7 @@ const sequelize = new Sequelize({
 
 async function run() {
   try {
-    await sequelize.query(`ALTER TABLE loyalty_history ADD COLUMN status VARCHAR(255) DEFAULT 'confirmed';`);
+    await sequelize.query(`ALTER TABLE orders ADD COLUMN giftCardDiscount FLOAT DEFAULT 0;`);
     console.log('Migration successful');
   } catch (e) {
     if (e.message.includes('duplicate column name')) {

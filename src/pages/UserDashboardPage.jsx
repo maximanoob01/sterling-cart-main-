@@ -15,6 +15,7 @@ import { formatPrice, formatDate } from '../utils/formatPrice';
 import { generateInvoice } from '../utils/generateInvoice';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import royalPointsCoinImg from '../assets/images/royal_points_coin.png';
 
 const statusColors = {
   Pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -30,6 +31,7 @@ const sidebarTabs = [
   { id: 'orders', label: 'My Orders', icon: Package },
   { id: 'rewards', label: 'Royal Points', icon: Coins },
   { id: 'wishlist', label: 'Wishlist', icon: Heart },
+  { id: 'giftcards', label: 'My Gift Cards', icon: Gift },
   { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
   { id: 'profile', label: 'Profile Settings', icon: User },
   { id: 'track', label: 'Track Order', icon: Truck, link: '/track-order' },
@@ -611,57 +613,64 @@ const RewardsTab = () => {
       {/* Balance hero card */}
       <motion.div
         variants={fadeUpItem}
-        className="relative rounded-[28px] overflow-hidden shadow-[0_16px_48px_rgba(212,82,122,0.2)]"
+        className="relative rounded-[28px] overflow-hidden shadow-[0_16px_48px_rgba(212,82,122,0.15)] border border-[#D4527A]/20"
       >
-        {/* BG gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#D4527A] via-[#C04070] to-[#8B2252]" />
-        {/* Decorative circles */}
-        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
-        <div className="absolute -bottom-10 -left-10 w-56 h-56 rounded-full bg-black/10" />
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-white/5 blur-2xl" />
+        {/* Dark background matching site's dark tone */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1C1C2E] via-[#24162A] to-[#1C1C2E]" />
+        {/* Pink shimmer overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4527A]/5 to-transparent" />
+        {/* Top pink accent line */}
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[#D4527A]/80 to-transparent" />
+        
+        {/* Decorative elements */}
+        <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-[#D4527A]/10 blur-3xl" />
+        <div className="absolute -bottom-10 -left-10 w-56 h-56 rounded-full bg-[#D4527A]/5 blur-3xl" />
 
         <div className="relative z-10 p-7 md:p-10">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="font-sans text-[11px] uppercase tracking-[2.5px] font-bold text-white/60 mb-2">Your Balance</p>
+              <p className="font-sans text-[11px] uppercase tracking-[2.5px] font-bold text-[#F4A0B0]/70 mb-2">Your Balance</p>
               <div className="flex items-end gap-3">
                 <motion.span
                   key={balance}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="font-serif text-[56px] font-bold text-white leading-none"
+                  className="font-serif text-[56px] font-bold text-[#F4A0B0] leading-none drop-shadow-[0_0_12px_rgba(212,82,122,0.3)]"
                 >
                   {balance}
                 </motion.span>
-                <span className="font-sans text-[18px] font-semibold text-white/70 mb-2">pts</span>
+                <span className="font-sans text-[18px] font-semibold text-[#D4527A] mb-2">pts</span>
               </div>
               <p className="font-sans text-[13px] text-white/60 mt-1">≈ ₹{balance} redeemable value</p>
             </div>
 
             {/* Animated coin icon */}
-            <motion.div
-              animate={{ rotate: [0, 8, -8, 8, 0], y: [0, -4, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              className="w-16 h-16 rounded-full bg-white/15 border border-white/20 flex items-center justify-center shadow-[0_0_24px_rgba(255,255,255,0.2)]"
-            >
-              <Coins size={32} className="text-white" />
-            </motion.div>
+            <div className="relative w-16 h-16 shrink-0 mt-2">
+              <div className="absolute inset-0 rounded-full bg-[#D4527A]/20 blur-lg animate-pulse" />
+              <motion.img
+                src={royalPointsCoinImg}
+                alt="Royal Points"
+                className="relative w-16 h-16 rounded-full object-cover shadow-[0_0_24px_rgba(212,82,122,0.4)]"
+                animate={{ rotate: [0, 8, -8, 8, 0], y: [0, -6, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            </div>
           </div>
 
           {/* Tier + progress */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between text-[12px] font-sans mb-2">
-              <span className="flex items-center gap-1.5 font-bold text-white">
-                <span className="w-2 h-2 rounded-full" style={{ background: currentTier.color }} />
+          <div className="mt-8 pt-6 border-t border-[#D4527A]/15">
+            <div className="flex items-center justify-between text-[12px] font-sans mb-3">
+              <span className="flex items-center gap-2 font-bold text-white tracking-wide">
+                <span className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_currentColor]" style={{ background: currentTier.color, color: currentTier.color }} />
                 {currentTier.name} Member
               </span>
               {nextTier && (
-                <span className="text-white/60">
+                <span className="text-[#F4A0B0]/70 font-medium">
                   {nextTier.min - balance} pts to {nextTier.name}
                 </span>
               )}
             </div>
-            <div className="h-2 rounded-full bg-white/20 overflow-hidden">
+            <div className="h-2.5 rounded-full bg-[#1C1C2E] border border-[#D4527A]/10 overflow-hidden shadow-inner">
               <motion.div
                 className={`h-full rounded-full bg-gradient-to-r ${currentTier.gradient}`}
                 initial={{ width: 0 }}
@@ -740,6 +749,154 @@ const RewardsTab = () => {
   );
 };
 
+/* ==================== GIFT CARDS TAB ==================== */
+const GiftCardsTab = () => {
+  const [giftCards, setGiftCards] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [otpModal, setOtpModal] = useState({ show: false, gcId: null });
+  const [otpValue, setOtpValue] = useState('');
+
+  useEffect(() => {
+    fetchGiftCards();
+  }, []);
+
+  const fetchGiftCards = async () => {
+    try {
+      const res = await api.get('/gift-cards/mine');
+      setGiftCards(res.data.giftCards || []);
+    } catch (err) {
+      toast.error('Failed to load gift cards');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRequestReveal = async (gcId) => {
+    try {
+      const toastId = toast.loading('Sending OTP...');
+      await api.post('/gift-cards/reveal-otp');
+      toast.dismiss(toastId);
+      toast.success('OTP sent to your email/WhatsApp');
+      setOtpModal({ show: true, gcId });
+    } catch (err) {
+      toast.error('Failed to send OTP');
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otpValue || otpValue.length < 6) return toast.error('Enter a valid OTP');
+    try {
+      const toastId = toast.loading('Verifying...');
+      await api.post('/gift-cards/reveal', { giftCardId: otpModal.gcId, otp: otpValue });
+      toast.dismiss(toastId);
+    } catch (err) {
+      toast.dismiss();
+      toast.error(err.response?.data?.error || 'Invalid OTP');
+      setOtpModal({ show: false, gcId: null });
+      setOtpValue('');
+    }
+  };
+
+  return (
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="font-serif text-2xl lg:text-3xl text-charcoal">My Gift Cards</h2>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center p-10"><div className="w-8 h-8 border-4 border-[#D4527A] border-t-transparent rounded-full animate-spin" /></div>
+      ) : giftCards.length === 0 ? (
+        <div className="bg-white/40 backdrop-blur-md rounded-3xl border border-white/50 p-10 text-center">
+          <Gift size={36} className="text-silver-400 mx-auto mb-3" />
+          <p className="text-silver-500 font-medium mb-4">You haven't purchased any gift cards yet.</p>
+          <Link to="/gifting" className="inline-block px-6 py-2.5 bg-[#D4527A] text-white rounded-full font-bold">Buy a Gift Card</Link>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+          {giftCards.map(gc => (
+            <motion.div key={gc.id} variants={fadeUpItem} className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-sm">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <p className="text-sm text-silver-500 font-bold uppercase tracking-wider mb-1">Value</p>
+                  <p className="font-serif text-2xl text-charcoal">₹{gc.originalValue}</p>
+                </div>
+                <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                  gc.status === 'active' ? 'bg-green-100 text-green-700' :
+                  gc.status === 'expired' ? 'bg-red-100 text-red-700' :
+                  'bg-yellow-100 text-yellow-700'
+                }`}>
+                  {gc.status}
+                </div>
+              </div>
+              
+              <div className="bg-[#FFF0F5] border border-[#F4A0B0]/30 rounded-xl p-4 mb-4">
+                <p className="text-[11px] text-[#D4527A] font-bold uppercase tracking-widest mb-1">Gift Card Code</p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-mono text-lg font-semibold text-charcoal tracking-widest">{gc.maskedCode}</p>
+                  <button onClick={() => handleRequestReveal(gc.id)} className="text-[11px] bg-white text-[#D4527A] px-2 py-1 rounded shadow-sm border border-[#F4A0B0]/40 hover:bg-[#D4527A] hover:text-white transition-colors">
+                    Reveal
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <div>
+                  <p className="text-silver-500 text-xs">Balance</p>
+                  <p className="font-bold text-charcoal">₹{gc.remainingBalance}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-silver-500 text-xs">Expires</p>
+                  <p className="font-bold text-charcoal">{new Date(gc.expiresAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+
+              {gc.status !== 'exhausted' && (
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`Here's your Sterling Kart gift card worth ₹${gc.originalValue}. Valid till ${new Date(gc.expiresAt).toLocaleDateString()}. Code: (Check your email/profile). Shop at sterlingkart.com`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 w-full flex items-center justify-center gap-2 bg-[#25D366]/10 text-[#1DA851] py-2 rounded-xl font-bold text-sm hover:bg-[#25D366]/20 transition-colors"
+                >
+                  <Share2 size={16} /> Share Details via WhatsApp
+                </a>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {/* OTP Modal */}
+      <AnimatePresence>
+        {otpModal.show && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 max-w-sm w-full relative"
+            >
+              <button onClick={() => setOtpModal({ show: false, gcId: null })} className="absolute top-4 right-4 text-silver-400 hover:text-charcoal"><X size={20}/></button>
+              <h3 className="font-serif text-xl mb-2 text-center text-charcoal">Security Verification</h3>
+              <p className="text-sm text-silver-500 text-center mb-6">Enter the OTP sent to your registered email/phone to reveal the code.</p>
+              <input
+                type="text"
+                maxLength={6}
+                value={otpValue}
+                onChange={e => setOtpValue(e.target.value)}
+                className="w-full text-center text-2xl tracking-[0.5em] font-mono p-3 border-2 border-pink-100 rounded-xl focus:border-[#D4527A] focus:outline-none mb-4"
+                placeholder="------"
+              />
+              <button onClick={handleVerifyOTP} className="w-full bg-[#D4527A] text-white py-3 rounded-full font-bold">
+                Verify & Reveal
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
 /* ==================== MAIN PAGE ====================*/
 const UserDashboardPage = () => {
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
@@ -775,6 +932,7 @@ const UserDashboardPage = () => {
       case 'orders': return <OrdersTab />;
       case 'rewards': return <RewardsTab />;
       case 'wishlist': return <WishlistTab />;
+      case 'giftcards': return <GiftCardsTab />;
       case 'profile': return <ProfileTab />;
       case 'addresses': return <AddressesTab />;
       default: return <OrdersTab />;

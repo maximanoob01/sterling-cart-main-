@@ -9,6 +9,8 @@ import Loyalty from './Loyalty.js';
 import LoyaltyHistory from './LoyaltyHistory.js';
 import Wishlist from './Wishlist.js';
 import ContactMessage from './ContactMessage.js';
+import GiftCard from './GiftCard.js';
+import GiftCardTransaction from './GiftCardTransaction.js';
 import { sequelize } from '../config/db.js';
 
 // User <-> Address (1:N)
@@ -47,6 +49,14 @@ Wishlist.belongsTo(User, { foreignKey: 'userId' });
 Product.hasMany(Wishlist, { foreignKey: 'productId', as: 'wishlistedBy' });
 Wishlist.belongsTo(Product, { foreignKey: 'productId' });
 
+// User <-> GiftCard (1:N)
+User.hasMany(GiftCard, { foreignKey: 'userId', as: 'giftCards' });
+GiftCard.belongsTo(User, { foreignKey: 'userId' });
+
+// GiftCard <-> GiftCardTransaction (1:N)
+GiftCard.hasMany(GiftCardTransaction, { foreignKey: 'giftCardId', as: 'transactions' });
+GiftCardTransaction.belongsTo(GiftCard, { foreignKey: 'giftCardId' });
+
 export {
   sequelize,
   User,
@@ -59,5 +69,7 @@ export {
   Loyalty,
   LoyaltyHistory,
   Wishlist,
-  ContactMessage
+  ContactMessage,
+  GiftCard,
+  GiftCardTransaction
 };

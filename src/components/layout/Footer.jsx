@@ -109,6 +109,7 @@ export default function Footer() {
               ['New Arrivals', '/shop?sort=new'],
               ['Our Story', '/about'],
               ['Gifting', '/shop?occasion=gifting'],
+              ['Personalise', '/personalise'],
             ]} />
             <FooterLinks title="Client Care" links={[
               ['Track Order', '/track-order'],

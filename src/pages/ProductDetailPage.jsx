@@ -15,6 +15,8 @@ import { useLoyalty } from '../context/LoyaltyContext';
 import { useProducts } from '../context/ProductContext';
 import { calculateDiscount } from '../utils/formatPrice';
 import { SILVER_RATE_PER_GRAM, computeWeightBasedPrice } from '../utils/silverRate';
+import personaliseCoinImg from '../assets/images/personalise_coin.png';
+import royalPointsCoinImg from '../assets/images/royal_points_coin.png';
 
 /* ── data ────────────────────────────────────────────────────────────── */
 const loveMetrics = [
@@ -410,21 +412,16 @@ export default function ProductDetailPage() {
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="mt-3 pt-3 border-t border-[#F4A0B0]/30 flex items-center justify-between gap-3"
+                    className="mt-3 pt-3 border-t border-[#F4A0B0]/30 flex items-center gap-2.5"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#D4527A] to-[#F4A0B0] flex items-center justify-center shadow-sm flex-shrink-0">
-                        <Coins size={13} className="text-white" />
-                      </div>
-                      <div>
-                        <p className="font-sans text-[11px] font-bold text-[#D4527A]">
-                          Earn <span className="text-[13px]">{earnOnThis}</span> Royal Points
-                        </p>
-                      </div>
-                    </div>
-                    <span className="shrink-0 bg-[#D4527A]/10 border border-[#D4527A]/20 text-[#D4527A] text-[9px] font-bold uppercase tracking-[0.8px] px-2 py-1 rounded-full">
-                      Loyalty
-                    </span>
+                    <img
+                      src={royalPointsCoinImg}
+                      alt="Royal Points"
+                      className="w-7 h-7 rounded-full object-cover flex-shrink-0 drop-shadow-[0_0_4px_rgba(212,82,122,0.4)]"
+                    />
+                    <p className="font-sans text-[12px] font-bold text-[#D4527A]">
+                      Earn <span className="text-[14px]">{earnOnThis}</span> Royal Points
+                    </p>
                   </motion.div>
                 );
               })()}
@@ -531,6 +528,53 @@ export default function ProductDetailPage() {
                 Buy now <ChevronRight size={14} />
               </button>
             </div>
+
+            {/* Personalise Banner — shown only for silver coins */}
+            {product.category === 'coins' && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="mt-4"
+              >
+                <Link
+                  to="/personalise"
+                  className="group relative flex items-center gap-4 rounded-2xl overflow-hidden border border-[#D4527A]/30 bg-gradient-to-r from-[#1C1C2E] via-[#2A1A2E] to-[#1C1C2E] p-4 shadow-[0_4px_24px_rgba(212,82,122,0.18)] hover:shadow-[0_6px_32px_rgba(212,82,122,0.35)] transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  {/* Shimmer overlay */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+
+                  {/* Floating animated coin */}
+                  <div className="relative shrink-0 w-14 h-14">
+                    {/* Glow ring */}
+                    <div className="absolute inset-0 rounded-full bg-[#D4527A]/30 blur-md animate-pulse" />
+                    <motion.img
+                      src={personaliseCoinImg}
+                      alt="Personalise silver coin"
+                      className="relative w-14 h-14 rounded-full object-cover border-2 border-[#D4527A]/50 shadow-[0_0_20px_rgba(212,82,122,0.4)]"
+                      animate={{ y: [0, -5, 0], rotate: [0, 2, 0, -2, 0] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    {/* Sparkle badge */}
+                    <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-[#D4527A] to-[#B94B68] flex items-center justify-center shadow-md">
+                      <Sparkles size={10} className="text-white" />
+                    </div>
+                  </div>
+
+                  {/* Text */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-[#F4A0B0] mb-0.5">Custom Engraving</p>
+                    <p className="text-white font-semibold text-[14px] leading-snug">Get your own engraved coin</p>
+                    <p className="text-white/50 text-[11px] mt-0.5">Your design, name or logo — laser engraved →</p>
+                  </div>
+
+                  {/* Arrow badge */}
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-[#D4527A]/20 border border-[#D4527A]/40 flex items-center justify-center group-hover:bg-[#D4527A] group-hover:border-[#D4527A] transition-all duration-300">
+                    <ChevronRight size={15} className="text-[#D4527A] group-hover:text-white transition-colors duration-300" />
+                  </div>
+                </Link>
+              </motion.div>
+            )}
 
             {/* International Orders Box */}
             <div className="mt-5 rounded-2xl border border-[#F0E8EA] bg-[#FAF8F7] p-4 text-left">

@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { Order, OrderItem, OrderTimeline, Product, Loyalty, LoyaltyHistory, Coupon, sequelize } from '../models/index.js';
+import { Order, OrderItem, OrderTimeline, Product, Loyalty, LoyaltyHistory, Coupon, GiftCard, GiftCardTransaction, sequelize } from '../models/index.js';
 import { authenticate, requireAdmin, optionalAuth } from '../middleware/auth.js';
+import crypto from 'crypto';
 import validate from '../middleware/validate.js';
 import { sendOrderConfirmation } from '../services/emailService.js';
 import {
@@ -26,7 +27,7 @@ router.post('/', optionalAuth, [
   const t = await sequelize.transaction();
   try {
     const { form, items, paymentMethod, razorpayPaymentId, razorpayOrderId,
-            isGiftWrapped, giftNote, couponCode, loyaltyPointsUsed } = req.body;
+            isGiftWrapped, giftNote, couponCode, loyaltyPointsUsed, giftCardCode } = req.body;
 
     const orderId = generateOrderId();
     let subtotal = 0;
@@ -86,7 +87,21 @@ router.post('/', optionalAuth, [
       }
     }
 
-    const totalAmount = Math.max(0, subtotal - discount + shipping + codFee + giftWrapFee - loyaltyDiscount);
+    const subtotalBeforeGC = Math.max(0, subtotal - discount + shipping + codFee + giftWrapFee - loyaltyDiscount);
+
+    // 3.5 Apply Gift Card
+    let giftCardDiscount = 0;
+    let giftCardRecord = null;
+    if (giftCardCode) {
+      const cleanCode = giftCardCode.trim().toUpperCase();
+      const codeHash = crypto.createHash('sha256').update(cleanCode).digest('hex');
+      giftCardRecord = await GiftCard.findOne({ where: { codeHash }, transaction: t });
+      if (giftCardRecord && giftCardRecord.remainingBalance > 0 && giftCardRecord.status !== 'expired') {
+        giftCardDiscount = Math.min(giftCardRecord.remainingBalance, subtotalBeforeGC);
+      }
+    }
+
+    const totalAmount = Math.max(0, subtotalBeforeGC - giftCardDiscount);
     const paymentStatus = paymentMethod === 'cod' ? 'pending' : (razorpayPaymentId ? 'paid' : 'pending');
 
     // 4. Create Order
@@ -112,6 +127,7 @@ router.post('/', optionalAuth, [
       codFee,
       giftWrapFee,
       loyaltyDiscount,
+      giftCardDiscount,
       totalAmount,
       couponCode: couponCode || null,
       paymentMethod,
@@ -138,6 +154,23 @@ router.post('/', optionalAuth, [
       { orderId: order.id, status: 'Out for Delivery', completed: false },
       { orderId: order.id, status: 'Delivered', completed: false },
     ], { transaction: t });
+
+    // 6.5 Deduct Gift Card Balance
+    if (giftCardDiscount > 0 && giftCardRecord) {
+      const newBalance = giftCardRecord.remainingBalance - giftCardDiscount;
+      await giftCardRecord.update({
+        remainingBalance: newBalance,
+        status: newBalance <= 0 ? 'exhausted' : 'partially_used'
+      }, { transaction: t });
+      
+      await GiftCardTransaction.create({
+        giftCardId: giftCardRecord.id,
+        orderId: order.orderId,
+        amountUsed: giftCardDiscount,
+        balanceBefore: giftCardRecord.remainingBalance,
+        balanceAfter: newBalance
+      }, { transaction: t });
+    }
 
     // 7. Loyalty transactions (Earn / Redeem)
     let earnedPoints = 0;
@@ -231,6 +264,13 @@ router.get('/track/:orderId', async (req, res, next) => {
         trackingNumber: order.trackingNumber,
         courierName: order.courierName,
         createdAt: order.createdAt,
+        shippingAddress: order.shippingAddress,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        customerEmail: order.customerEmail,
+        paymentMethod: order.paymentMethod,
+        paymentId: order.paymentId,
+        paymentStatus: order.paymentStatus,
       },
     });
   } catch (error) { next(error); }
@@ -282,6 +322,31 @@ router.get('/admin/all', authenticate, requireAdmin, async (req, res, next) => {
       pagination: { page: Number(page), total: count, pages: Math.ceil(count / limitNum) }
     });
   } catch (error) { next(error); }
+});
+
+// ─── Admin: POST /api/orders/:orderId/email-invoice — Send invoice via email/WhatsApp ────────────
+router.post('/:orderId/email-invoice', authenticate, requireAdmin, async (req, res, next) => {
+  try {
+    const { pdfBase64 } = req.body;
+    if (!pdfBase64) return res.status(400).json({ success: false, error: 'pdfBase64 is required' });
+
+    const order = await Order.findOne({ 
+      where: { orderId: req.params.orderId },
+      include: [{ model: OrderItem, as: 'items' }]
+    });
+    if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+
+    const { sendInvoiceEmail } = await import('../services/emailService.js');
+    const result = await sendInvoiceEmail(
+      order, 
+      order.items || [], 
+      pdfBase64
+    );
+
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // ─── Admin: PUT /api/orders/:orderId/status — Update order status ────────────

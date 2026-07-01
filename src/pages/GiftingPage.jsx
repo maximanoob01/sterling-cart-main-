@@ -6,7 +6,11 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { categories, stoneTypes, occasions, styles } from '../data/products';
 import { useProducts } from '../context/ProductContext';
+import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/formatPrice';
+import api from '../services/api';
+import toast from 'react-hot-toast';
+import { Copy, X, Share2 } from 'lucide-react';
 
 import giftingHero from '../assets/images/gifting_hero.png';
 import forHerImg from '../assets/images/gifting_for_her.png';
@@ -19,6 +23,7 @@ import valentineImg from '../assets/images/gifting_valentine.png';
 import diwaliImg from '../assets/images/gifting_diwali.png';
 import anniversaryImg from '../assets/images/gifting_anniversary.png';
 import weddingImg from '../assets/images/gifting_wedding.png';
+import luxuryBg from '../assets/luxury_rose_gold_bg.png';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -161,8 +166,13 @@ function RecipientSection({ id, title, subtitle, image, accentColor, textColor, 
 export default function GiftingPage() {
   const navigate = useNavigate();
   const { products } = useProducts();
+  const { isAuthenticated, user } = useAuth();
   const [giftCardAmount, setGiftCardAmount] = useState(5000);
   const [activeTab, setActiveTab] = useState('Most Gifted');
+  
+  // Gift Card Purchase State
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [generatedGiftCard, setGeneratedGiftCard] = useState(null);
   
   // Gift Finder State
   const [finderPrice, setFinderPrice] = useState('');
@@ -183,7 +193,7 @@ export default function GiftingPage() {
     'New Arrivals': products.filter(p => p.badge === 'New' || p.isNew).slice(0, 4)
   };
 
-  const giftAmounts = [1000, 2000, 3000, 5000, 7000, 10000, 15000, 20000, 25000, 30000, 50000, 100000];
+  const giftAmounts = [1000, 2000, 3000, 5000, 7000, 10000, 15000, 20000, 25000, 30000];
 
   const handleGiftFinder = () => {
     const params = new URLSearchParams();
@@ -196,6 +206,75 @@ export default function GiftingPage() {
     }
     params.set('occasion', 'gifting');
     navigate(`/shop?${params.toString()}`);
+  };
+
+  const handlePurchase = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to purchase a gift card');
+      navigate('/login?redirect=/gifting');
+      return;
+    }
+    if (!giftCardAmount || giftCardAmount <= 0) return;
+
+    setIsPurchasing(true);
+    try {
+      // 1. Create Razorpay order
+      const orderData = await api.post('/transaction/create-order', {
+        amount: giftCardAmount,
+        receipt: `gc_${Date.now()}`
+      });
+
+      if (!orderData.success) throw new Error('Failed to create order');
+
+      // 2. Open Razorpay Checkout
+      const options = {
+        key: orderData.key,
+        amount: orderData.order.amount,
+        currency: orderData.order.currency,
+        name: 'Sterling Kart',
+        description: `Gift Card worth ₹${giftCardAmount}`,
+        order_id: orderData.order.id,
+        prefill: {
+          name: user?.firstName || '',
+          email: user?.email || '',
+          contact: user?.phone || ''
+        },
+        theme: { color: '#D4527A' },
+        handler: async (response) => {
+          try {
+            const loadingToast = toast.loading('Verifying payment and generating card...');
+            // 3. Verify payment and generate code
+            const verifyData = await api.post('/gift-cards/verify-purchase', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              amount: giftCardAmount
+            });
+
+            toast.dismiss(loadingToast);
+            if (verifyData.success) {
+              toast.success('Gift card purchased successfully!');
+              setGeneratedGiftCard(verifyData.giftCard);
+            } else {
+              toast.error(verifyData.error || 'Verification failed');
+            }
+          } catch (error) {
+            toast.dismiss();
+            toast.error(error.message || 'Verification failed');
+          }
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        toast.error('Payment failed: ' + response.error.description);
+      });
+      rzp.open();
+    } catch (error) {
+      toast.error(error.message || 'Could not initiate purchase');
+    } finally {
+      setIsPurchasing(false);
+    }
   };
 
   return (
@@ -446,13 +525,106 @@ export default function GiftingPage() {
                  ))}
                </div>
 
-               <button className="w-full rounded-full border-2 border-[#D4527A] text-[#D4527A] py-3.5 font-bold text-[14px] hover:bg-[#D4527A] hover:text-white transition-colors flex items-center justify-center gap-2 mt-auto">
-                 Purchase Gift Card
+               <button
+                 onClick={handlePurchase}
+                 disabled={isPurchasing}
+                 className="w-full rounded-full border-2 border-[#D4527A] text-[#D4527A] py-3.5 font-bold text-[14px] hover:bg-[#D4527A] hover:text-white transition-colors flex items-center justify-center gap-2 mt-auto disabled:opacity-50 disabled:cursor-not-allowed"
+               >
+                 {isPurchasing ? 'Processing...' : 'Purchase Gift Card'}
                </button>
             </div>
           </div>
         </div>
       </section>
+
+      {/* ── SUCCESS MODAL (PRO MAX UI) ────────────────────────────────────────── */}
+      {generatedGiftCard && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="w-full max-w-lg rounded-[32px] shadow-2xl relative overflow-hidden"
+          >
+            {/* Background Image & Overlay */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center z-0" 
+              style={{ backgroundImage: `url(${luxuryBg})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-white/80 to-[#FFF0F5]/90 backdrop-blur-[8px] z-0" />
+            
+            {/* Content Container */}
+            <div className="relative z-10 p-8 sm:p-12 text-center flex flex-col items-center">
+              
+              <button
+                onClick={() => setGeneratedGiftCard(null)}
+                className="absolute top-6 right-6 p-2 text-text-muted hover:text-[#D4527A] hover:bg-white/50 rounded-full transition-all"
+              >
+                <X size={24} />
+              </button>
+              
+              <motion.div 
+                initial={{ rotate: -15, scale: 0.5 }}
+                animate={{ rotate: 0, scale: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+                className="w-20 h-20 bg-gradient-to-br from-[#FFD0E0] to-[#FFF0F5] border border-white/60 shadow-lg rounded-2xl flex items-center justify-center mb-6 text-[#D4527A] rotate-3"
+              >
+                <Gift size={40} strokeWidth={1.5} />
+              </motion.div>
+              
+              <h3 className="font-serif text-[32px] sm:text-[38px] bg-clip-text text-transparent bg-gradient-to-r from-[#7A263A] via-[#B94B68] to-[#7A263A] mb-2 tracking-tight">
+                Gift Card Ready!
+              </h3>
+              <p className="text-[#8B5A65] text-[15px] mb-8 max-w-[280px]">
+                Your <strong className="font-bold">₹{generatedGiftCard.originalValue.toLocaleString()}</strong> gift card has been securely generated.
+              </p>
+
+              {/* Glassmorphism Code Box */}
+              <div className="w-full bg-white/40 backdrop-blur-xl border border-white/80 rounded-[24px] p-6 mb-8 shadow-[0_8px_32px_rgba(212,82,122,0.1)] relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FFD0E0] via-[#D4527A] to-[#FFD0E0]" />
+                
+                <p className="text-[11px] uppercase font-bold text-[#D4527A] tracking-[0.2em] mb-4">Your Private Code</p>
+                <div className="flex items-center justify-center gap-3">
+                  <span className="font-mono text-[20px] sm:text-[24px] font-bold text-text-main tracking-widest px-4 py-2 bg-white/70 rounded-xl border border-white/60 shadow-inner">
+                    {generatedGiftCard.plainCode}
+                  </span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedGiftCard.plainCode);
+                      toast.success('Code copied to clipboard!', { icon: '✨' });
+                    }}
+                    className="p-3 rounded-xl bg-gradient-to-br from-[#D4527A] to-[#B94B68] text-white hover:shadow-lg hover:scale-105 transition-all shadow-md"
+                    title="Copy code"
+                  >
+                    <Copy size={20} />
+                  </button>
+                </div>
+                <p className="text-[13px] text-[#8B5A65] mt-5 font-medium flex items-center justify-center gap-1.5">
+                  <Sparkles size={14} className="text-[#D4527A]" /> 
+                  Valid until {new Date(generatedGiftCard.expiresAt).toLocaleDateString()}
+                </p>
+              </div>
+
+              <p className="text-[13px] text-[#8B5A65]/80 mb-6 font-medium">
+                We've also sent this code to your email & WhatsApp.
+              </p>
+
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`Here's your Sterling Kart gift card worth ₹${generatedGiftCard.originalValue}. Code: ${generatedGiftCard.plainCode}. Valid till ${new Date(generatedGiftCard.expiresAt).toLocaleDateString()}. Shop at sterlingkart.com`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full relative group overflow-hidden rounded-2xl p-[2px]"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-[#25D366] via-[#128C7E] to-[#25D366] opacity-90 group-hover:opacity-100 transition-opacity" />
+                <div className="relative bg-[#25D366]/10 backdrop-blur-sm px-6 py-4 rounded-xl flex items-center justify-center gap-3 text-white font-bold text-[15px] tracking-wide border border-white/20 hover:bg-[#25D366]/20 transition-colors">
+                  <Share2 size={20} /> SHARE VIA WHATSAPP
+                </div>
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* ── RECIPIENT SECTIONS (For Her, Him, etc.) ───────────────────────────── */}
       <div className="pt-8 pb-16 text-center px-4">

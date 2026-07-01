@@ -22,6 +22,11 @@ import contactRoutes from './routes/contact.js';
 import adminRoutes from './routes/admin.js';
 import paymentRoutes from './routes/payments.js';
 import uploadRoutes from './routes/upload.js';
+import customOrderRoutes from './routes/customOrders.js';
+import giftCardRoutes from './routes/giftCards.js';
+
+// Init Cron Jobs
+import './jobs/cronJobs.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,8 +65,10 @@ app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/api/transaction', paymentRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/custom-orders', customOrderRoutes);
+app.use('/api/gift-cards', giftCardRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -74,7 +81,7 @@ app.use(errorHandler);
 // ─── Start Server ────────────────────────────────────────────────────────────
 const startServer = async () => {
   await connectDB();
-  await sequelize.sync(); // Create tables if they don't exist (no force)
+  await sequelize.sync(); // Create tables if they don't exist
 
   app.listen(PORT, () => {
     console.log(`\n🚀 Sterling Kart API running on http://localhost:${PORT}`);

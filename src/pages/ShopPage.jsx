@@ -94,19 +94,19 @@ const ProductCard = ({ product }) => {
       transition={{ duration: 0.45, ease: 'easeOut' }}
       className="group relative flex flex-col w-full rounded-2xl overflow-hidden bg-bg-surface border border-[#F0E8EA] transition-all duration-500 hover:shadow-[0_12px_40px_rgba(212,82,122,0.12)] hover:-translate-y-1"
     >
-      {/* Badge */}
-      {product.badge && (
-        <span className="absolute top-3 left-3 z-10 rounded-full bg-[#1C1C2E]/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-[0.8px] text-white">
-          {product.badge}
-        </span>
-      )}
-
-      {/* Discount badge */}
-      {discount > 0 && (
-        <span className="absolute top-3 right-12 z-10 rounded-full bg-[#FFF0F5] border border-[#F4A0B0]/40 px-2.5 py-1 text-[10px] font-bold text-[#D4527A]">
-          −{discount}%
-        </span>
-      )}
+      {/* Badges container */}
+      <div className="absolute top-3 left-3 right-12 z-10 flex flex-wrap gap-1.5 pointer-events-none">
+        {product.badge && (
+          <span className="rounded-full bg-[#1C1C2E]/90 backdrop-blur-sm px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.8px] text-white pointer-events-auto">
+            {product.badge}
+          </span>
+        )}
+        {discount > 0 && (
+          <span className="rounded-full bg-[#FFF0F5] border border-[#F4A0B0]/40 px-2 py-1 text-[9px] font-bold text-[#D4527A] pointer-events-auto">
+            −{discount}%
+          </span>
+        )}
+      </div>
 
       {/* Wishlist */}
       <button
@@ -529,12 +529,12 @@ export default function ShopPage() {
             </span>
 
             {/* Sort */}
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-2 shrink-0">
               <span className="hidden md:block text-[12px] font-semibold uppercase tracking-[0.5px] text-text-muted">Sort</span>
               <select
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value)}
-                className="rounded-full border border-[#F0E8EA] bg-bg-surface px-4 py-2 text-[12px] font-medium text-text-main outline-none focus:border-[#F4A0B0] cursor-pointer shadow-sm transition-all hover:border-[#F4A0B0]"
+                className="rounded-full border border-[#F0E8EA] bg-bg-surface px-2.5 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-[12px] font-medium text-text-main outline-none focus:border-[#F4A0B0] cursor-pointer shadow-sm transition-all hover:border-[#F4A0B0] max-w-[135px] sm:max-w-none truncate"
               >
                 <option value="popularity">Most Popular</option>
                 <option value="price-low">Price: Low → High</option>

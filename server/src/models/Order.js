@@ -63,6 +63,10 @@ Order.init({
     type: DataTypes.FLOAT,
     defaultValue: 0
   },
+  giftCardDiscount: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0
+  },
   totalAmount: {
     type: DataTypes.FLOAT,
     allowNull: false
@@ -88,7 +92,7 @@ Order.init({
     defaultValue: 'pending'
   },
   orderStatus: {
-    type: DataTypes.ENUM('Pending', 'Confirmed', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'),
+    type: DataTypes.ENUM('Pending Approval', 'Engraving', 'Rejected', 'Pending', 'Confirmed', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'),
     defaultValue: 'Pending'
   },
   trackingNumber: {
@@ -106,6 +110,26 @@ Order.init({
   giftNote: {
     type: DataTypes.TEXT,
     defaultValue: ''
+  },
+  isCustomCoin: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  rejectionReason: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  resubmitCount: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  },
+  resubmitToken: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  resubmitTokenStartedAt: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
 }, {
   sequelize,

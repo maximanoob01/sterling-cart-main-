@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift, Coins, Star, X, PenTool } from 'lucide-react';
+import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift, Coins, Star, X, PenTool, MapPin } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useAuth } from '../context/AuthContext';
@@ -12,6 +12,7 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 import FreeDeliveryBar from '../components/cart/FreeDeliveryBar';
 import { VisaLogo, MastercardLogo, AmexLogo, RazorpayLogo, GPayLogo, PhonePeLogo, PaytmLogo, RupayLogo, AmazonPayLogo, MobikwikLogo, BankLogo, CashLogo } from '../components/ui/PaymentLogos';
+import royalPointsCoinImg from '../assets/images/royal_points_coin.png';
 
 const indianStates = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -25,10 +26,7 @@ const indianStates = [
 ];
 
 const paymentMethods = [
-  { id: 'upi', name: 'UPI', description: 'Google Pay, PhonePe, Paytm', icon: Smartphone, logos: [GPayLogo, PhonePeLogo, PaytmLogo] },
-  { id: 'netbanking', name: 'Net Banking', description: 'All major banks supported', icon: Building2, logos: [BankLogo] },
-  { id: 'card', name: 'Credit / Debit Card', description: 'Visa, Mastercard, Rupay', icon: CreditCard, logos: [VisaLogo, MastercardLogo, RupayLogo] },
-  { id: 'wallet', name: 'Wallet', description: 'Paytm, MobiKwik, Amazon Pay', icon: Wallet, logos: [PaytmLogo, MobikwikLogo, AmazonPayLogo] },
+  { id: 'online', name: 'Pay Online', description: 'UPI, Cards, NetBanking, Wallets via Razorpay', icon: Shield, logos: [RazorpayLogo, VisaLogo, MastercardLogo, GPayLogo] },
   { id: 'cod', name: 'Cash on Delivery', description: 'Pay when you receive', icon: Banknote, logos: [CashLogo] },
 ];
 
@@ -49,7 +47,7 @@ const CheckoutPage = () => {
   const { balance, refreshLoyalty, maxRedeemable, pointsEarned } = useLoyalty();
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedPayment, setSelectedPayment] = useState('upi');
+  const [selectedPayment, setSelectedPayment] = useState('online');
   const [errors, setErrors] = useState({});
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
@@ -62,11 +60,24 @@ const CheckoutPage = () => {
   const [loyaltyInput, setLoyaltyInput] = useState('');
   const [appliedPoints, setAppliedPoints] = useState(0);
   const [showLoyaltyEarnedDialog, setShowLoyaltyEarnedDialog] = useState(false);
+  const [savedAddress, setSavedAddress] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('sk_saved_address')) || null; }
+    catch { return null; }
+  });
+  const [savedAddressDismissed, setSavedAddressDismissed] = useState(false);
+
+  // Gift Card State
+  const [giftCardCode, setGiftCardCode] = useState('');
+  const [appliedGiftCard, setAppliedGiftCard] = useState(null);
+  const [isApplyingGC, setIsApplyingGC] = useState(false);
 
   const codFee = selectedPayment === 'cod' ? 9 : 0;
   const giftWrapFee = isGiftWrapped ? 49 : 0;
   const loyaltyDiscount = appliedPoints; // 1 pt = ₹1
-  const finalTotalAmount = Math.max(0, totalAmount + codFee + giftWrapFee - loyaltyDiscount);
+  
+  const subtotalBeforeGC = Math.max(0, totalAmount + codFee + giftWrapFee - loyaltyDiscount);
+  const gcDiscount = appliedGiftCard ? Math.min(appliedGiftCard.remainingBalance, subtotalBeforeGC) : 0;
+  const finalTotalAmount = Math.max(0, subtotalBeforeGC - gcDiscount);
 
   // How many points this order will earn (10% of final)
   const willEarnPoints = pointsEarned(finalTotalAmount);
@@ -74,13 +85,10 @@ const CheckoutPage = () => {
   const orderMaxRedeemable = maxRedeemable(totalAmount + codFee + giftWrapFee, balance);
 
   const handleApplyLoyalty = () => {
-    const pts = parseInt(loyaltyInput, 10);
-    if (!pts || pts <= 0) { toast.error('Enter a valid number of points'); return; }
-    if (pts > balance) { toast.error(`You only have ${balance} pts`); return; }
-    if (pts > orderMaxRedeemable) { toast.error(`Max redeemable for this order is ${orderMaxRedeemable} pts`); return; }
-    setAppliedPoints(pts);
+    if (orderMaxRedeemable <= 0) { toast.error('No points available to redeem'); return; }
+    setAppliedPoints(orderMaxRedeemable);
     setLoyaltyApplied(true);
-    toast.success(`✨ ${pts} Royal Points applied!`, {
+    toast.success(`✨ ${orderMaxRedeemable} Royal Points applied!`, {
       style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #F4A0B0' },
       iconTheme: { primary: '#D4527A', secondary: '#FFF' },
     });
@@ -90,6 +98,34 @@ const CheckoutPage = () => {
     setAppliedPoints(0);
     setLoyaltyApplied(false);
     setLoyaltyInput('');
+  };
+
+  const handleApplyGiftCard = async () => {
+    if (!giftCardCode.trim()) return;
+    setIsApplyingGC(true);
+    try {
+      const res = await api.post('/gift-cards/apply', { code: giftCardCode });
+      if (res.success) {
+        setAppliedGiftCard({
+          ...res.giftCard,
+          code: giftCardCode
+        });
+        toast.success('Gift card applied!', {
+          style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #F4A0B0' },
+          iconTheme: { primary: '#D4527A', secondary: '#FFF' },
+        });
+      }
+    } catch (err) {
+      toast.error(err.message || 'Invalid gift card code');
+      setGiftCardCode('');
+    } finally {
+      setIsApplyingGC(false);
+    }
+  };
+
+  const handleRemoveGiftCard = () => {
+    setAppliedGiftCard(null);
+    setGiftCardCode('');
   };
 
   const [form, setForm] = useState({
@@ -103,6 +139,17 @@ const CheckoutPage = () => {
     pincode: '',
     landmark: '',
   });
+
+  const applyUseSavedAddress = () => {
+    if (savedAddress) {
+      setForm(savedAddress);
+      setSavedAddressDismissed(true);
+      toast.success('Saved address applied!', {
+        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #F4A0B0' },
+        iconTheme: { primary: '#D4527A', secondary: '#FFF' },
+      });
+    }
+  };
 
   useEffect(() => {
     if (items.length === 0 && !isPlacingOrder && !orderSuccessData) {
@@ -185,11 +232,16 @@ const CheckoutPage = () => {
       giftNote,
       couponCode: null, // TODO: pass coupon if applied
       loyaltyPointsUsed: appliedPoints,
+      giftCardCode: appliedGiftCard?.code || null,
+      giftCardDiscount: gcDiscount,
     };
 
     try {
       const res = await api.post('/orders', orderPayload);
       if (res.success) {
+        // Save address for next time
+        localStorage.setItem('sk_saved_address', JSON.stringify(form));
+        setSavedAddress(form);
         toast.success('Order placed successfully!');
         return res;
       }
@@ -220,19 +272,27 @@ const CheckoutPage = () => {
       // Online payment — create Razorpay order
       let rzpOrder;
       try {
-        rzpOrder = await api.post('/payments/create-order', {
+        rzpOrder = await api.post('/transaction/create-order', {
           amount: finalTotalAmount,
           currency: currency === 'USD' ? 'USD' : 'INR',
           receipt: `rcpt_${Date.now()}`,
         });
       } catch (err) {
-        // Razorpay unavailable — fallback to direct order
-        console.warn('Razorpay unavailable, creating order directly:', err.message);
-        const res = await createOrderOnBackend(null, null);
-        clearCart();
-        setIsPlacingOrder(false);
-        setOrderSuccessData({ orderId: res.order?.orderId || generateOrderId(), earnedPoints: res.earnedPoints || 0 });
-        return;
+        if (finalTotalAmount === 0) {
+          // Razorpay unavailable for 0 amount — fallback to direct order
+          console.warn('Razorpay unavailable (0 amount), creating order directly:', err.message);
+          const res = await createOrderOnBackend(null, null);
+          clearCart();
+          setIsPlacingOrder(false);
+          setOrderSuccessData({ orderId: res.order?.orderId || generateOrderId(), earnedPoints: res.earnedPoints || 0 });
+          return;
+        } else {
+          throw new Error(err.message || 'Could not initiate payment. Please try again.');
+        }
+      }
+
+      if (!window.Razorpay) {
+        throw new Error('Razorpay SDK failed to load. Please disable adblockers and check your connection.');
       }
 
       // Open Razorpay checkout modal
@@ -252,7 +312,7 @@ const CheckoutPage = () => {
         handler: async (response) => {
           // Verify payment
           try {
-            await api.post('/payments/verify', {
+            await api.post('/transaction/verify', {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
@@ -284,7 +344,7 @@ const CheckoutPage = () => {
     } catch (error) {
       console.error('Checkout error:', error);
       setIsPlacingOrder(false);
-      toast.error('Something went wrong. Please try again.');
+      toast.error(error.message || 'Something went wrong. Please try again.');
     }
   };
 
@@ -563,6 +623,41 @@ const CheckoutPage = () => {
                   <div className="absolute top-0 right-0 w-32 h-32 bg-[#D4527A]/5 rounded-full blur-[30px] pointer-events-none" />
                   
                   <h2 className="font-serif text-[22px] text-text-main mb-[20px] relative z-10">Delivery Details</h2>
+
+                  {/* Saved Address Suggestion */}
+                  {savedAddress && !savedAddressDismissed && (
+                    <AnimatePresence>
+                      <motion.div
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        className="relative z-10 mb-[20px] rounded-[16px] border border-[#D4527A]/25 bg-gradient-to-r from-[#FFF0F5]/80 to-white/60 p-4 flex items-center gap-3 shadow-sm"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-[#D4527A]/10 flex items-center justify-center shrink-0">
+                          <MapPin size={16} className="text-[#D4527A]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-sans text-[11px] font-bold uppercase tracking-[1px] text-[#D4527A] mb-0.5">Saved Address</p>
+                          <p className="font-sans text-[13px] font-semibold text-text-main truncate">{savedAddress.fullName}</p>
+                          <p className="font-sans text-[12px] text-text-muted truncate">{savedAddress.addressLine1}, {savedAddress.city} – {savedAddress.pincode}</p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={applyUseSavedAddress}
+                            className="h-[34px] px-4 bg-[#D4527A] text-white rounded-full font-bold text-[11px] tracking-[0.5px] uppercase hover:bg-[#B94B68] transition-colors shadow-sm"
+                          >
+                            Use this
+                          </button>
+                          <button
+                            onClick={() => setSavedAddressDismissed(true)}
+                            className="w-7 h-7 rounded-full bg-white/80 border border-white flex items-center justify-center text-text-muted hover:text-text-main transition-colors"
+                          >
+                            <X size={13} />
+                          </button>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
+                  )}
 
                   <div className="space-y-[16px] relative z-10">
                     <div>
@@ -1001,6 +1096,14 @@ const CheckoutPage = () => {
                       <span className="font-bold text-[#D4527A]">−{formatPrice(appliedPoints)}</span>
                     </div>
                   )}
+                  {appliedGiftCard && gcDiscount > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1.5 text-[#D4527A] font-semibold">
+                        <Gift size={12} /> Gift Card
+                      </span>
+                      <span className="font-bold text-[#D4527A]">−{formatPrice(gcDiscount)}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Free Delivery Progress */}
@@ -1011,75 +1114,99 @@ const CheckoutPage = () => {
                 {/* ── Royal Points Card ── */}
                 {isAuthenticated && (
                   <div className="mt-[20px] relative z-10">
-                    <div className="rounded-[16px] overflow-hidden border border-[#F4A0B0]/30 shadow-[0_4px_20px_rgba(212,82,122,0.08)]">
-                      {/* Header */}
-                      <div className="bg-gradient-to-r from-[#D4527A] to-[#B94B68] px-4 py-3 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-                            <Coins size={13} className="text-white" />
-                          </div>
-                          <span className="font-sans text-[11px] font-bold uppercase tracking-[1px] text-white">Royal Points</span>
-                        </div>
-                        <div className="flex items-center gap-1 bg-white/20 rounded-full px-2.5 py-0.5">
-                          <Coins size={10} className="text-white" />
-                          <span className="font-sans text-[11px] font-black text-white">{balance} pts</span>
-                        </div>
-                      </div>
+                    <div className="relative rounded-[20px] overflow-hidden shadow-[0_8px_32px_rgba(212,82,122,0.15)] border border-[#D4527A]/20">
+                      {/* Dark background matching site's dark tone */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#1C1C2E] via-[#24162A] to-[#1C1C2E]" />
+                      {/* Pink shimmer overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4527A]/5 to-transparent" />
+                      {/* Top pink accent line */}
+                      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#D4527A]/80 to-transparent" />
 
-                      {/* Body */}
-                      <div className="bg-gradient-to-br from-[#FFF0F5] to-[#FDF5F8] px-4 py-3">
-                        {balance === 0 ? (
-                          <p className="font-sans text-[12px] text-text-muted text-center py-1">
-                            No points yet. You'll earn {willEarnPoints} pts on this order!
-                          </p>
-                        ) : loyaltyApplied ? (
-                          <div className="flex items-center justify-between">
+                      <div className="relative p-4">
+                        {/* Header row */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2.5">
+                            {/* Animated coin */}
+                            <div className="relative">
+                              <div className="absolute inset-0 rounded-full bg-[#D4527A]/25 blur-md animate-pulse" />
+                              <motion.img
+                                src={royalPointsCoinImg}
+                                alt="Royal Points"
+                                className="relative w-10 h-10 rounded-full object-cover drop-shadow-[0_0_8px_rgba(212,82,122,0.5)]"
+                                animate={{ y: [0, -3, 0], rotate: [0, 5, 0, -5, 0] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                              />
+                            </div>
                             <div>
-                              <p className="font-sans text-[12px] font-semibold text-[#D4527A] flex items-center gap-1.5">
-                                <Check size={13} strokeWidth={3} /> {appliedPoints} pts applied · saves {formatPrice(appliedPoints)}
-                              </p>
-                              <p className="font-sans text-[11px] text-text-muted mt-0.5">Remaining: {balance - appliedPoints} pts</p>
+                              <p className="font-sans text-[10px] font-bold uppercase tracking-[2px] text-[#F4A0B0]/70">Sterling Kart</p>
+                              <p className="font-serif text-[15px] font-semibold text-white leading-tight">Royal Points</p>
+                            </div>
+                          </div>
+                          {/* Balance badge */}
+                          <div className="flex flex-col items-end">
+                            <div className="flex items-baseline gap-1 bg-[#D4527A]/15 border border-[#D4527A]/30 rounded-xl px-3 py-1.5">
+                              <span className="font-sans text-[20px] font-black text-[#F4A0B0] leading-none">{balance}</span>
+                              <span className="font-sans text-[10px] font-bold text-[#D4527A]/70 uppercase tracking-wider">pts</span>
+                            </div>
+                            <p className="font-sans text-[9px] text-white/30 mt-0.5 text-right">Your balance</p>
+                          </div>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="h-[1px] bg-gradient-to-r from-transparent via-[#D4527A]/20 to-transparent mb-3" />
+
+                        {/* Body */}
+                        {balance === 0 ? (
+                          <div className="text-center py-2">
+                            <p className="font-sans text-[12px] text-white/40">
+                              No points yet — earn <span className="font-bold text-[#F4A0B0]">{willEarnPoints} pts</span> on this order!
+                            </p>
+                          </div>
+                        ) : loyaltyApplied ? (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="flex items-center justify-between bg-[#D4527A]/10 rounded-xl px-3 py-2.5 border border-[#D4527A]/20"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-[#D4527A]/25 flex items-center justify-center">
+                                <Check size={12} strokeWidth={3} className="text-[#F4A0B0]" />
+                              </div>
+                              <div>
+                                <p className="font-sans text-[12px] font-bold text-white">{appliedPoints} pts applied · saves {formatPrice(appliedPoints)}</p>
+                                <p className="font-sans text-[10px] text-white/40">Remaining: {balance - appliedPoints} pts</p>
+                              </div>
                             </div>
                             <button
                               onClick={handleRemoveLoyalty}
-                              className="font-sans text-[11px] font-bold text-[#D4527A] hover:text-[#B94B68] underline transition-colors ml-3"
+                              className="font-sans text-[10px] font-bold text-[#F4A0B0]/60 hover:text-[#F4A0B0] transition-colors underline"
                             >
                               Remove
                             </button>
-                          </div>
+                          </motion.div>
                         ) : (
-                          <>
-                            <p className="font-sans text-[12px] text-text-muted mb-2">
-                              Use up to{' '}
-                              <span className="font-bold text-[#D4527A]">{orderMaxRedeemable} pts</span>
-                              {' '}= {formatPrice(orderMaxRedeemable)} off
-                            </p>
-                            <div className="flex gap-2">
-                              <input
-                                type="number"
-                                min={1}
-                                max={orderMaxRedeemable}
-                                value={loyaltyInput}
-                                onChange={(e) => setLoyaltyInput(e.target.value)}
-                                placeholder={`Max ${orderMaxRedeemable} pts`}
-                                className="flex-1 h-[34px] px-3 text-[12px] font-medium border border-[#F4A0B0]/50 rounded-[10px] bg-white outline-none focus:border-[#D4527A] transition-colors placeholder:text-text-muted/50"
-                              />
-                              <button
-                                onClick={handleApplyLoyalty}
-                                disabled={orderMaxRedeemable === 0}
-                                className="h-[34px] px-4 bg-[#D4527A] text-white rounded-[10px] font-bold text-[11px] tracking-[0.5px] uppercase hover:bg-[#B94B68] transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
-                              >
-                                Apply
-                              </button>
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="font-sans text-[11px] text-white/40">Redeem up to</p>
+                              <p className="font-sans text-[14px] font-black text-white">{orderMaxRedeemable} pts <span className="text-[11px] font-normal text-white/40">= {formatPrice(orderMaxRedeemable)} off</span></p>
                             </div>
-                          </>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={handleApplyLoyalty}
+                              disabled={orderMaxRedeemable === 0}
+                              className="h-[36px] px-5 rounded-full font-bold text-[11px] tracking-[0.5px] uppercase transition-all disabled:opacity-30 disabled:cursor-not-allowed shrink-0 bg-gradient-to-r from-[#D4527A] to-[#B94B68] text-white shadow-[0_4px_16px_rgba(212,82,122,0.35)] hover:shadow-[0_6px_24px_rgba(212,82,122,0.5)]"
+                            >
+                              ✦ Apply
+                            </motion.button>
+                          </div>
                         )}
 
-                        {/* Will earn info */}
-                        <div className="mt-2.5 pt-2.5 border-t border-[#F4A0B0]/20 flex items-center gap-1.5">
-                          <Star size={10} className="text-[#D4527A] fill-[#D4527A]" />
-                          <p className="font-sans text-[11px] text-text-muted">
-                            You'll earn <span className="font-bold text-[#D4527A]">{willEarnPoints} pts</span> after this order
+                        {/* Will earn footer */}
+                        <div className="mt-3 pt-3 border-t border-[#D4527A]/10 flex items-center gap-2">
+                          <Star size={10} className="text-[#D4527A] fill-[#D4527A] shrink-0" />
+                          <p className="font-sans text-[10px] text-white/30">
+                            You'll earn <span className="font-bold text-[#F4A0B0]">{willEarnPoints} pts</span> after this order
                           </p>
                         </div>
                       </div>
@@ -1143,6 +1270,53 @@ const CheckoutPage = () => {
                       </AnimatePresence>
                     </div>
                   </div>
+                </div>
+
+                {/* Gift Card Option */}
+                <div className="mt-[20px] pt-[20px] border-t border-white/40 relative z-10">
+                  {appliedGiftCard ? (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex items-center justify-between bg-[#D4527A]/10 rounded-xl px-3 py-2.5 border border-[#D4527A]/20"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-[#D4527A]/25 flex items-center justify-center">
+                          <Check size={12} strokeWidth={3} className="text-[#F4A0B0]" />
+                        </div>
+                        <div>
+                          <p className="font-sans text-[12px] font-bold text-text-main">Gift Card applied · saves {formatPrice(gcDiscount)}</p>
+                          <p className="font-sans text-[10px] text-text-muted">Balance: {formatPrice(appliedGiftCard.remainingBalance)}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleRemoveGiftCard}
+                        className="font-sans text-[10px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors underline"
+                      >
+                        Remove
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Gift size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                        <input
+                          type="text"
+                          value={giftCardCode}
+                          onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
+                          placeholder="Gift Card Code"
+                          className="w-full pl-9 pr-3 py-2.5 bg-white/50 border border-white/60 rounded-xl text-[13px] focus:outline-none focus:border-[#D4527A] transition-colors font-mono placeholder-sans"
+                        />
+                      </div>
+                      <button
+                        onClick={handleApplyGiftCard}
+                        disabled={isApplyingGC || !giftCardCode.trim()}
+                        className="px-4 py-2.5 bg-gradient-to-r from-[#D4527A] to-[#B94B68] text-white rounded-xl text-[13px] font-bold hover:shadow-[0_4px_12px_rgba(212,82,122,0.3)] transition-all disabled:opacity-50"
+                      >
+                        {isApplyingGC ? '...' : 'Apply'}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="border-t border-white mt-[20px] pt-[20px] relative z-10">

@@ -5,17 +5,19 @@ import {
   TrendingUp, TrendingDown, Clock, Search, Edit, Trash2, Eye, Download,
   Plus, X, Scale, Wrench, ChevronRight, ChevronDown, ChevronUp, Phone, MapPin, Mail,
   CheckCircle, Circle, Printer, Star, ArrowUpRight, ArrowDownRight,
-  Image as ImageIcon, Upload, Bell, CheckCheck, Info, AlertTriangle, PackageCheck
+  Image as ImageIcon, Upload, Bell, CheckCheck, Info, AlertTriangle, PackageCheck, Palette
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, BarChart, Bar, Legend
 } from 'recharts';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useProducts } from '../context/ProductContext';
 import { categories } from '../data/products';
 import { mockOrders, mockCustomers, revenueData } from '../data/orders';
 import { formatPrice } from '../utils/formatPrice';
+import { generateInvoice } from '../utils/generateInvoice';
 import toast from 'react-hot-toast';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -27,6 +29,10 @@ const STATUS_COLORS = {
   Pending:          { bg: '#FFF3E0', text: '#E65100' },
   Packed:           { bg: '#FFF3E0', text: '#E65100' },
   'Out for Delivery': { bg: '#F3E8FF', text: '#7E22CE' },
+  'Pending Approval': { bg: '#FEF3C7', text: '#D97706' },
+  'Engraving': { bg: '#DBEAFE', text: '#2563EB' },
+  'Rejected': { bg: '#FEE2E2', text: '#DC2626' },
+  'Cancelled (Refunded)': { bg: '#FCE8E6', text: '#C5221F' },
 };
 
 const PIE_COLORS = ['#137333','#7E22CE','#0369A1','#E65100','#C5221F','#F4A0B0'];
@@ -432,6 +438,8 @@ function ProductModal({ product, onSave, onClose, mode = 'edit' }) {
           </div>
 
           {/* Pricing Type */}
+
+          {/* ── Settings Tab ── */}
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-2">Pricing Type</label>
             <div className="flex gap-3">
@@ -752,8 +760,20 @@ export default function AdminDashboardPage() {
   const [productSort, setProductSort] = useState('newest');
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('All');
-  const [orders, setOrders] = useState(mockOrders);
+  
+  const [orders, setOrders] = useState(() => {
+    const saved = localStorage.getItem('sterling_orders');
+    return saved ? JSON.parse(saved) : mockOrders;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sterling_orders', JSON.stringify(orders));
+  }, [orders]);
+
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [rejectOrderId, setRejectOrderId] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
 
   const [expandedOrders, setExpandedOrders] = useState({});
   const [expandedProducts, setExpandedProducts] = useState({});
@@ -833,9 +853,76 @@ export default function AdminDashboardPage() {
   });
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
-  const handleUpdateOrderStatus = (orderId, newStatus) => {
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
     setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
     toast.success(`Order ${orderId} → ${newStatus}`);
+    
+    if (newStatus === 'Delivered') {
+      try {
+        const order = orders.find(o => o.id === orderId);
+        if (!order) return;
+        
+        toast.loading('Generating invoice...', { id: 'invoice' });
+        const pdfBase64 = generateInvoice(order, null, { mode: 'datauri' });
+        
+        await axios.post(
+          `http://localhost:5000/api/orders/${order.orderId || order.id}/email-invoice`,
+          { pdfBase64 },
+          { withCredentials: true }
+        );
+        toast.success('Invoice emailed to customer.', { id: 'invoice' });
+      } catch (err) {
+        console.error('Invoice email error:', err);
+        toast.error('Failed to email invoice.', { id: 'invoice' });
+      }
+    }
+  };
+
+  const handleApproveCustomOrder = async (orderId) => {
+    try {
+      const { data } = await axios.post(`http://localhost:5000/api/custom-orders/${orderId}/approve`, {}, { withCredentials: true });
+      if (data.success) {
+        setOrders(orders.map(o => o.id === orderId || o.orderId === orderId ? { ...o, status: 'Engraving' } : o));
+        toast.success(`Design approved! Order moved to Engraving.`);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to approve order');
+    }
+  };
+
+  const handleOpenRejectModal = (orderId) => {
+    setRejectOrderId(orderId);
+    setRejectReason('');
+    setRejectModalOpen(true);
+  };
+
+  const handleRejectCustomOrder = async (e) => {
+    e.preventDefault();
+    if (!rejectReason.trim()) {
+      toast.error('Rejection reason is required.');
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(`http://localhost:5000/api/custom-orders/${rejectOrderId}/reject`, { reason: rejectReason }, { withCredentials: true });
+      if (data.success) {
+        if (data.refunded) {
+          toast.success(`Razorpay Refund Processed for ${rejectOrderId}`, { icon: '💸' });
+          setOrders(orders.map(o => (o.id === rejectOrderId || o.orderId === rejectOrderId) ? { ...o, status: 'Cancelled', rejectionReason: rejectReason } : o));
+        } else {
+          setOrders(orders.map(o => {
+            if (o.id !== rejectOrderId && o.orderId !== rejectOrderId) return o;
+            return { ...o, status: 'Rejected', rejectionReason: rejectReason, resubmitToken: data.token };
+          }));
+          toast.success(`Design rejected. Resubmit Link Generated!`);
+          console.log(`[WHATSAPP MOCK] Send to customer: ${data.resubmitUrl}`);
+        }
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to reject order');
+    } finally {
+      setRejectModalOpen(false);
+    }
   };
 
   const handleDeleteProduct = (productId) => {
@@ -873,6 +960,7 @@ export default function AdminDashboardPage() {
   const sidebarLinks = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { id: 'orders', label: 'Orders', icon: <ShoppingBag size={20} />, badge: pendingOrders || null },
+    { id: 'custom-orders', label: 'Custom Orders', icon: <Palette size={20} /> },
     { id: 'products', label: 'Products', icon: <Package size={20} /> },
     { id: 'customers', label: 'Customers', icon: <Users size={20} /> },
     { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={20} /> },
@@ -1375,6 +1463,90 @@ export default function AdminDashboardPage() {
     </div>
   );
 
+  const renderCustomOrders = () => (
+    <div className="animate-fade-in space-y-6">
+      <div>
+        <h2 className="text-2xl font-serif font-bold text-text-main mb-1">Custom Coin Orders</h2>
+        <p className="text-sm text-text-muted">Review and manage personalized engraving orders.</p>
+      </div>
+      
+      <div className="bg-bg-surface rounded-xl shadow-sm border border-border-main overflow-hidden">
+        <div className="p-5 border-b border-border-main flex justify-between items-center bg-gray-50/50">
+          <h3 className="font-semibold text-text-main">Custom Orders Pipeline</h3>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#FAFAFA] text-text-muted text-[11px] uppercase tracking-wider border-b border-border-main">
+                <th className="p-4 font-semibold w-[180px]">Order ID & Date</th>
+                <th className="p-4 font-semibold">Customer</th>
+                <th className="p-4 font-semibold">Design File</th>
+                <th className="p-4 font-semibold">Status</th>
+                <th className="p-4 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm text-text-main">
+              {orders.filter(o => o.isCustomCoin).length === 0 ? (
+                <tr><td colSpan="5" className="p-8 text-center text-gray-500">No custom coin orders found.</td></tr>
+              ) : (
+                orders.filter(o => o.isCustomCoin).sort((a,b) => new Date(b.date) - new Date(a.date)).map(order => {
+                  const customItem = order.items.find(i => i.category === 'coins');
+                  const designName = customItem?.engravingText?.replace('Custom Design: ', '') || 'Unknown File';
+                  
+                  return (
+                    <tr key={order.id} className="border-b border-border-main hover:bg-[#FAFAFA] transition-colors">
+                      <td className="p-4">
+                        <div className="font-semibold text-text-main cursor-pointer hover:text-[#D4527A]" onClick={() => setSelectedOrder(order)}>
+                          {order.id}
+                        </div>
+                        <div className="text-xs text-text-muted mt-0.5">{order.date}</div>
+                        {order.resubmitCount > 0 && <span className="inline-block mt-1 text-[10px] bg-orange-100 text-orange-700 px-2 rounded-full font-bold">Resubmitted</span>}
+                      </td>
+                      <td className="p-4">
+                        <div>{order.customerName}</div>
+                        <div className="text-xs text-text-muted">{order.customerPhone}</div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center border border-gray-200">
+                            <ImageIcon size={14} className="text-gray-400" />
+                          </div>
+                          <span className="text-xs font-mono bg-gray-50 px-2 py-1 border border-gray-200 rounded truncate max-w-[120px]" title={designName}>
+                            {designName}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <StatusBadge status={order.status} />
+                      </td>
+                      <td className="p-4 text-right">
+                        {order.status === 'Pending Approval' ? (
+                          <div className="flex justify-end gap-2">
+                            <button onClick={() => handleOpenRejectModal(order.id)} className="px-3 py-1.5 text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors border border-red-200">
+                              Reject
+                            </button>
+                            <button onClick={() => handleApproveCustomOrder(order.id)} className="px-3 py-1.5 text-[11px] font-bold text-green-700 bg-green-50 hover:bg-green-100 rounded-md transition-colors border border-green-200">
+                              Approve
+                            </button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setSelectedOrder(order)} className="text-[12px] font-bold text-[#D4527A] hover:underline">
+                            View Details
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderSettings = () => (
     <div className="bg-bg-surface rounded-[16px] p-6 shadow-product max-w-2xl space-y-6">
       <h3 className="font-serif text-[20px] font-bold text-text-main">Store Settings</h3>
@@ -1444,7 +1616,7 @@ export default function AdminDashboardPage() {
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Header */}
         <header className="bg-bg-surface h-[68px] border-b border-border-main flex items-center justify-between px-[16px] md:px-[28px] flex-shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
-          <h1 className="font-serif text-[22px] font-bold text-text-main capitalize">{activeTab}</h1>
+          <h1 className="font-serif text-[22px] font-bold text-text-main capitalize">{activeTab.replace('-', ' ')}</h1>
           <div className="flex items-center gap-[10px]">
             <button
               onClick={() => setActiveTab('settings')}
@@ -1468,6 +1640,7 @@ export default function AdminDashboardPage() {
         <main className="flex-1 overflow-y-auto p-[16px] md:p-[28px] pb-[80px] md:pb-[28px]">
           {activeTab === 'dashboard'  && renderDashboard()}
           {activeTab === 'orders'     && renderOrders()}
+          {activeTab === 'custom-orders' && renderCustomOrders()}
           {activeTab === 'products'   && renderProducts()}
           {activeTab === 'customers'  && renderCustomers()}
           {activeTab === 'analytics'  && renderAnalytics()}

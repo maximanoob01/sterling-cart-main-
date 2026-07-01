@@ -4,8 +4,8 @@ import api from '../services/api';
 
 const LoyaltyContext = createContext();
 
-// 10 points per 10k purchase
-export const pointsEarned = (orderValue) => Math.floor(orderValue * 0.001);
+// 1 point per ₹100 spent
+export const pointsEarned = (orderValue) => Math.floor(orderValue * 0.01);
 
 // Max redeemable per order: 3% of order value, capped by actual balance
 export const maxRedeemable = (orderValue, balance) =>

@@ -21,7 +21,7 @@ import ShopPage from './pages/ShopPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
-import TrackOrderPage from './pages/TrackOrderPage';
+import TrackOrderPage from './pages/TrackOrder';
 import LoginPage from './pages/LoginPage';
 import UserDashboardPage from './pages/UserDashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
@@ -31,6 +31,8 @@ import NotFoundPage from './pages/NotFoundPage';
 import GiftingPage from './pages/GiftingPage';
 import ReturnExchangePage from './pages/ReturnExchangePage';
 import LegalPage from './pages/LegalPage';
+import PersonalisePage from './pages/PersonalisePage';
+import ResubmitDesignPage from './pages/ResubmitDesignPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -59,6 +61,8 @@ function AnimatedRoutes() {
         <Route path="/gifting" element={<PageTransition><GiftingPage /></PageTransition>} />
         <Route path="/return-exchange" element={<PageTransition><ReturnExchangePage /></PageTransition>} />
         <Route path="/legal" element={<PageTransition><LegalPage /></PageTransition>} />
+        <Route path="/personalise" element={<PageTransition><PersonalisePage /></PageTransition>} />
+        <Route path="/order/:orderId/resubmit/:token" element={<PageTransition><ResubmitDesignPage /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFoundPage /></PageTransition>} />
       </Routes>
     </AnimatePresence>

@@ -8,6 +8,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useProducts } from '../../context/ProductContext';
 import { formatPrice } from '../../utils/formatPrice';
+import engravedCoinImg from '../../assets/images/engraved_coin.png';
 
 const announcements = [
   "Free shipping above Rs. 1,999 | Exchange within 15 days",
@@ -390,6 +391,12 @@ export default function Header() {
                   <Gift size={15} /> Gifts <ChevronDown size={13} className="opacity-60" />
                 </Link>
               </div>
+              <Link
+                to="/personalise"
+                className={`flex items-center gap-1 px-3 py-4 text-[12px] font-semibold tracking-[0.5px] transition-all duration-200 xl:text-[13px] ${
+                  isHeroPage && !isScrolled ? 'text-[#F4A0B0]/80 hover:text-[#F4A0B0]' : 'text-[#D4527A]/80 hover:text-[#D4527A]'
+                }`}
+              >Personalise</Link>
               <div onMouseEnter={() => setActiveDropdown('Offers')}>
                 <Link
                   to="/shop?badge=Bestseller"
@@ -510,6 +517,10 @@ export default function Header() {
 
                   <Link to="/gifting" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between text-[16px] font-semibold text-gray-800 transition-colors hover:text-[#D4527A]">
                     <span className="flex items-center gap-2.5"><Gift size={18} className="text-[#D4527A]" /> Gifts & Gifting</span>
+                  </Link>
+
+                  <Link to="/personalise" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between text-[16px] font-semibold text-[#D4527A] transition-colors hover:text-[#B94B68]">
+                    <span className="flex items-center gap-2.5">Personalise</span>
                   </Link>
 
                   <Link to="/shop?badge=Bestseller" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between text-[16px] font-semibold text-gray-800 transition-colors hover:text-[#D4527A]">
@@ -880,7 +891,7 @@ function MegaMenu({ activeDropdown, onClose }) {
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4527A]/40 to-transparent" />
 
       <div className="mx-auto grid max-w-[1420px] grid-cols-[1.15fr_0.9fr_0.9fr_1.45fr]">
-        <MegaColumn title="Shop by category" className="border-r border-[#D4527A]/15">
+        <MegaColumn title="Shop by category">
           <div className="grid grid-cols-2 gap-x-6 gap-y-0.5">
             {categoryLinks.map(([name, id]) => (
               <Link key={id} to={`/shop?category=${id}`} onClick={onClose}
@@ -895,7 +906,7 @@ function MegaMenu({ activeDropdown, onClose }) {
           </Link>
         </MegaColumn>
 
-        <MegaColumn title="Shop by occasion" className="border-r border-[#D4527A]/15">
+        <MegaColumn title="Shop by occasion">
           {[
             ['Everyday wear', 'everyday'],
             ['Wedding specials', 'wedding'],
@@ -905,18 +916,34 @@ function MegaMenu({ activeDropdown, onClose }) {
           ].map(([name, id]) => <MegaLink key={id} to={`/shop?occasion=${id}`} onClick={onClose}>{name}</MegaLink>)}
         </MegaColumn>
 
-        <MegaColumn title="Discover your style" className="border-r border-[#D4527A]/15">
-          {[
-            ['Minimalist', 'minimalist'],
-            ['Boho', 'boho'],
-            ['Traditional', 'traditional'],
-            ['Statement', 'statement'],
-          ].map(([name, id]) => <MegaLink key={id} to={`/shop?style=${id}`} onClick={onClose}>{name}</MegaLink>)}
-          <div className="mt-5 border-t border-[#D4527A]/20 pt-4">
-            <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-[#F4A0B0]">925 sterling silver</p>
-            <p className="mt-1.5 text-[12px] leading-5 text-white/40">Hallmarked pieces made for everyday wear.</p>
-          </div>
-        </MegaColumn>
+        {activeCategory === 'coins' ? (
+          <MegaColumn title="Personalized for you">
+            <Link to="/personalise" onClick={onClose} className="group relative block overflow-hidden rounded-2xl bg-[#1C0811] border border-[#D4527A]/20 transition-all hover:border-[#D4527A]/50 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(212,82,122,0.2)]">
+              <div className="aspect-[4/3] w-full overflow-hidden">
+                <img src={engravedCoinImg} alt="Custom Engraved Silver Coin" className="h-full w-full object-cover opacity-85 transition-transform duration-700 group-hover:scale-105 group-hover:opacity-100" />
+              </div>
+              <div className="p-4 relative">
+                <div className="absolute -top-3 right-4 rounded-full bg-gradient-to-r from-[#D4527A] to-[#B94B68] px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-lg z-10">Only on 10g</div>
+                <h4 className="font-serif text-[16px] font-semibold text-white/95">Custom Engraved Coins</h4>
+                <p className="mt-1.5 text-[11px] leading-[1.4] text-white/60">Personalise with an engraved design. Perfect for gifting.</p>
+                <p className="mt-2 text-[9px] font-bold uppercase tracking-wide text-white/30">*T&C Applied</p>
+              </div>
+            </Link>
+          </MegaColumn>
+        ) : (
+          <MegaColumn title="Discover your style">
+            {[
+              ['Minimalist', 'minimalist'],
+              ['Boho', 'boho'],
+              ['Traditional', 'traditional'],
+              ['Statement', 'statement'],
+            ].map(([name, id]) => <MegaLink key={id} to={`/shop?style=${id}`} onClick={onClose}>{name}</MegaLink>)}
+            <div className="mt-6 rounded-xl bg-white/[0.03] p-4 transition-colors hover:bg-white/[0.06]">
+              <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-[#F4A0B0]">925 sterling silver</p>
+              <p className="mt-1.5 text-[12px] leading-5 text-white/40">Hallmarked pieces made for everyday wear.</p>
+            </div>
+          </MegaColumn>
+        )}
 
         <MegaColumn title={activeCategory ? `Popular ${activeDropdown}` : 'Trending now'}>
           <div className="grid grid-cols-3 gap-3">
@@ -948,7 +975,7 @@ function GiftMegaMenu({ onClose }) {
     >
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4527A]/40 to-transparent" />
       <div className="mx-auto grid max-w-[1420px] grid-cols-[0.9fr_0.85fr_1fr_1.35fr]">
-        <MegaColumn title="Gifts by occasion" className="border-r border-[#D4527A]/15">
+        <MegaColumn title="Gifts by occasion">
           {[
             ['Birthday gifts', '#festivals'],
             ['Anniversary gifts', ''],
@@ -962,7 +989,7 @@ function GiftMegaMenu({ onClose }) {
           </Link>
         </MegaColumn>
 
-        <MegaColumn title="Shop by budget" className="border-r border-[#D4527A]/15">
+        <MegaColumn title="Shop by budget">
           {[
             ['Under Rs. 1,000', ''],
             ['Under Rs. 2,000', ''],
@@ -972,7 +999,7 @@ function GiftMegaMenu({ onClose }) {
           ].map(([name, hash]) => <MegaLink key={name} to={`/gifting${hash}`} onClick={onClose}>{name}</MegaLink>)}
         </MegaColumn>
 
-        <MegaColumn title="Gifts for someone special" className="border-r border-[#D4527A]/15">
+        <MegaColumn title="Gifts for someone special">
           {[
             ['For her', '#for-her'],
             ['For him', '#for-him'],
@@ -980,14 +1007,17 @@ function GiftMegaMenu({ onClose }) {
             ['For mother', '#for-mother'],
             ['For friends', '#for-friends'],
           ].map(([name, hash]) => <MegaLink key={name} to={`/gifting${hash}`} onClick={onClose}>{name}</MegaLink>)}
-          <div className="mt-5 border-t border-[#D4527A]/20 pt-4">
+          <div className="mt-6 rounded-xl bg-white/[0.03] p-4 transition-colors hover:bg-white/[0.06]">
             <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-[#F4A0B0]">Gift-ready packaging</p>
             <p className="mt-1.5 text-[12px] leading-5 text-white/40">Beautifully packed and ready to make their day.</p>
           </div>
         </MegaColumn>
 
         <div className="min-h-[300px] p-6">
-          <h3 className="mb-4 border-b border-[#D4527A]/20 pb-3 font-serif text-[17px] font-semibold text-white/90">Trending gift offers</h3>
+          <div className="mb-5 flex items-center gap-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-[#D4527A] shadow-[0_0_8px_#D4527A]" />
+            <h3 className="font-serif text-[18px] font-semibold tracking-wide text-white/90">Trending gift offers</h3>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <GiftOfferCard eyebrow="First order" title="10% off" text="A little welcome gift for your first Sterling Kart order." to="/gifting" tone="pink" onClose={onClose} />
             <GiftOfferCard eyebrow="Most loved" title="Gift picks" text="Discover bestselling pieces chosen for special moments." to="/gifting" tone="dark" onClose={onClose} />
@@ -1008,14 +1038,17 @@ function OffersMegaMenu({ onClose }) {
     >
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4527A]/40 to-transparent" />
       <div className="mx-auto grid max-w-[1420px] grid-cols-[0.8fr_1.6fr]">
-        <MegaColumn title="Explore offers" className="border-r border-[#D4527A]/15">
+        <MegaColumn title="Explore offers">
           <MegaLink to="/shop?badge=Bestseller" onClick={onClose}>Bestselling deals</MegaLink>
           <MegaLink to="/shop?badge=New" onClick={onClose}>New arrival offers</MegaLink>
           <MegaLink to="/shop?occasion=gifting" onClick={onClose}>Gifting specials</MegaLink>
           <MegaLink to="/shop?maxPrice=1500" onClick={onClose}>Under Rs. 1,500</MegaLink>
         </MegaColumn>
         <div className="p-6">
-          <h3 className="mb-4 border-b border-[#D4527A]/20 pb-3 font-serif text-[17px] font-semibold text-white/90">Trending offers</h3>
+          <div className="mb-5 flex items-center gap-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-[#D4527A] shadow-[0_0_8px_#D4527A]" />
+            <h3 className="font-serif text-[18px] font-semibold tracking-wide text-white/90">Trending offers</h3>
+          </div>
           <div className="grid grid-cols-3 gap-3">
             <GiftOfferCard eyebrow="Welcome offer" title="10% off" text="Save on your first order." to="/shop" tone="pink" onClose={onClose} />
             <GiftOfferCard eyebrow="Free delivery" title="Ship free" text="On orders above Rs. 1,999." to="/shop" tone="dark" onClose={onClose} />
@@ -1043,7 +1076,10 @@ function GiftOfferCard({ eyebrow, title, text, to, tone, onClose }) {
 function MegaColumn({ title, children, className = '' }) {
   return (
     <div className={`min-h-[280px] p-6 ${className}`}>
-      <h3 className="mb-4 border-b border-[#D4527A]/20 pb-3 font-serif text-[17px] font-semibold text-white/85">{title}</h3>
+      <div className="mb-5 flex items-center gap-2">
+        <div className="h-1.5 w-1.5 rounded-full bg-[#D4527A] shadow-[0_0_8px_#D4527A]" />
+        <h3 className="font-serif text-[18px] font-semibold tracking-wide text-white/90">{title}</h3>
+      </div>
       {children}
     </div>
   );
