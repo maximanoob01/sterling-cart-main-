@@ -96,7 +96,7 @@ function StarRating({ rating, size = 13 }) {
   );
 }
 
-function CategorySlideCard({ category, slideIndex }) {
+function CategorySlideCard({ category }) {
   return (
     <Link to={`/shop?category=${category.id}`} className="group flex flex-col items-center p-1.5 md:p-2">
       {/* Circular Image Container with Liquid Glass Ring */}
@@ -104,10 +104,7 @@ function CategorySlideCard({ category, slideIndex }) {
         {/* Subtle glass overlay border */}
         <div className="absolute inset-0 rounded-full border border-white/40 z-10 pointer-events-none" />
         
-        <div 
-          className="absolute inset-0 h-full transition-transform duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)]"
-          style={{ width: '300%', transform: `translateX(-${(slideIndex * 100) / 3}%)` }}
-        >
+        <div className="absolute inset-0 h-full w-full">
           <img 
             src={category.image} 
             alt={category.name} 
@@ -117,17 +114,10 @@ function CategorySlideCard({ category, slideIndex }) {
         </div>
       </div>
 
-      {/* Typography & Indicators below the circle */}
+      {/* Typography */}
       <h3 className="font-serif text-[14px] sm:text-[16px] md:text-[20px] tracking-wide text-text-main group-hover:text-[#D4527A] transition-colors duration-300 text-center">
         {category.name}
       </h3>
-      
-      {/* Elegant slide indicators */}
-      <div className="mt-3 flex gap-1.5 pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity">
-        {[0, 1, 2].map((idx) => (
-          <div key={idx} className={`h-[2px] rounded-full transition-all duration-500 ${idx === slideIndex ? 'w-4 bg-[#D4527A]' : 'w-1.5 bg-[#A8A8A8]'}`} />
-        ))}
-      </div>
     </Link>
   );
 }
