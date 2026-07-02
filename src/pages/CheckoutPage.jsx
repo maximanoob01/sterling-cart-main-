@@ -321,16 +321,23 @@ const CheckoutPage = () => {
             console.error('Payment verification failed:', err);
           }
 
-          // Create order with payment details
-          const res = await createOrderOnBackend(response.razorpay_payment_id, response.razorpay_order_id);
-          const earned = res.earnedPoints || 0;
+          try {
+            // Create order with payment details
+            const res = await createOrderOnBackend(response.razorpay_payment_id, response.razorpay_order_id);
+            const earned = res.earnedPoints || 0;
 
-          if (isAuthenticated) await refreshLoyalty();
+            if (isAuthenticated) await refreshLoyalty();
 
-          toast.success('Order placed successfully! 🎉');
-          clearCart();
-          setIsPlacingOrder(false);
-          setOrderSuccessData({ orderId: res.order?.orderId || generateOrderId(), earnedPoints: earned });
+            toast.success('Order placed successfully! 🎉');
+            clearCart();
+            setIsPlacingOrder(false);
+            setOrderSuccessData({ orderId: res.order?.orderId || generateOrderId(), earnedPoints: earned });
+          } catch (err) {
+            console.error('Order placement failed after payment:', err);
+            const errorMsg = err.response?.data?.details?.join(', ') || err.response?.data?.error || err.message || 'Failed to place order';
+            toast.error(`Order failed: ${errorMsg}`);
+            setIsPlacingOrder(false);
+          }
         },
         modal: {
           ondismiss: () => {
