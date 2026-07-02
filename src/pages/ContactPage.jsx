@@ -206,7 +206,7 @@ export default function ContactPage() {
                   <h3 className="font-serif text-lg font-semibold text-charcoal mb-1">Working Hours</h3>
                   <p className="text-sm text-silver-500">
                     Monday – Saturday<br />
-                    10:00 AM – 7:00 PM IST
+                    11:00 AM – 8:00 PM IST
                   </p>
                 </div>
               </div>
