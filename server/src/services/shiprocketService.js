@@ -1,7 +1,7 @@
 import axios from 'axios';
 import process from 'node:process';
 
-const BASE_URL = 'https://apiv2.shiprocket.in/v1/payload';
+const BASE_URL = 'https://apiv2.shiprocket.in/v1/external';
 
 let tokenCache = null;
 let tokenExpiresAt = 0;
@@ -22,7 +22,7 @@ export const getToken = async () => {
   }
 
   try {
-    const res = await axios.post(`${BASE_URL}/user/login/email`, {
+    const res = await axios.post(`${BASE_URL}/auth/login`, {
       email,
       password
     });
