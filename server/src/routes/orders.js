@@ -189,7 +189,10 @@ router.post('/', optionalAuth, [
     let earnedPoints = 0;
     if (req.dbUser) {
       if (!loyaltyAccount) {
-        loyaltyAccount = await Loyalty.create({ userId: req.dbUser.id, balance: 0 }, { transaction: t });
+        loyaltyAccount = await Loyalty.findOne({ where: { userId: req.dbUser.id }, transaction: t });
+        if (!loyaltyAccount) {
+          loyaltyAccount = await Loyalty.create({ userId: req.dbUser.id, balance: 0 }, { transaction: t });
+        }
       }
 
       if (loyaltyDiscount > 0) {
