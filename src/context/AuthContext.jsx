@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const res = await api.get('/auth/me');
         setUser(res.user);
-      } catch (err) {
+      } catch {
         console.error('Session not found or expired');
         api.removeToken();
         setUser(null);
@@ -29,10 +29,10 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const requestOtp = useCallback(async (phone) => {
+  const requestOtp = useCallback(async (phone, isSignup = false) => {
     try {
       const formattedPhone = phone.startsWith('+') ? phone : `+91${phone.replace(/\s/g, '')}`;
-      await api.post('/auth/request-otp', { phone: formattedPhone });
+      await api.post('/auth/request-otp', { phone: formattedPhone, isSignup });
       return { success: true, message: `OTP sent to ${formattedPhone}` };
     } catch (error) {
       console.error('OTP request error:', error);
@@ -46,7 +46,8 @@ export const AuthProvider = ({ children }) => {
       
       const res = await api.post('/auth/verify-otp', { 
         phone: formattedPhone, 
-        otp, 
+        otp,
+        isSignup,
         name, 
         email 
       });
@@ -96,7 +97,7 @@ export const AuthProvider = ({ children }) => {
         style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
         iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
       });
-    } catch (error) {
+    } catch {
       // Fallback: update locally
       setUser(prev => ({ ...prev, ...updates }));
       toast.success('Profile updated', {
@@ -112,7 +113,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        user, requestOtp, verifyOtp, logout, updateProfile, isAdmin, isAuthenticated,
+        user, setUser, requestOtp, verifyOtp, logout, updateProfile, isAdmin, isAuthenticated,
         isAuthModalOpen, openAuthModal, closeAuthModal, loading,
       }}
     >

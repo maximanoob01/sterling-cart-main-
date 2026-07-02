@@ -255,6 +255,46 @@ export default function GiftingPage() {
             if (verifyData.success) {
               toast.success('Gift card purchased successfully!');
               setGeneratedGiftCard(verifyData.giftCard);
+              
+              // Add to local mock orders for admin panel visibility
+              try {
+                const savedOrders = JSON.parse(localStorage.getItem('sterling_orders') || '[]');
+                const newOrder = {
+                  id: `SC-GC-${Date.now().toString().slice(-6)}`,
+                  customerId: user?.id || 999,
+                  customerName: user?.name || user?.firstName || 'Guest',
+                  customerEmail: user?.email || '',
+                  customerPhone: user?.phone || '',
+                  date: new Date().toISOString().split('T')[0],
+                  items: [
+                    { 
+                      productId: 'GC-001', 
+                      name: 'Digital Gift Card', 
+                      size: null, 
+                      qty: 1, 
+                      price: giftCardAmount, 
+                      image: 'https://images.unsplash.com/photo-1622180203374-9524a54b734d?auto=format&fit=crop&q=80&w=200' 
+                    }
+                  ],
+                  subtotal: giftCardAmount,
+                  shipping: 0,
+                  discount: 0,
+                  gst: 0,
+                  total: giftCardAmount,
+                  couponCode: null,
+                  paymentMethod: 'Online Payment',
+                  status: 'Delivered', // digital delivery is instant
+                  shippingAddress: null,
+                  timeline: [
+                    { status: 'Order Placed', date: new Date().toISOString() },
+                    { status: 'Delivered', date: new Date().toISOString() }
+                  ]
+                };
+                // Prepend the new order so it shows at the top
+                localStorage.setItem('sterling_orders', JSON.stringify([newOrder, ...savedOrders]));
+              } catch (e) {
+                console.error('Failed to sync gift card to mock orders', e);
+              }
             } else {
               toast.error(verifyData.error || 'Verification failed');
             }

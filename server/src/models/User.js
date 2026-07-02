@@ -22,6 +22,11 @@ User.init({
     type: DataTypes.STRING,
     defaultValue: ''
   },
+  adminLoginId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
+  },
 
   role: {
     type: DataTypes.ENUM('user', 'admin'),

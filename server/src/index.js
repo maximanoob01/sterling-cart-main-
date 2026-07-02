@@ -1,11 +1,11 @@
 import 'dotenv/config';
+import process from 'node:process';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 import connectDB from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
@@ -24,12 +24,10 @@ import paymentRoutes from './routes/payments.js';
 import uploadRoutes from './routes/upload.js';
 import customOrderRoutes from './routes/customOrders.js';
 import giftCardRoutes from './routes/giftCards.js';
+import settingsRoutes from './routes/settings.js';
 
 // Init Cron Jobs
 import './jobs/cronJobs.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -56,6 +54,14 @@ app.use('/api/', limiter);
 const uploadDir = process.env.UPLOAD_DIR || './uploads';
 app.use('/uploads', express.static(path.resolve(uploadDir)));
 
+const addColumnIfMissing = async (tableName, columnName, dataType) => {
+  try {
+    await sequelize.query(`ALTER TABLE \`${tableName}\` ADD COLUMN \`${columnName}\` ${dataType};`);
+  } catch (error) {
+    if (!error.message?.includes('duplicate column name')) throw error;
+  }
+};
+
 // ─── API Routes ──────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -69,6 +75,7 @@ app.use('/api/transaction', paymentRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/custom-orders', customOrderRoutes);
 app.use('/api/gift-cards', giftCardRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -82,6 +89,7 @@ app.use(errorHandler);
 const startServer = async () => {
   await connectDB();
   await sequelize.sync(); // Create tables if they don't exist
+  await addColumnIfMissing('users', 'adminLoginId', 'VARCHAR(255)');
 
   app.listen(PORT, () => {
     console.log(`\n🚀 Sterling Kart API running on http://localhost:${PORT}`);

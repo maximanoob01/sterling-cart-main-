@@ -11,11 +11,10 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, BarChart, Bar, Legend
 } from 'recharts';
-import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useProducts } from '../context/ProductContext';
 import { categories } from '../data/products';
-import { mockOrders, mockCustomers, revenueData } from '../data/orders';
+import api from '../services/api';
 import { formatPrice } from '../utils/formatPrice';
 import { generateInvoice } from '../utils/generateInvoice';
 import toast from 'react-hot-toast';
@@ -44,6 +43,73 @@ const EMPTY_PRODUCT = {
   metal: '925 Sterling Silver', stoneType: 'No Stone',
   occasion: 'everyday', style: 'minimalist',
   images: [], imagePreviewUrls: [],
+};
+
+const ORDER_STATUSES = ['Order Placed', 'Order Confirmed', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered'];
+
+const getInitials = (name = '') => {
+  const initials = name.trim().split(/\s+/).filter(Boolean).map(part => part[0]).join('');
+  return (initials || 'C').slice(0, 2).toUpperCase();
+};
+
+const normalizeOrder = (order) => {
+  const dateValue = order.createdAt || order.date || new Date().toISOString();
+  const status = order.orderStatus || order.status || 'Pending';
+  const timeline = Array.isArray(order.timeline) && order.timeline.length
+    ? order.timeline
+    : ORDER_STATUSES.map((step, index) => ({
+        status: step,
+        completed: index <= (status === 'Confirmed' ? 1 : ORDER_STATUSES.indexOf(status)),
+        date: index <= (status === 'Confirmed' ? 1 : ORDER_STATUSES.indexOf(status)) ? dateValue : null,
+      }));
+
+  return {
+    ...order,
+    id: order.orderId || order.id,
+    dbId: order.id,
+    date: new Date(dateValue).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+    rawDate: dateValue,
+    status,
+    total: Number(order.totalAmount ?? order.total ?? 0),
+    subtotal: Number(order.subtotal ?? 0),
+    shipping: Number(order.shipping ?? 0),
+    discount: Number(order.discount ?? 0),
+    gst: Number(order.gst ?? 0),
+    customerName: order.customerName || 'Customer',
+    customerEmail: order.customerEmail || '',
+    customerPhone: order.customerPhone || '',
+    paymentMethod: order.paymentMethod || '-',
+    items: Array.isArray(order.items) ? order.items : [],
+    timeline,
+  };
+};
+
+const normalizeCustomer = (customer) => ({
+  ...customer,
+  name: customer.name || 'Customer',
+  email: customer.email || '',
+  phone: customer.phone || '',
+  totalOrders: Number(customer.orderCount ?? customer.totalOrders ?? 0),
+  totalSpend: Number(customer.totalSpent ?? customer.totalSpend ?? 0),
+  joinedDate: customer.createdAt || customer.joinedDate || new Date().toISOString(),
+});
+
+const buildRevenueData = (orders) => {
+  const byDate = new Map();
+  orders
+    .filter(order => order.status !== 'Cancelled')
+    .forEach(order => {
+      const key = new Date(order.rawDate || order.date).toISOString().slice(0, 10);
+      byDate.set(key, (byDate.get(key) || 0) + order.total);
+    });
+
+  return Array.from(byDate.entries())
+    .sort(([a], [b]) => new Date(a) - new Date(b))
+    .slice(-30)
+    .map(([date, revenue]) => ({
+      date: new Date(date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+      revenue,
+    }));
 };
 
 // ─── Helper: status badge ──────────────────────────────────────────────────────
@@ -112,10 +178,10 @@ function OrderDetailPanel({ order, onClose }) {
         <div class="section">
           <div class="section-title">Bill To</div>
           <div class="address-block">
-            <strong>${addr.fullName}</strong><br>
+            ${addr ? `<strong>${addr.fullName}</strong><br>
             ${addr.addressLine1}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}<br>
             ${addr.city}, ${addr.state} — ${addr.pincode}<br>
-            ${addr.landmark ? 'Landmark: ' + addr.landmark + '<br>' : ''}
+            ${addr.landmark ? 'Landmark: ' + addr.landmark + '<br>' : ''}` : `<strong>${order.customerName}</strong><br>`}
             Phone: ${order.customerPhone}<br>
             Email: ${order.customerEmail}
           </div>
@@ -123,9 +189,9 @@ function OrderDetailPanel({ order, onClose }) {
         <div class="section">
           <div class="section-title">Shipped To</div>
           <div class="address-block">
-            <strong>${addr.fullName}</strong><br>
+            ${addr ? `<strong>${addr.fullName}</strong><br>
             ${addr.addressLine1}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}<br>
-            ${addr.city}, ${addr.state} — ${addr.pincode}
+            ${addr.city}, ${addr.state} — ${addr.pincode}` : '<em>Digital Delivery / N/A</em>'}
             ${order.trackingNumber ? '<br><br><strong>Tracking:</strong> ' + order.trackingNumber + '<br><strong>Courier:</strong> ' + order.courierName : ''}
           </div>
         </div>
@@ -226,10 +292,16 @@ function OrderDetailPanel({ order, onClose }) {
             <div className="flex gap-2">
               <MapPin size={14} className="text-[#D4527A] shrink-0 mt-0.5" />
               <div className="font-sans text-[13px] text-text-main leading-relaxed">
-                <p className="font-semibold">{addr.fullName}</p>
-                <p>{addr.addressLine1}{addr.addressLine2 ? ', ' + addr.addressLine2 : ''}</p>
-                <p>{addr.city}, {addr.state} — {addr.pincode}</p>
-                {addr.landmark && <p className="text-text-muted text-[12px]">📍 {addr.landmark}</p>}
+                {addr ? (
+                  <>
+                    <p className="font-semibold">{addr.fullName}</p>
+                    <p>{addr.addressLine1}{addr.addressLine2 ? ', ' + addr.addressLine2 : ''}</p>
+                    <p>{addr.city}, {addr.state} — {addr.pincode}</p>
+                    {addr.landmark && <p className="text-text-muted text-[12px]">📍 {addr.landmark}</p>}
+                  </>
+                ) : (
+                  <p className="italic text-text-muted mt-0.5">Digital Delivery / Not Provided</p>
+                )}
               </div>
             </div>
           </div>
@@ -761,14 +833,16 @@ export default function AdminDashboardPage() {
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('All');
   
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('sterling_orders');
-    return saved ? JSON.parse(saved) : mockOrders;
+  const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [adminDataLoading, setAdminDataLoading] = useState(false);
+  const [settingsForm, setSettingsForm] = useState({
+    adminUserId: '',
+    adminPhone: '',
+    heroImageUrl: '',
   });
-
-  useEffect(() => {
-    localStorage.setItem('sterling_orders', JSON.stringify(orders));
-  }, [orders]);
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  const [heroUploading, setHeroUploading] = useState(false);
 
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -782,6 +856,37 @@ export default function AdminDashboardPage() {
 
   const handleMarkAllRead = () => setNotifications(n => n.map(x => ({ ...x, read: true })));
   const handleMarkRead = (id) => setNotifications(n => n.map(x => x.id === id ? { ...x, read: true } : x));
+
+  useEffect(() => {
+    if (!user || !isAdmin) return;
+
+    const fetchAdminData = async () => {
+      setAdminDataLoading(true);
+      try {
+        const [ordersRes, customersRes, settingsRes] = await Promise.all([
+          api.get('/orders/admin/all?limit=500'),
+          api.get('/admin/customers?limit=500'),
+          api.get('/admin/settings'),
+        ]);
+
+        setOrders((ordersRes.orders || []).map(normalizeOrder));
+        setCustomers((customersRes.customers || []).map(normalizeCustomer));
+        setSettingsForm(prev => ({
+          ...prev,
+          adminUserId: settingsRes.admin?.userId || '',
+          adminPhone: settingsRes.admin?.phone || '',
+          heroImageUrl: settingsRes.settings?.heroImageUrl || '',
+        }));
+      } catch (err) {
+        console.error('Failed to load admin data:', err);
+        toast.error(err.message || 'Failed to load admin data');
+      } finally {
+        setAdminDataLoading(false);
+      }
+    };
+
+    fetchAdminData();
+  }, [user, isAdmin]);
 
   // ── Redirect ────────────────────────────────────────────────────────────────
   if (!user || !isAdmin) {
@@ -801,8 +906,13 @@ export default function AdminDashboardPage() {
 
   // ── Derived analytics data ───────────────────────────────────────────────────
   const totalRevenue = orders.reduce((s, o) => s + (o.status !== 'Cancelled' ? o.total : 0), 0);
-  const revenueToday = 24890;
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const revenueToday = orders.reduce((sum, o) => {
+    const orderKey = new Date(o.rawDate || o.date).toISOString().slice(0, 10);
+    return orderKey === todayKey && o.status !== 'Cancelled' ? sum + o.total : sum;
+  }, 0);
   const pendingOrders = orders.filter(o => ['Pending', 'Confirmed', 'Packed'].includes(o.status)).length;
+  const revenueData = buildRevenueData(orders);
 
   const statusCounts = orders.reduce((acc, o) => {
     acc[o.status] = (acc[o.status] || 0) + 1;
@@ -854,8 +964,17 @@ export default function AdminDashboardPage() {
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
-    setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-    toast.success(`Order ${orderId} → ${newStatus}`);
+    const orderToUpdate = orders.find(o => o.id === orderId);
+    if (!orderToUpdate) return;
+
+    try {
+      const res = await api.put(`/orders/${orderToUpdate.orderId || orderToUpdate.id}/status`, { status: newStatus });
+      setOrders(orders.map(o => o.id === orderId ? normalizeOrder(res.order || { ...o, orderStatus: newStatus }) : o));
+      toast.success(`Order ${orderId} updated to ${newStatus}`);
+    } catch (err) {
+      toast.error(err.message || 'Failed to update order status');
+      return;
+    }
     
     if (newStatus === 'Delivered') {
       try {
@@ -865,11 +984,7 @@ export default function AdminDashboardPage() {
         toast.loading('Generating invoice...', { id: 'invoice' });
         const pdfBase64 = generateInvoice(order, null, { mode: 'datauri' });
         
-        await axios.post(
-          `http://localhost:5000/api/orders/${order.orderId || order.id}/email-invoice`,
-          { pdfBase64 },
-          { withCredentials: true }
-        );
+        await api.post(`/orders/${order.orderId || order.id}/email-invoice`, { pdfBase64 });
         toast.success('Invoice emailed to customer.', { id: 'invoice' });
       } catch (err) {
         console.error('Invoice email error:', err);
@@ -880,13 +995,13 @@ export default function AdminDashboardPage() {
 
   const handleApproveCustomOrder = async (orderId) => {
     try {
-      const { data } = await axios.post(`http://localhost:5000/api/custom-orders/${orderId}/approve`, {}, { withCredentials: true });
+      const data = await api.post(`/custom-orders/${orderId}/approve`, {});
       if (data.success) {
         setOrders(orders.map(o => o.id === orderId || o.orderId === orderId ? { ...o, status: 'Engraving' } : o));
         toast.success(`Design approved! Order moved to Engraving.`);
       }
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to approve order');
+      toast.error(err.message || 'Failed to approve order');
     }
   };
 
@@ -904,7 +1019,7 @@ export default function AdminDashboardPage() {
     }
 
     try {
-      const { data } = await axios.post(`http://localhost:5000/api/custom-orders/${rejectOrderId}/reject`, { reason: rejectReason }, { withCredentials: true });
+      const data = await api.post(`/custom-orders/${rejectOrderId}/reject`, { reason: rejectReason });
       if (data.success) {
         if (data.refunded) {
           toast.success(`Razorpay Refund Processed for ${rejectOrderId}`, { icon: '💸' });
@@ -919,7 +1034,7 @@ export default function AdminDashboardPage() {
         }
       }
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to reject order');
+      toast.error(err.message || 'Failed to reject order');
     } finally {
       setRejectModalOpen(false);
     }
@@ -944,14 +1059,81 @@ export default function AdminDashboardPage() {
     toast.success(`"${newProduct.name}" added to store!`);
   };
 
+  const handleSaveAdminProfile = async (event) => {
+    event.preventDefault();
+    setSettingsSaving(true);
+    try {
+      const payload = {
+        userId: settingsForm.adminUserId,
+        phone: settingsForm.adminPhone,
+      };
+      const res = await api.put('/admin/settings/admin-profile', payload);
+      setSettingsForm(prev => ({
+        ...prev,
+        adminUserId: res.admin?.userId || prev.adminUserId,
+        adminPhone: res.admin?.phone || prev.adminPhone,
+      }));
+      toast.success('Admin profile updated');
+    } catch (err) {
+      toast.error(err.message || 'Failed to update admin profile');
+    } finally {
+      setSettingsSaving(false);
+    }
+  };
+
+  const handleHeroImageUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setHeroUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('images', file);
+      const res = await api.upload('/upload', formData);
+      const uploaded = res.urls?.[0];
+      if (!uploaded) throw new Error('Upload failed');
+
+      const apiOrigin = api.baseUrl.replace(/\/api\/?$/, '');
+      const heroImageUrl = uploaded.startsWith('http') ? uploaded : `${apiOrigin}${uploaded}`;
+      setSettingsForm(prev => ({ ...prev, heroImageUrl }));
+      toast.success('Hero image uploaded');
+    } catch (err) {
+      toast.error(err.message || 'Failed to upload hero image');
+    } finally {
+      setHeroUploading(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleSaveHeroSettings = async (event) => {
+    event.preventDefault();
+    setSettingsSaving(true);
+    try {
+      const res = await api.put('/admin/settings/site', {
+        heroImageUrl: settingsForm.heroImageUrl,
+      });
+      setSettingsForm(prev => ({
+        ...prev,
+        heroImageUrl: res.settings?.heroImageUrl || '',
+      }));
+      toast.success('Homepage hero updated');
+    } catch (err) {
+      toast.error(err.message || 'Failed to update homepage hero');
+    } finally {
+      setSettingsSaving(false);
+    }
+  };
+
   const getStatusBadgeStyle = (status) => {
     const c = STATUS_COLORS[status] || STATUS_COLORS['Pending'];
     return { background: c.bg, color: c.text };
   };
 
   const filteredOrders = orders.filter(o => {
-    const matchSearch = o.id.toLowerCase().includes(orderSearch.toLowerCase()) ||
-      o.customerName.toLowerCase().includes(orderSearch.toLowerCase());
+    const query = orderSearch.toLowerCase();
+    const matchSearch = o.id.toLowerCase().includes(query) ||
+      o.customerName.toLowerCase().includes(query) ||
+      o.customerPhone.toLowerCase().includes(query);
     const matchStatus = orderStatusFilter === 'All' || o.status === orderStatusFilter;
     return matchSearch && matchStatus;
   });
@@ -1325,7 +1507,9 @@ export default function AdminDashboardPage() {
     <div className="bg-bg-surface rounded-[16px] shadow-product overflow-hidden">
       <div className="p-[24px] border-b border-border-main">
         <h3 className="font-serif text-[18px] font-bold text-text-main">Customers</h3>
-        <p className="font-sans text-[12px] text-text-muted mt-0.5">{mockCustomers.length} registered customers</p>
+        <p className="font-sans text-[12px] text-text-muted mt-0.5">
+          {adminDataLoading ? 'Loading customers...' : `${customers.length} registered customers`}
+        </p>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left">
@@ -1340,12 +1524,12 @@ export default function AdminDashboardPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F0F0F0]">
-            {mockCustomers.map(c => (
+            {customers.map(c => (
               <tr key={c.id} className="hover:bg-[#FAFAFA] transition-colors">
                 <td className="px-[20px] py-[14px]">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-200 to-pink-300 text-[#D4527A] flex items-center justify-center font-bold text-[13px] shrink-0">
-                      {c.name.split(' ').map(n=>n[0]).join('')}
+                      {getInitials(c.name)}
                     </div>
                     <div>
                       <p className="font-sans font-semibold text-[13px] text-text-main">{c.name}</p>
@@ -1366,6 +1550,9 @@ export default function AdminDashboardPage() {
             ))}
           </tbody>
         </table>
+        {!adminDataLoading && customers.length === 0 && (
+          <div className="py-16 text-center text-text-muted font-sans text-[14px]">No customers found</div>
+        )}
       </div>
     </div>
   );
@@ -1375,8 +1562,8 @@ export default function AdminDashboardPage() {
       {/* Summary KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <KpiCard label="Total Revenue" value={formatPrice(totalRevenue)} sub="All time" icon={<TrendingUp size={22}/>} iconBg="#FFF0F5" iconColor="#D4527A" trend={12.4}/>
-        <KpiCard label="Avg Order Value" value={formatPrice(Math.round(totalRevenue / orders.filter(o=>o.status!=='Cancelled').length))} icon={<ShoppingBag size={22}/>} iconBg="#E0F2FE" iconColor="#0369A1" trend={4.2}/>
-        <KpiCard label="Total Customers" value={mockCustomers.length} sub={`${mockCustomers.filter(c=>c.totalSpend>5000).length} VIPs`} icon={<Users size={22}/>} iconBg="#E6F4EA" iconColor="#137333" trend={18.7}/>
+        <KpiCard label="Avg Order Value" value={formatPrice(Math.round(totalRevenue / Math.max(1, orders.filter(o=>o.status!=='Cancelled').length)))} icon={<ShoppingBag size={22}/>} iconBg="#E0F2FE" iconColor="#0369A1" trend={4.2}/>
+        <KpiCard label="Total Customers" value={customers.length} sub={`${customers.filter(c=>c.totalSpend>5000).length} VIPs`} icon={<Users size={22}/>} iconBg="#E6F4EA" iconColor="#137333" trend={18.7}/>
       </div>
 
       {/* Revenue + category charts */}
@@ -1444,11 +1631,11 @@ export default function AdminDashboardPage() {
         <div className="bg-bg-surface rounded-[16px] p-6 shadow-product">
           <h3 className="font-serif text-[18px] font-bold text-text-main mb-5">Top Customers by Spend</h3>
           <div className="space-y-3">
-            {[...mockCustomers].sort((a,b) => b.totalSpend - a.totalSpend).slice(0,5).map((c,i) => (
+            {[...customers].sort((a,b) => b.totalSpend - a.totalSpend).slice(0,5).map((c,i) => (
               <div key={c.id} className="flex items-center gap-3">
                 <span className="font-bold text-[12px] text-text-muted w-4">{i+1}</span>
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-200 to-pink-300 flex items-center justify-center font-bold text-[11px] text-[#D4527A] shrink-0">
-                  {c.name.split(' ').map(n=>n[0]).join('')}
+                  {getInitials(c.name)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-sans font-medium text-[13px] text-text-main truncate">{c.name}</p>
@@ -1548,22 +1735,101 @@ export default function AdminDashboardPage() {
   );
 
   const renderSettings = () => (
-    <div className="bg-bg-surface rounded-[16px] p-6 shadow-product max-w-2xl space-y-6">
-      <h3 className="font-serif text-[20px] font-bold text-text-main">Store Settings</h3>
-      <div className="space-y-4">
-        {[
-          { label: 'Store Name', value: 'Sterling Kart' },
-          { label: 'Support Email', value: 'hello@sterlingcart.com' },
-          { label: 'Support Phone', value: '+91 99999 00000' },
-          { label: 'GST Number', value: '27AABCS1429B1ZB' },
-        ].map(({ label, value }) => (
-          <div key={label}>
-            <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">{label}</label>
-            <input type="text" defaultValue={value} className="w-full h-[42px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A] bg-[#FAFAFA]"/>
+    <div className="max-w-5xl space-y-6">
+      <form onSubmit={handleSaveAdminProfile} className="bg-bg-surface rounded-[16px] p-6 shadow-product space-y-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-[10px] bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center">
+            <Users size={18} />
           </div>
-        ))}
-        <button className="btn-primary mt-2" onClick={() => toast.success('Settings saved!')}>Save Changes</button>
-      </div>
+          <div>
+            <h3 className="font-serif text-[20px] font-bold text-text-main">Admin Account</h3>
+            <p className="font-sans text-[12px] text-text-muted">Change the admin user ID and phone number used for OTP login.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Admin User ID</label>
+            <input
+              type="text"
+              value={settingsForm.adminUserId}
+              onChange={e => setSettingsForm(prev => ({ ...prev, adminUserId: e.target.value }))}
+              className="w-full h-[42px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A] bg-[#FAFAFA]"
+              placeholder="Admin User"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Phone Number</label>
+            <input
+              type="tel"
+              value={settingsForm.adminPhone}
+              onChange={e => setSettingsForm(prev => ({ ...prev, adminPhone: e.target.value }))}
+              className="w-full h-[42px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A] bg-[#FAFAFA]"
+              placeholder="+917820095590"
+            />
+          </div>
+        </div>
+
+        <button type="submit" disabled={settingsSaving} className="btn-primary mt-1">
+          {settingsSaving ? 'Saving...' : 'Save Admin Account'}
+        </button>
+      </form>
+
+      <form onSubmit={handleSaveHeroSettings} className="bg-bg-surface rounded-[16px] p-6 shadow-product space-y-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-[10px] bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center">
+            <ImageIcon size={18} />
+          </div>
+          <div>
+            <h3 className="font-serif text-[20px] font-bold text-text-main">Homepage Hero Image</h3>
+            <p className="font-sans text-[12px] text-text-muted">Upload and publish the first hero image shown on the storefront.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
+          <div className="aspect-[4/3] rounded-[12px] overflow-hidden border border-border-main bg-[#FAFAFA]">
+            {settingsForm.heroImageUrl ? (
+              <img src={settingsForm.heroImageUrl} alt="Homepage hero preview" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-text-muted">
+                <ImageIcon size={26} />
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Hero Image URL</label>
+              <input
+                type="url"
+                value={settingsForm.heroImageUrl}
+                onChange={e => setSettingsForm(prev => ({ ...prev, heroImageUrl: e.target.value }))}
+                className="w-full h-[42px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A] bg-[#FAFAFA]"
+                placeholder="Upload an image or paste a URL"
+              />
+            </div>
+
+            <label className="inline-flex items-center gap-2 px-4 h-[38px] rounded-[10px] border border-border-main bg-white text-[13px] font-semibold text-text-main cursor-pointer hover:border-[#D4527A] hover:text-[#D4527A] transition-colors">
+              <Upload size={15} />
+              {heroUploading ? 'Uploading...' : 'Upload Hero Image'}
+              <input type="file" accept="image/*" className="hidden" onChange={handleHeroImageUpload} disabled={heroUploading} />
+            </label>
+
+            <div className="flex flex-wrap gap-3 pt-1">
+              <button type="submit" disabled={settingsSaving || heroUploading} className="btn-primary">
+                {settingsSaving ? 'Saving...' : 'Publish Hero Image'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSettingsForm(prev => ({ ...prev, heroImageUrl: '' }))}
+                className="btn-secondary"
+              >
+                Use Default Hero
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
   );
 

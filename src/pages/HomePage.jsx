@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck, Gift } from 'lucide-react';
@@ -7,11 +7,12 @@ import CircularGallery from '../components/ui/CircularGallery';
 import { categories } from '../data/products';
 import { useProducts } from '../context/ProductContext';
 import { testimonials } from '../data/orders';
-import heroLifestyle1 from '../assets/images/hero_lifestyle_1.png';
-import heroLifestyle2 from '../assets/images/hero_lifestyle_2.png';
-import heroLifestyle3 from '../assets/images/hero_lifestyle_3.png';
-import heroLifestyle4 from '../assets/images/hero_lifestyle_4.png';
-import heroLifestyle5 from '../assets/images/hero_lifestyle_5.png';
+import api from '../services/api';
+import image1 from '../assets/images/image.png';
+import image2 from '../assets/images/image copy.png';
+import image3 from '../assets/images/image copy 2.png';
+import image4 from '../assets/images/image copy 3.png';
+import image5 from '../assets/images/image copy 4.png';
 import storeVideo from '../assets/images/v1.mp4';
 import v2 from '../assets/images/v2.mp4';
 import v3 from '../assets/images/v3.mp4';
@@ -50,39 +51,39 @@ const promises = [
 
 const heroSlides = [
   {
-    image: heroLifestyle1,
-    alt: 'Woman wearing layered Sterling Kart silver necklaces and silver earrings',
-    eyebrow: 'Made to be lived in',
-    title: 'Silver jewellery, thoughtfully made.',
-    description: 'Everyday pieces in hallmarked 925 sterling silver, designed to feel personal and easy to wear.',
+    image: image1,
+    alt: 'Sterling Kart premium silver jewelry collection',
+    eyebrow: 'The New Era',
+    title: 'Elegance Redefined.',
+    description: 'Discover our latest collection of premium silver pieces that speak to your inner radiance.',
   },
   {
-    image: heroLifestyle2,
-    alt: 'Woman wearing Sterling Kart silver jhumka earrings and a delicate silver bracelet',
-    eyebrow: 'Artisan details',
-    title: 'Tradition, with a lighter touch.',
-    description: 'Discover handcrafted silver jewellery that brings a quiet glow to celebrations and everyday moments.',
+    image: image2,
+    alt: 'Timeless craftsmanship by Sterling Kart',
+    eyebrow: 'Timeless Beauty',
+    title: 'Crafted for Eternity.',
+    description: 'Every piece tells a story of unmatched craftsmanship and delicate design.',
   },
   {
-    image: heroLifestyle3,
-    alt: 'Woman wearing layered Sterling Kart silver chains and a silver ring by a window',
-    eyebrow: 'Everyday layers',
-    title: 'Silver that moves with you.',
-    description: 'Layer delicate chains, pendants and rings made to settle naturally into your everyday style.',
+    image: image3,
+    alt: 'Minimalist silver jewelry edit',
+    eyebrow: 'Minimalist Magic',
+    title: 'Simplicity is Ultimate Sophistication.',
+    description: 'Embrace the beauty of subtle luxury with our minimalist silver jewelry edit.',
   },
   {
-    image: heroLifestyle4,
-    alt: 'Woman wearing a Sterling Kart oxidized silver statement necklace and silver bangles',
-    eyebrow: 'The festive edit',
-    title: 'Make the moment unmistakably yours.',
-    description: 'Statement silver with an heirloom mood, created for evenings that call for a little more presence.',
+    image: image4,
+    alt: 'Statement silver jewelry pieces',
+    eyebrow: 'Shine Brighter',
+    title: 'Let Your Light Sparkle.',
+    description: 'Statement pieces designed to make you stand out on every special occasion.',
   },
   {
-    image: heroLifestyle5,
-    alt: 'Woman wearing a Sterling Kart silver pendant, silver bracelet and rings while holding a cup',
-    eyebrow: 'Quiet luxury',
-    title: 'Easy pieces for unhurried days.',
-    description: 'Wearable silver jewellery that feels considered, comfortable and beautifully your own.',
+    image: image5,
+    alt: 'Gifting pure 925 sterling silver',
+    eyebrow: 'Perfect Gift',
+    title: 'Expressions of Love.',
+    description: 'Gift the magic of pure 925 sterling silver to the ones who matter most.',
   },
 ];
 
@@ -203,6 +204,7 @@ export default function HomePage() {
   const [testimonialCount, setTestimonialCount] = useState(3);
   const [categorySlideIndex, setCategorySlideIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  const [heroImageOverride, setHeroImageOverride] = useState('');
 
   const heroRef = useRef(null);
   const collageRef = useRef(null);
@@ -216,6 +218,22 @@ export default function HomePage() {
   const { scrollYProgress: collageScroll } = useScroll({ target: collageRef, offset: ["start end", "end start"] });
   const ySlow = useTransform(collageScroll, [0, 1], ["-10%", "10%"]);
   const yFast = useTransform(collageScroll, [0, 1], ["-20%", "20%"]);
+  const activeHeroSlides = useMemo(() => heroImageOverride
+    ? [{ ...heroSlides[0], image: heroImageOverride }, ...heroSlides.slice(1)]
+    : heroSlides, [heroImageOverride]);
+
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      try {
+        const res = await api.get('/settings');
+        setHeroImageOverride(res.settings?.heroImageUrl || '');
+      } catch (err) {
+        console.error('Failed to load site settings:', err);
+      }
+    };
+
+    fetchSiteSettings();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -228,16 +246,16 @@ export default function HomePage() {
     if (isHeroPaused || isHeroHovered) return undefined;
 
     const timer = window.setInterval(() => {
-      setHeroIndex((currentIndex) => (currentIndex + 1) % heroSlides.length);
+      setHeroIndex((currentIndex) => (currentIndex + 1) % activeHeroSlides.length);
     }, 3500);
 
     return () => window.clearInterval(timer);
-  }, [isHeroHovered, isHeroPaused]);
+  }, [activeHeroSlides.length, isHeroHovered, isHeroPaused]);
 
   useEffect(() => {
     const nextSlideImage = new window.Image();
-    nextSlideImage.src = heroSlides[(heroIndex + 1) % heroSlides.length].image;
-  }, [heroIndex]);
+    nextSlideImage.src = activeHeroSlides[(heroIndex + 1) % activeHeroSlides.length].image;
+  }, [activeHeroSlides, heroIndex]);
 
   useEffect(() => {
     const updateCount = () => {
@@ -276,12 +294,12 @@ export default function HomePage() {
   const newArrivals = products
     .filter((product) => product.badge === 'New' || product.isNew)
     .slice(0, 12);
-  const activeHeroSlide = heroSlides[heroIndex];
+  const activeHeroSlide = activeHeroSlides[heroIndex] || activeHeroSlides[0];
   const visibleTestimonials = testimonials.slice(testimonialIndex, testimonialIndex + testimonialCount);
   const maxIndex = Math.max(0, testimonials.length - testimonialCount);
 
-  const showPreviousHero = () => setHeroIndex((currentIndex) => (currentIndex - 1 + heroSlides.length) % heroSlides.length);
-  const showNextHero = () => setHeroIndex((currentIndex) => (currentIndex + 1) % heroSlides.length);
+  const showPreviousHero = () => setHeroIndex((currentIndex) => (currentIndex - 1 + activeHeroSlides.length) % activeHeroSlides.length);
+  const showNextHero = () => setHeroIndex((currentIndex) => (currentIndex + 1) % activeHeroSlides.length);
 
   const handleSubscribe = (event) => {
     event.preventDefault();
@@ -415,7 +433,7 @@ export default function HomePage() {
 
         {/* Slide indicators + play/pause — bottom-center, dark glass */}
         <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/15 bg-black/25 px-2.5 py-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.22)] backdrop-blur-xl md:bottom-7 md:gap-2.5 md:px-4 md:py-2">
-          {heroSlides.map((slide, index) => (
+          {activeHeroSlides.map((slide, index) => (
             <button
               key={slide.image}
               type="button"
@@ -444,7 +462,7 @@ export default function HomePage() {
         <div className="absolute bottom-8 left-6 z-20 hidden md:flex items-center gap-2 pointer-events-none md:left-10">
           <span className="font-serif text-[22px] text-white/80 leading-none">{String(heroIndex + 1).padStart(2, '0')}</span>
           <div className="w-8 h-[1px] bg-white/30" />
-          <span className="text-[11px] text-white/30 font-medium">{String(heroSlides.length).padStart(2, '0')}</span>
+          <span className="text-[11px] text-white/30 font-medium">{String(activeHeroSlides.length).padStart(2, '0')}</span>
         </div>
       </section>
 

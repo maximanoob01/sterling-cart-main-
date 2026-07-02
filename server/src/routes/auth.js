@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import jwt from 'jsonwebtoken';
+import process from 'node:process';
 import { User, Address, Loyalty, LoyaltyHistory } from '../models/index.js';
 import { syncExpiredPoints } from '../services/loyaltyService.js';
 import { authenticate } from '../middleware/auth.js';
@@ -9,8 +10,13 @@ import validate from '../middleware/validate.js';
 const router = Router();
 
 // ─── GET /api/auth/me — Get current user ─────────────────────────────────────
-router.get('/me', authenticate, async (req, res) => {
-  res.json({ success: true, user: req.dbUser });
+router.get('/me', authenticate, async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.dbUser.id, {
+      include: [{ model: Address, as: 'addresses' }]
+    });
+    res.json({ success: true, user });
+  } catch (error) { next(error); }
 });
 
 // ─── PUT /api/auth/profile — Update profile ──────────────────────────────────
@@ -81,12 +87,32 @@ router.delete('/addresses/:id', authenticate, async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
-// ─── POST /api/auth/request-otp — Mock send OTP ──────────────────────────────
+// ─── POST /api/auth/request-otp — Validate phone & send OTP ─────────────────
 router.post('/request-otp', [
   body('phone').trim().notEmpty().withMessage('Phone number is required'),
+  body('isSignup').isBoolean().withMessage('isSignup flag is required'),
 ], validate, async (req, res, next) => {
   try {
-    // In a real app, send OTP via SMS here
+    const { phone, isSignup } = req.body;
+
+    const existingUser = await User.findOne({ where: { phone } });
+
+    if (isSignup && existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'An account with this phone number already exists. Please sign in instead.',
+      });
+    }
+
+    if (!isSignup && !existingUser) {
+      return res.status(404).json({
+        success: false,
+        error: 'No account found with this phone number. Please sign up first.',
+      });
+    }
+
+    // In production: send real OTP via SMS provider here
+    // For dev: OTP is always 1234
     res.json({ success: true, message: 'OTP sent successfully' });
   } catch (error) { next(error); }
 });
@@ -97,26 +123,41 @@ router.post('/verify-otp', [
   body('otp').trim().notEmpty().withMessage('OTP is required'),
 ], validate, async (req, res, next) => {
   try {
-    const { phone, otp, name, email } = req.body;
+    const { phone, otp, isSignup, name, email } = req.body;
 
     // Hardcoded check for "1234" as per user instruction
     if (otp !== '1234') {
       return res.status(400).json({ success: false, error: 'Invalid OTP' });
     }
 
-    // Find or create user
     let user = await User.findOne({ where: { phone } });
     let isNewUser = false;
 
-    if (!user) {
-      user = await User.create({
-        phone,
-        name: name || '',
-        email: email || '',
-        role: 'user',
-      });
+    if (isSignup) {
+      // Signup: user must NOT exist
+      if (user) {
+        return res.status(400).json({
+          success: false,
+          error: 'An account with this phone number already exists. Please sign in.',
+        });
+      }
+      if (!name || !email) {
+        return res.status(400).json({
+          success: false,
+          error: 'Name and email are required to create an account.',
+        });
+      }
+      user = await User.create({ phone, name, email, role: 'user' });
       isNewUser = true;
     } else {
+      // Login: user MUST exist
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: 'No account found with this phone number. Please sign up first.',
+        });
+      }
+      // Optionally fill in missing profile fields if provided
       let updated = false;
       if (name && !user.name) { user.name = name; updated = true; }
       if (email && !user.email) { user.email = email; updated = true; }
@@ -161,7 +202,7 @@ router.post('/verify-otp', [
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
-    await user.reload();
+    await user.reload({ include: [{ model: Address, as: 'addresses' }] });
     res.json({ success: true, token, user, loyaltyBalance: loyalty.balance, isNewUser });
   } catch (error) { next(error); }
 });

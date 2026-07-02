@@ -92,6 +92,7 @@ const LoyaltyBalancePill = () => {
 /* ==================== ORDERS TAB ==================== */
 const OrderCard = ({ order }) => {
   const { user } = useAuth();
+  const { products } = useProducts();
   const [isExpanded, setIsExpanded] = useState(false);
   const totalItems = order.items.reduce((acc, item) => acc + item.qty, 0);
 
@@ -193,7 +194,7 @@ const OrdersTab = () => {
             id: o.orderId,
             status: o.orderStatus,
             date: o.createdAt,
-            total: o.totalAmount,
+            total: o.totalAmount || 0,
             trackingNumber: o.trackingNumber,
             items: o.items.map(i => ({
               productId: i.productId,
@@ -420,7 +421,7 @@ const MailIcon = ({ size, className }) => <svg xmlns="http://www.w3.org/2000/svg
 
 /* ==================== ADDRESSES TAB ==================== */
 const AddressesTab = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, setUser } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({
@@ -441,30 +442,43 @@ const AddressesTab = () => {
     setShowForm(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.fullName || !form.addressLine1 || !form.city || !form.state || !form.pincode) {
       toast.error('Please fill all required fields');
       return;
     }
 
-    let newAddresses;
-    if (editingId) {
-      newAddresses = addresses.map(a => (a.id === editingId ? { ...form, id: editingId } : a));
-      toast.success('Address updated!', { style: { background: '#FFF0F5', color: '#2D2D2D' }, iconTheme: { primary: '#F4A0B0', secondary: '#FFF' } });
-    } else {
-      const newAddr = { ...form, id: Date.now(), isDefault: addresses.length === 0 };
-      newAddresses = [...addresses, newAddr];
-      toast.success('Address added!', { style: { background: '#FFF0F5', color: '#2D2D2D' }, iconTheme: { primary: '#F4A0B0', secondary: '#FFF' } });
+    try {
+      if (editingId) {
+        const res = await api.put('/auth/addresses/' + editingId, form);
+        if (res.success) {
+          setUser({ ...user, addresses: res.addresses });
+          toast.success('Address updated!', { style: { background: '#FFF0F5', color: '#2D2D2D' }, iconTheme: { primary: '#F4A0B0', secondary: '#FFF' } });
+        }
+      } else {
+        const res = await api.post('/auth/addresses', { ...form, isDefault: addresses.length === 0 });
+        if (res.success) {
+          setUser({ ...user, addresses: res.addresses });
+          toast.success('Address added!', { style: { background: '#FFF0F5', color: '#2D2D2D' }, iconTheme: { primary: '#F4A0B0', secondary: '#FFF' } });
+        }
+      }
+      resetForm();
+    } catch (err) {
+      toast.error(err.message || 'Failed to save address');
     }
-    updateProfile({ addresses: newAddresses });
-    resetForm();
   };
 
-  const handleDelete = (id) => {
-    const newAddresses = addresses.filter(a => a.id !== id);
-    updateProfile({ addresses: newAddresses });
-    toast.success('Address removed');
+  const handleDelete = async (id) => {
+    try {
+      const res = await api.delete('/auth/addresses/' + id);
+      if (res.success) {
+        setUser({ ...user, addresses: res.addresses });
+        toast.success('Address removed');
+      }
+    } catch (err) {
+      toast.error(err.message || 'Failed to remove address');
+    }
   };
 
   return (
@@ -763,7 +777,7 @@ const GiftCardsTab = () => {
   const fetchGiftCards = async () => {
     try {
       const res = await api.get('/gift-cards/mine');
-      setGiftCards(res.data.giftCards || []);
+      setGiftCards(res.giftCards || []);
     } catch (err) {
       toast.error('Failed to load gift cards');
     } finally {
@@ -814,52 +828,63 @@ const GiftCardsTab = () => {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
           {giftCards.map(gc => (
-            <motion.div key={gc.id} variants={fadeUpItem} className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-sm">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <p className="text-sm text-silver-500 font-bold uppercase tracking-wider mb-1">Value</p>
-                  <p className="font-serif text-2xl text-charcoal">₹{gc.originalValue}</p>
-                </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                  gc.status === 'active' ? 'bg-green-100 text-green-700' :
-                  gc.status === 'expired' ? 'bg-red-100 text-red-700' :
-                  'bg-yellow-100 text-yellow-700'
-                }`}>
-                  {gc.status}
-                </div>
-              </div>
+            <motion.div key={gc.id} variants={fadeUpItem} className="relative overflow-hidden rounded-[20px] shadow-[0_8px_30px_rgba(212,82,122,0.15)] group transition-transform hover:-translate-y-1">
+              {/* Card Background Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A24] to-[#2D2D3D] z-0"></div>
               
-              <div className="bg-[#FFF0F5] border border-[#F4A0B0]/30 rounded-xl p-4 mb-4">
-                <p className="text-[11px] text-[#D4527A] font-bold uppercase tracking-widest mb-1">Gift Card Code</p>
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-mono text-lg font-semibold text-charcoal tracking-widest">{gc.maskedCode}</p>
-                  <button onClick={() => handleRequestReveal(gc.id)} className="text-[11px] bg-white text-[#D4527A] px-2 py-1 rounded shadow-sm border border-[#F4A0B0]/40 hover:bg-[#D4527A] hover:text-white transition-colors">
+              {/* Premium overlay pattern */}
+              <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] z-0"></div>
+              
+              <div className="relative z-10 p-4 sm:p-5 flex flex-col h-full text-white/90">
+                {/* Header: Value & Status */}
+                <div className="flex justify-between items-start mb-5">
+                  <div>
+                    <p className="text-[10px] text-[#F4A0B0] font-bold uppercase tracking-widest mb-0.5 opacity-80">Value</p>
+                    <p className="font-serif text-2xl text-white">₹{gc.originalValue}</p>
+                  </div>
+                  <div className={`px-2.5 py-1 rounded border text-[10px] font-bold uppercase tracking-widest ${
+                    gc.status === 'active' ? 'bg-[#25D366]/20 border-[#25D366]/30 text-[#4ADE80]' :
+                    gc.status === 'expired' ? 'bg-red-500/20 border-red-500/30 text-red-400' :
+                    'bg-yellow-500/20 border-yellow-500/30 text-yellow-400'
+                  }`}>
+                    {gc.status}
+                  </div>
+                </div>
+                
+                {/* Code Box */}
+                <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-3 mb-4 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[9px] text-[#F4A0B0] uppercase tracking-widest mb-1 opacity-80">Gift Card Code</p>
+                    <p className="font-mono text-sm sm:text-base font-medium text-white tracking-widest truncate">{gc.maskedCode}</p>
+                  </div>
+                  <button onClick={() => handleRequestReveal(gc.id)} className="shrink-0 text-[10px] bg-[#D4527A] hover:bg-[#B33F62] text-white px-2.5 py-1.5 rounded-lg font-bold uppercase tracking-wider transition-colors shadow-sm">
                     Reveal
                   </button>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between text-sm">
-                <div>
-                  <p className="text-silver-500 text-xs">Balance</p>
-                  <p className="font-bold text-charcoal">₹{gc.remainingBalance}</p>
+                {/* Footer: Balance & Expiry */}
+                <div className="flex items-center justify-between mt-auto mb-2">
+                  <div>
+                    <p className="text-[10px] text-white/50 uppercase tracking-wider mb-0.5">Balance</p>
+                    <p className="text-sm font-semibold text-white">₹{gc.remainingBalance}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-white/50 uppercase tracking-wider mb-0.5">Expires</p>
+                    <p className="text-sm font-semibold text-white">{new Date(gc.expiresAt).toLocaleDateString()}</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-silver-500 text-xs">Expires</p>
-                  <p className="font-bold text-charcoal">{new Date(gc.expiresAt).toLocaleDateString()}</p>
-                </div>
-              </div>
 
-              {gc.status !== 'exhausted' && (
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Here's your Sterling Kart gift card worth ₹${gc.originalValue}. Valid till ${new Date(gc.expiresAt).toLocaleDateString()}. Code: (Check your email/profile). Shop at sterlingkart.com`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 w-full flex items-center justify-center gap-2 bg-[#25D366]/10 text-[#1DA851] py-2 rounded-xl font-bold text-sm hover:bg-[#25D366]/20 transition-colors"
-                >
-                  <Share2 size={16} /> Share Details via WhatsApp
-                </a>
-              )}
+                {gc.status !== 'exhausted' && (
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`Here's your Sterling Kart gift card worth ₹${gc.originalValue}. Valid till ${new Date(gc.expiresAt).toLocaleDateString()}. Code: (Check your email/profile). Shop at sterlingkart.com`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 w-full flex items-center justify-center gap-1.5 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#4ADE80] border border-[#25D366]/20 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-colors"
+                  >
+                    <Share2 size={13} /> Share Details via WhatsApp
+                  </a>
+                )}
+              </div>
             </motion.div>
           ))}
         </div>

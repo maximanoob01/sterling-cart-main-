@@ -596,8 +596,8 @@ export default function ProductDetailPage() {
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><Shield size={16} strokeWidth={1.5} /></div>
-                <p className="text-[9px] font-semibold text-[#B94B68] uppercase tracking-wide leading-tight mb-1">One year<br/>Promise</p>
-                <p className="text-[9px] text-text-muted leading-[1.2]">Warranty & Premium<br/>Care</p>
+                <p className="text-[9px] font-semibold text-[#B94B68] uppercase tracking-wide leading-tight mb-1">15 Days<br/>Exchange</p>
+                <p className="text-[9px] text-text-muted leading-[1.2]">Hassle-free<br/>Exchange Policy</p>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center mb-2"><Heart size={16} strokeWidth={1.5} /></div>

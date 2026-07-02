@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
+import { Op } from 'sequelize';
 import { Order, OrderItem, OrderTimeline, Product, Loyalty, LoyaltyHistory, Coupon, GiftCard, GiftCardTransaction, sequelize } from '../models/index.js';
 import { authenticate, requireAdmin, optionalAuth } from '../middleware/auth.js';
 import crypto from 'crypto';
@@ -11,6 +12,17 @@ import {
 } from '../config/constants.js';
 
 const router = Router();
+
+const TIMELINE_ORDER = {
+  'Order Placed': 1,
+  'Confirmed': 2,
+  'Engraving': 3,
+  'Packed': 4,
+  'Shipped': 5,
+  'Out for Delivery': 6,
+  'Delivered': 7,
+  'Cancelled': 99
+};
 
 // ─── POST /api/orders — Create order ─────────────────────────────────────────
 router.post('/', optionalAuth, [
@@ -221,11 +233,16 @@ router.post('/', optionalAuth, [
   }
 });
 
-// ─── GET /api/orders — User's orders ─────────────────────────────────────────
+// ─── GET /api/orders — Get user's orders ─────────────────────────────────────
 router.get('/', authenticate, async (req, res, next) => {
   try {
     const orders = await Order.findAll({
-      where: { userId: req.dbUser.id },
+      where: { 
+        [Op.or]: [
+          { userId: req.dbUser.id },
+          { customerPhone: { [Op.like]: `%${req.dbUser.phone.slice(-10)}%` } }
+        ]
+      },
       order: [['createdAt', 'DESC']],
       include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }]
     });
@@ -313,7 +330,13 @@ router.get('/admin/all', authenticate, requireAdmin, async (req, res, next) => {
       order: [['createdAt', 'DESC']],
       limit: limitNum,
       offset,
-      include: [{ model: OrderItem, as: 'items' }]
+      include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }]
+    });
+
+    orders.forEach(o => {
+      if (o.timeline) {
+        o.timeline.sort((a, b) => (TIMELINE_ORDER[a.status] || 99) - (TIMELINE_ORDER[b.status] || 99));
+      }
     });
 
     res.json({
@@ -433,7 +456,10 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
     }
 
     await t.commit();
-    await order.reload(); // Refresh to get updated timeline
+    await order.reload({ include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }] });
+    if (order.timeline) {
+      order.timeline.sort((a, b) => (TIMELINE_ORDER[a.status] || 99) - (TIMELINE_ORDER[b.status] || 99));
+    }
     res.json({ success: true, order });
   } catch (error) {
     await t.rollback();

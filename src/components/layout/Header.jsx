@@ -199,7 +199,7 @@ export default function Header() {
             ? `fixed top-0 left-0 right-0 ${
                 isScrolled
                   ? 'bg-[#1E0912]/92 backdrop-blur-2xl shadow-[0_4px_40px_rgba(212,82,122,0.22)] border-b border-[#D4527A]/25'
-                  : 'bg-transparent'
+                  : 'bg-transparent lg:bg-gradient-to-b lg:from-black/55 lg:to-black/20 lg:backdrop-blur-sm border-b border-transparent lg:border-white/10'
               }`
             : 'sticky top-0 bg-[#1E0912]/96 backdrop-blur-2xl shadow-[0_4px_40px_rgba(212,82,122,0.18)] border-b border-[#D4527A]/20'
         }`}
@@ -353,12 +353,13 @@ export default function Header() {
 
         {/* Bottom Nav Bar */}
         <nav
-        className={`hidden border-t lg:block transition-colors duration-700 ${
+        className={`hidden lg:block transition-colors duration-700 ${
             isHeroPage && !isScrolled
-              ? 'border-white/10 bg-transparent'
-              : 'border-[#D4527A]/20 bg-[#1E0912]/92 backdrop-blur-xl'
+              ? 'bg-transparent'
+              : 'border-t border-[#D4527A]/20 bg-[#1E0912]/92 backdrop-blur-xl'
           }`}
           onMouseLeave={() => setActiveDropdown(null)}
+          style={isHeroPage && !isScrolled ? { background: 'transparent' } : {}}
         >
           <div className="mx-auto flex min-h-[48px] max-w-[1420px] items-center justify-between gap-5 px-8">
             <div className="flex items-center gap-1 xl:gap-3">
@@ -393,10 +394,34 @@ export default function Header() {
               </div>
               <Link
                 to="/personalise"
-                className={`flex items-center gap-1 px-3 py-4 text-[12px] font-semibold tracking-[0.5px] transition-all duration-200 xl:text-[13px] ${
-                  isHeroPage && !isScrolled ? 'text-[#F4A0B0]/80 hover:text-[#F4A0B0]' : 'text-[#D4527A]/80 hover:text-[#D4527A]'
+                className={`relative flex items-center gap-1 px-3 py-4 text-[12px] font-semibold tracking-[0.5px] transition-all duration-200 xl:text-[13px] overflow-hidden group ${
+                  isHeroPage && !isScrolled ? 'text-[#F4A0B0] hover:text-white' : 'text-[#D4527A] hover:text-[#B94B68]'
                 }`}
-              >Personalise</Link>
+              >
+                {/* Animated glow pill behind text */}
+                <motion.span
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+                  className={`absolute inset-x-1 inset-y-2.5 rounded-full blur-[10px] pointer-events-none ${
+                    isHeroPage && !isScrolled ? 'bg-[#F4A0B0]/25' : 'bg-[#D4527A]/20'
+                  }`}
+                />
+                {/* Shimmer sweep */}
+                <motion.span
+                  animate={{ x: ['-120%', '220%'] }}
+                  transition={{ duration: 2.0, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
+                  className="absolute inset-y-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none"
+                />
+                {/* Sparkling dot */}
+                <motion.span
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                  className={`relative z-10 mr-0.5 h-1.5 w-1.5 rounded-full ${
+                    isHeroPage && !isScrolled ? 'bg-[#F4A0B0]' : 'bg-[#D4527A]'
+                  }`}
+                />
+                <span className="relative z-10">Personalise</span>
+              </Link>
               <div onMouseEnter={() => setActiveDropdown('Offers')}>
                 <Link
                   to="/shop?badge=Bestseller"
@@ -797,11 +822,11 @@ function ProductSearch({ query, setQuery, navigate, onClose, autoFocus = false, 
         onSubmit={submitSearch}
         className={`flex h-[42px] items-center gap-2 rounded-full px-4 transition-all duration-300 ${
           heroMode
-            ? 'border border-white/25 bg-white/10 backdrop-blur-md focus-within:border-white/50 focus-within:bg-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.15)]'
+            ? 'border border-white/35 bg-white/15 backdrop-blur-xl focus-within:border-white/60 focus-within:bg-white/22 shadow-[0_2px_16px_rgba(0,0,0,0.35)]'
             : 'border border-[#E5DFDC] bg-[#FAF8F7] focus-within:border-[#D9909F] focus-within:bg-bg-surface focus-within:shadow-[0_0_0_3px_rgba(217,144,159,0.12)]'
         }`}
       >
-        <Search size={16} className={`shrink-0 ${heroMode ? 'text-white/60' : 'text-[#A8A8A8]'}`} />
+        <Search size={16} className={`shrink-0 ${heroMode ? 'text-white/70' : 'text-[#A8A8A8]'}`} />
         <input
           value={query}
           onChange={(event) => {
@@ -811,51 +836,108 @@ function ProductSearch({ query, setQuery, navigate, onClose, autoFocus = false, 
           onFocus={() => setShowSuggestions(true)}
           placeholder="Search rings, earrings, necklaces..."
           className={`min-w-0 flex-1 border-none bg-transparent text-[13px] outline-none ${
-            heroMode ? 'text-white placeholder:text-white/40' : 'text-text-main placeholder:text-text-muted'
+            heroMode ? 'text-white placeholder:text-white/50' : 'text-text-main placeholder:text-text-muted'
           }`}
           autoFocus={autoFocus}
           aria-label="Search products"
         />
-        {query && <button type="button" onClick={() => setQuery('')} className={heroMode ? 'text-white/50 hover:text-white' : 'text-text-muted hover:text-text-main'} aria-label="Clear search"><X size={15} /></button>}
+        {query && <button type="button" onClick={() => setQuery('')} className={heroMode ? 'text-white/60 hover:text-white' : 'text-text-muted hover:text-text-main'} aria-label="Clear search"><X size={15} /></button>}
       </form>
 
       <AnimatePresence>
         {showSuggestions && (
           <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 5 }}
-            className="absolute left-0 right-0 top-[calc(100%+10px)] z-[80] overflow-hidden rounded-2xl border border-border-main bg-bg-surface shadow-modal"
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
+            className={`absolute left-0 right-0 top-[calc(100%+12px)] z-[80] overflow-hidden rounded-2xl ${
+              heroMode
+                ? 'border border-white/15 bg-[#0f0a0c]/80 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)]'
+                : 'border border-border-main bg-bg-surface shadow-[0_8px_40px_rgba(0,0,0,0.12)]'
+            }`}
           >
-            <div className="flex items-center justify-between border-b border-[#F0ECEA] px-4 py-3">
-              <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[1px] text-[#B94B68]">
-                {!normalizedQuery && <TrendingUp size={14} />}
+            {/* Header row */}
+            <div className={`flex items-center justify-between px-4 py-3 border-b ${
+              heroMode ? 'border-white/10' : 'border-[#F0ECEA]'
+            }`}>
+              <p className={`flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[1.2px] ${
+                heroMode ? 'text-[#F4A0B0]' : 'text-[#B94B68]'
+              }`}>
+                {!normalizedQuery && <TrendingUp size={13} />}
                 {normalizedQuery ? 'Suggestions' : 'Trending products'}
               </p>
-              {normalizedQuery && <span className="text-[11px] text-text-muted">{suggestions.length} found</span>}
+              {normalizedQuery && (
+                <span className={`text-[11px] ${heroMode ? 'text-white/40' : 'text-text-muted'}`}>
+                  {suggestions.length} found
+                </span>
+              )}
             </div>
+
+            {/* Product list */}
             {suggestions.length > 0 ? (
-              <div className="max-h-[370px] overflow-y-auto p-2">
+              <div className="max-h-[340px] overflow-y-auto p-2">
                 {suggestions.map((product) => (
-                  <button key={product.id} type="button" onClick={() => openProduct(product.slug)} className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-pink-50">
-                    <img src={product.images[0]} alt="" className="h-12 w-12 shrink-0 rounded-lg bg-bg-alt object-cover" />
+                  <button
+                    key={product.id}
+                    type="button"
+                    onClick={() => openProduct(product.slug)}
+                    className={`group flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition-all duration-200 ${
+                      heroMode
+                        ? 'hover:bg-white/8 hover:backdrop-blur-sm'
+                        : 'hover:bg-[#FFF0F5]'
+                    }`}
+                  >
+                    <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-lg ${
+                      heroMode ? 'ring-1 ring-white/10' : 'ring-1 ring-black/5'
+                    }`}>
+                      <img
+                        src={product.images[0]}
+                        alt=""
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-medium text-text-main">{product.name}</span>
-                      <span className="mt-0.5 block text-[11px] capitalize text-text-muted">{product.category}</span>
+                      <span className={`block truncate text-[13px] font-medium ${
+                        heroMode ? 'text-white/90' : 'text-text-main'
+                      }`}>{product.name}</span>
+                      <span className={`mt-0.5 block text-[11px] capitalize ${
+                        heroMode ? 'text-white/40' : 'text-text-muted'
+                      }`}>{product.category}</span>
                     </span>
-                    <span className="text-[12px] font-semibold text-text-main">{formatPrice(product.price)}</span>
+                    <span className={`shrink-0 text-[12px] font-semibold ${
+                      heroMode ? 'text-[#F4A0B0]' : 'text-text-main'
+                    }`}>{formatPrice(product.price)}</span>
                   </button>
                 ))}
               </div>
             ) : (
               <div className="px-4 py-6 text-center">
-                <p className="text-[13px] text-[#666]">No matching jewellery found.</p>
-                <button type="button" onClick={submitSearch} className="mt-2 text-[12px] font-semibold text-[#B94B68]">Search all products</button>
+                <p className={`text-[13px] ${heroMode ? 'text-white/50' : 'text-[#666]'}`}>
+                  No matching jewellery found.
+                </p>
+                <button
+                  type="button"
+                  onClick={submitSearch}
+                  className={`mt-2 text-[12px] font-semibold ${heroMode ? 'text-[#F4A0B0] hover:text-white' : 'text-[#B94B68]'}`}
+                >
+                  Search all products
+                </button>
               </div>
             )}
+
+            {/* View all footer */}
             {normalizedQuery && suggestions.length > 0 && (
-              <button type="button" onClick={submitSearch} className="flex w-full items-center justify-center gap-2 border-t border-[#F0ECEA] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.8px] text-[#B94B68] hover:bg-pink-50">
-                View all results for "{query.trim()}"
+              <button
+                type="button"
+                onClick={submitSearch}
+                className={`flex w-full items-center justify-center gap-2 border-t px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.8px] transition-colors ${
+                  heroMode
+                    ? 'border-white/10 text-[#F4A0B0] hover:bg-white/5 hover:text-white'
+                    : 'border-[#F0ECEA] text-[#B94B68] hover:bg-pink-50'
+                }`}
+              >
+                View all results for &ldquo;{query.trim()}&rdquo; <ArrowRight size={13} />
               </button>
             )}
           </motion.div>

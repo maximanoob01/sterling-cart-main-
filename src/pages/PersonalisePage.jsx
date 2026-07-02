@@ -31,7 +31,7 @@ const faqs = [
   },
   {
     q: 'What happens if my design is rejected?',
-    a: "You'll get a WhatsApp message by 6pm with the exact reason and a link to resubmit. You get one free resubmission within 48 hours. If the second design also can't be engraved, your order is cancelled and fully refunded.",
+    a: "If your design cannot be engraved, you will receive a message within 24 hours with the exact reason along with a resubmission link. Alternatively, our team will contact you directly to assist you through the process.",
   },
   {
     q: 'Can I submit a photo?',
@@ -42,8 +42,8 @@ const faqs = [
     a: 'Submit before 6pm and your design is reviewed same business day. Engraving is done the next business day — so total dispatch time is 2 business days from order. Delivery takes 3–5 business days after dispatch via Shiprocket.',
   },
   {
-    q: 'Is the ₹250 engraving fee refundable?',
-    a: 'Yes — if your design is rejected twice and we cannot proceed, you get a full refund including the engraving fee. If you cancel after design approval, the ₹250 engraving fee is non-refundable.',
+    q: 'What is the policy if I cancel or change my personalisation order?',
+    a: 'We do not offer refunds on personalised orders. However, if there is a quality issue or a defect on our end, you are covered under our 15-day exchange policy. Please note that personalised items cannot be exchanged for a change of mind.',
   },
 ];
 
@@ -55,8 +55,8 @@ const steps = [
   },
   {
     icon: Clock,
-    title: 'Reviewed by 6pm',
-    desc: 'Same business day if submitted before 6pm.',
+    title: 'Reviewed within 24 hrs',
+    desc: 'You will receive an approval notification once your design is reviewed.',
   },
   {
     icon: Sparkles,
