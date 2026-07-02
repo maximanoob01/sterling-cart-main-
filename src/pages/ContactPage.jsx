@@ -176,7 +176,7 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-serif text-lg font-semibold text-charcoal mb-1">Reach us out on Whatsapp</h3>
                   <a 
-                    href="https://wa.me/918445205669?text=I%20have%20a%20query%20regarding%20xyz" 
+                    href="https://wa.me/918445205669?text=Hello%20Sterling%20Kart%20team!%20I%20have%20a%20query%20and%20need%20some%20assistance." 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-sm text-silver-500 hover:text-[#25D366] transition-colors flex items-center gap-1.5"
