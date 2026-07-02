@@ -2,7 +2,7 @@ import express from 'express';
 import { body } from 'express-validator';
 import { CallRequest } from '../models/index.js';
 import validate from '../middleware/validate.js';
-import { authenticate, authorizeAdmin } from '../middleware/auth.js';
+import { authenticate, requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -41,7 +41,7 @@ router.post('/', [
 });
 
 // ─── GET /api/admin/call-requests — Fetch all requests (Admin) ───────────────
-router.get('/', authenticate, authorizeAdmin, async (req, res, next) => {
+router.get('/', authenticate, requireAdmin, async (req, res, next) => {
   try {
     const { status } = req.query;
     const whereClause = status && status !== 'All' ? { status } : {};
@@ -58,7 +58,7 @@ router.get('/', authenticate, authorizeAdmin, async (req, res, next) => {
 });
 
 // ─── PUT /api/admin/call-requests/:id — Update request (Admin) ───────────────
-router.put('/:id', authenticate, authorizeAdmin, async (req, res, next) => {
+router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status, finalTime, preferredDate, adminNotes } = req.body;
