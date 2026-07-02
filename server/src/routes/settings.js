@@ -53,20 +53,25 @@ router.get('/silver-price', async (_req, res) => {
       req.end();
     });
 
-    // 925 silver is 92.5% purity of fine (24k/999) silver
-    const PURITY_MULTIPLIER = 0.925;
+    // The API returns the International Spot Price. 
+    // In India, physical silver includes ~15% import duty, 3% GST, and dealer premiums.
+    // The Google search price (e.g. ₹245) is the retail physical price, not spot.
+    // We apply an Indian Market Premium Multiplier (approx 33% total markup) to match local retail rates.
+    const INDIAN_RETAIL_MULTIPLIER = 1.334;
 
-    // Map fields to our format and apply the 925 purity multiplier
+    const applyMultiplier = (val) => val ? val * INDIAN_RETAIL_MULTIPLIER : null;
+
+    // Map fields to our format
     const mapped = {
-      today:        data.price_gram_24k * PURITY_MULTIPLIER,   
-      previous:     data.prev_close_price ? ((data.prev_close_price / 31.1035) * PURITY_MULTIPLIER) : null,
-      low:          data.low_price         ? ((data.low_price         / 31.1035) * PURITY_MULTIPLIER) : null,
-      high:         data.high_price        ? ((data.high_price        / 31.1035) * PURITY_MULTIPLIER) : null,
-      price_gram_24k: data.price_gram_24k,
-      change:       data.ch ? (data.ch / 31.1035) * PURITY_MULTIPLIER : 0,
+      today:        applyMultiplier(data.price_gram_24k),
+      previous:     applyMultiplier(data.prev_close_price ? (data.prev_close_price / 31.1035) : null),
+      low:          applyMultiplier(data.low_price         ? (data.low_price         / 31.1035) : null),
+      high:         applyMultiplier(data.high_price        ? (data.high_price        / 31.1035) : null),
+      price_gram_24k: applyMultiplier(data.price_gram_24k),
+      change:       applyMultiplier(data.ch ? data.ch / 31.1035 : 0),
       changePercent: data.chp,
-      ask:          data.ask * PURITY_MULTIPLIER,
-      bid:          data.bid * PURITY_MULTIPLIER,
+      ask:          applyMultiplier(data.ask),
+      bid:          applyMultiplier(data.bid),
       updatedAt:    new Date().toISOString(),
     };
 
