@@ -712,23 +712,49 @@ function SilverPriceModal({ onClose }) {
         </div>
 
         <div className="overflow-y-auto px-5 py-5 sm:px-7">
-          <div className="rounded-2xl bg-[#1C1C2E] p-6 sm:p-8 text-white sm:flex sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[1.3px] text-[#E7BCC5]">925 silver · per gram</p>
-              {isLoading ? (
-                <div className="mt-3 h-16 w-48 animate-pulse rounded-xl bg-white/10" />
-              ) : (
-                <p className="mt-3 font-serif text-[48px] sm:text-[64px] leading-none text-[#F4A0B0]">
-                  ₹{snap.today.toFixed(2)}
-                </p>
-              )}
+          <div className="rounded-2xl bg-[#1C1C2E] p-6 sm:p-8 text-white flex flex-col gap-6 relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row gap-6 sm:gap-12 relative z-10">
+              {/* 999 Silver */}
+              <div className="flex-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[1.3px] text-[#E7BCC5]">999 fine silver (24k) · per gram</p>
+                {isLoading ? (
+                  <div className="mt-3 h-14 w-40 animate-pulse rounded-xl bg-white/10" />
+                ) : (
+                  <p className="mt-3 font-serif text-[40px] sm:text-[56px] leading-none text-[#F4A0B0]">
+                    ₹{snap.today.toFixed(2)}
+                  </p>
+                )}
+              </div>
+              
+              {/* Divider */}
+              <div className="hidden sm:block w-px bg-white/10 self-stretch my-2" />
+              <div className="sm:hidden h-px bg-white/10 w-full" />
+
+              {/* 925 Silver */}
+              <div className="flex-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[1.3px] text-[#E7BCC5]">925 sterling silver · per gram</p>
+                {isLoading ? (
+                  <div className="mt-3 h-14 w-40 animate-pulse rounded-xl bg-white/10" />
+                ) : (
+                  <p className="mt-3 font-serif text-[40px] sm:text-[56px] leading-none text-[#F4A0B0]">
+                    ₹{(snap.today * 0.925).toFixed(2)}
+                  </p>
+                )}
+              </div>
             </div>
+
+            {/* Daily Change */}
             {!isLoading && (
-              <p className={`mt-3 flex items-center gap-1 text-[12px] font-semibold sm:mt-0 ${isUp ? 'text-[#98D9B0]' : 'text-red-400'}`}>
-                {isUp ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
-                {isUp ? '+' : ''}₹{dailyChange.toFixed(2)} ({dailyChangePercent.toFixed(2)}%) vs prev close
-              </p>
+              <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between">
+                <p className={`flex items-center gap-1.5 text-[12px] font-semibold ${isUp ? 'text-[#98D9B0]' : 'text-red-400'}`}>
+                  {isUp ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                  {isUp ? '+' : ''}₹{dailyChange.toFixed(2)} ({dailyChangePercent.toFixed(2)}%) vs previous close
+                </p>
+              </div>
             )}
+            
+            {/* Decorative background glow */}
+            <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#F4A0B0] opacity-[0.03] blur-3xl rounded-full pointer-events-none" />
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -741,7 +767,7 @@ function SilverPriceModal({ onClose }) {
                 <SilverStat label="Previous close" value={snap.previous ? `₹${snap.previous.toFixed(2)}` : 'N/A'} />
                 <SilverStat label="Today's low" value={snap.low ? `₹${snap.low.toFixed(2)}` : 'N/A'} />
                 <SilverStat label="Today's high" value={snap.high ? `₹${snap.high.toFixed(2)}` : 'N/A'} />
-                <SilverStat label="Ask price" value={snap.ask ? `₹${snap.ask.toFixed(2)}/g` : 'N/A'} icon={<TrendingUp size={14} />} />
+                <SilverStat label="Ask price" value={snap.ask ? `₹${(snap.ask / 31.1035).toFixed(2)}/g` : 'N/A'} icon={<TrendingUp size={14} />} />
               </>
             )}
           </div>
