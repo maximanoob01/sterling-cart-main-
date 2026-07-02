@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import CallRequestModal from '../components/CallRequestModal';
 import engraveProcessVid from '../assets/images/engrave_process.mp4';
 import engraveResultVid from '../assets/images/engrave_result.mp4';
 import heroBgVid from '../assets/images/hero_bg_video.mp4';
@@ -77,6 +78,7 @@ export default function PersonalisePage() {
   const [activeFaq, setActiveFaq] = useState(null);
   const [selectedCoin, setSelectedCoin] = useState(coins[0]);
   const [fileError, setFileError] = useState('');
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const fileInputRef = useRef(null);
 
   const { addItem } = useCart();
@@ -445,12 +447,12 @@ export default function PersonalisePage() {
                   </svg>
                   Chat on WhatsApp
                 </a>
-                <a
-                  href="#"
+                <button
+                  onClick={() => setIsCallModalOpen(true)}
                   className="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 py-3 rounded-xl font-semibold text-sm transition-colors shadow-sm"
                 >
-                  <Calendar size={15} /> Book a call
-                </a>
+                  <Calendar size={15} /> Schedule a Call
+                </button>
               </div>
               <p className="text-center text-xs text-gray-400 mt-4">Mon–Sat · 11am–8pm</p>
             </div>
@@ -515,6 +517,7 @@ export default function PersonalisePage() {
         </div>
       </section>
 
+      <CallRequestModal isOpen={isCallModalOpen} onClose={() => setIsCallModalOpen(false)} />
     </div>
   );
 }

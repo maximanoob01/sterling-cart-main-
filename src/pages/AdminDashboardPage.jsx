@@ -18,6 +18,7 @@ import api from '../services/api';
 import { formatPrice } from '../utils/formatPrice';
 import { generateInvoice } from '../utils/generateInvoice';
 import toast from 'react-hot-toast';
+import AdminCallRequestsTab from '../components/AdminCallRequestsTab';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_COLORS = {
@@ -777,6 +778,7 @@ export default function AdminDashboardPage() {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [orderSubTab, setOrderSubTab] = useState('orders');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
@@ -1242,102 +1244,111 @@ export default function AdminDashboardPage() {
       <div className="p-[24px] flex flex-col md:flex-row justify-between gap-[16px] items-start md:items-center border-b border-border-main">
         <div>
           <h3 className="font-serif text-[18px] font-bold text-text-main">Manage Orders</h3>
-          <p className="font-sans text-[12px] text-text-muted mt-0.5">{filteredOrders.length} orders</p>
-        </div>
-        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-          <div className="relative w-full md:w-[220px]">
-            <Search size={15} className="absolute left-[11px] top-1/2 -translate-y-1/2 text-[#A8A8A8]"/>
-            <input type="text" placeholder="Search orders..." value={orderSearch} onChange={e => setOrderSearch(e.target.value)} className="w-full pl-[34px] pr-[12px] h-[38px] border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A]"/>
-          </div>
-          <div className="grid grid-cols-2 gap-3 w-full md:flex md:w-auto">
-            <select value={orderStatusFilter} onChange={e => setOrderStatusFilter(e.target.value)} className="w-full h-[38px] px-3 border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A] bg-white appearance-none cursor-pointer">
-              <option>All</option>
-              {Object.keys(STATUS_COLORS).map(s => <option key={s}>{s}</option>)}
-            </select>
-            <button onClick={() => toast.success('Exporting CSV...')} className="btn-secondary w-full justify-center h-[38px] px-[14px] flex items-center gap-[6px] font-sans text-[13px] whitespace-nowrap"><Download size={15}/> Export</button>
+          <div className="flex gap-4 mt-2">
+            <button onClick={() => setOrderSubTab('orders')} className={`font-bold pb-1 border-b-2 text-[13px] ${orderSubTab === 'orders' ? 'border-[#D4527A] text-[#D4527A]' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Product Orders</button>
+            <button onClick={() => setOrderSubTab('calls')} className={`font-bold pb-1 border-b-2 text-[13px] ${orderSubTab === 'calls' ? 'border-[#D4527A] text-[#D4527A]' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Call Requests</button>
           </div>
         </div>
+        {orderSubTab === 'orders' && (
+          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            <div className="relative w-full md:w-[220px]">
+              <Search size={15} className="absolute left-[11px] top-1/2 -translate-y-1/2 text-[#A8A8A8]"/>
+              <input type="text" placeholder="Search orders..." value={orderSearch} onChange={e => setOrderSearch(e.target.value)} className="w-full pl-[34px] pr-[12px] h-[38px] border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A]"/>
+            </div>
+            <div className="grid grid-cols-2 gap-3 w-full md:flex md:w-auto">
+              <select value={orderStatusFilter} onChange={e => setOrderStatusFilter(e.target.value)} className="w-full h-[38px] px-3 border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A] bg-white appearance-none cursor-pointer">
+                <option>All</option>
+                {Object.keys(STATUS_COLORS).map(s => <option key={s}>{s}</option>)}
+              </select>
+              <button onClick={() => toast.success('Exporting CSV...')} className="btn-secondary w-full justify-center h-[38px] px-[14px] flex items-center gap-[6px] font-sans text-[13px] whitespace-nowrap"><Download size={15}/> Export</button>
+            </div>
+          </div>
+        )}
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="bg-pink-50">
-              <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Order ID</th>
-              <th className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Date</th>
-              <th className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Customer</th>
-              <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Total</th>
-              <th className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Payment</th>
-              <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Status</th>
-              <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px] text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#F0F0F0]">
-            {filteredOrders.map(order => (
-              <React.Fragment key={order.id}>
-                <tr className="hover:bg-[#FAFAFA] transition-colors">
-                  <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px]">
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => toggleOrderExpand(order.id)} className="md:hidden p-1 text-text-muted hover:text-[#D4527A]">
-                        {expandedOrders[order.id] ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
-                      </button>
-                      <div>
-                        <p className="font-sans font-semibold text-[12px] md:text-[13px] text-text-main">{order.id}</p>
-                        <p className="md:hidden font-sans text-[10px] text-text-muted mt-0.5">{order.customerName}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[13px] text-text-muted">{order.date}</td>
-                  <td className="hidden md:table-cell px-[20px] py-[14px]">
-                    <p className="font-sans text-[13px] text-text-main font-medium">{order.customerName}</p>
-                    <p className="font-sans text-[11px] text-text-muted">{order.customerPhone}</p>
-                  </td>
-                  <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans font-bold text-[12px] md:text-[13px] text-text-main">{formatPrice(order.total)}</td>
-                  <td className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[13px] text-text-muted">{order.paymentMethod}</td>
-                  <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px]">
-                    <select
-                      value={order.status}
-                      onChange={e => handleUpdateOrderStatus(order.id, e.target.value)}
-                      className="font-sans text-[10px] md:text-[11px] font-bold uppercase tracking-[0.5px] px-[6px] md:px-[8px] py-[4px] rounded-[6px] outline-none cursor-pointer appearance-none border-0"
-                      style={getStatusBadgeStyle(order.status)}
-                    >
-                      {Object.keys(STATUS_COLORS).map(s => <option key={s} value={s} className="bg-white text-[#1A1A1A]">{s}</option>)}
-                    </select>
-                  </td>
-                  <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] text-right">
-                    <button onClick={() => setSelectedOrder(order)} className="text-[#A8A8A8] hover:text-[#D4527A] transition-colors p-[4px] ml-1">
-                      <Eye size={17}/>
-                    </button>
-                  </td>
-                </tr>
-                {expandedOrders[order.id] && (
-                  <tr className="md:hidden bg-[#FAFAFA]">
-                    <td colSpan="4" className="px-[12px] py-[10px]">
-                      <div className="grid grid-cols-2 gap-2 text-[11px]">
+      {orderSubTab === 'calls' ? (
+        <AdminCallRequestsTab />
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-pink-50">
+                <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Order ID</th>
+                <th className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Date</th>
+                <th className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Customer</th>
+                <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Total</th>
+                <th className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Payment</th>
+                <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Status</th>
+                <th className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[0.5px] text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F0F0F0]">
+              {filteredOrders.map(order => (
+                <React.Fragment key={order.id}>
+                  <tr className="hover:bg-[#FAFAFA] transition-colors">
+                    <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px]">
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => toggleOrderExpand(order.id)} className="md:hidden p-1 text-text-muted hover:text-[#D4527A]">
+                          {expandedOrders[order.id] ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                        </button>
                         <div>
-                          <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Date</p>
-                          <p className="text-text-main">{order.date}</p>
-                        </div>
-                        <div>
-                          <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Payment</p>
-                          <p className="text-text-main">{order.paymentMethod}</p>
-                        </div>
-                        <div className="col-span-2 mt-1 border-t border-border-main pt-2">
-                          <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Customer Details</p>
-                          <p className="text-text-main mt-0.5">{order.customerName}</p>
-                          <p className="text-text-muted">{order.customerPhone} · {order.customerEmail}</p>
+                          <p className="font-sans font-semibold text-[12px] md:text-[13px] text-text-main">{order.id}</p>
+                          <p className="md:hidden font-sans text-[10px] text-text-muted mt-0.5">{order.customerName}</p>
                         </div>
                       </div>
                     </td>
+                    <td className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[13px] text-text-muted">{order.date}</td>
+                    <td className="hidden md:table-cell px-[20px] py-[14px]">
+                      <p className="font-sans text-[13px] text-text-main font-medium">{order.customerName}</p>
+                      <p className="font-sans text-[11px] text-text-muted">{order.customerPhone}</p>
+                    </td>
+                    <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] font-sans font-bold text-[12px] md:text-[13px] text-text-main">{formatPrice(order.total)}</td>
+                    <td className="hidden md:table-cell px-[20px] py-[14px] font-sans text-[13px] text-text-muted">{order.paymentMethod}</td>
+                    <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px]">
+                      <select
+                        value={order.status}
+                        onChange={e => handleUpdateOrderStatus(order.id, e.target.value)}
+                        className="font-sans text-[10px] md:text-[11px] font-bold uppercase tracking-[0.5px] px-[6px] md:px-[8px] py-[4px] rounded-[6px] outline-none cursor-pointer appearance-none border-0"
+                        style={getStatusBadgeStyle(order.status)}
+                      >
+                        {Object.keys(STATUS_COLORS).map(s => <option key={s} value={s} className="bg-white text-[#1A1A1A]">{s}</option>)}
+                      </select>
+                    </td>
+                    <td className="px-[12px] md:px-[20px] py-[10px] md:py-[14px] text-right">
+                      <button onClick={() => setSelectedOrder(order)} className="text-[#A8A8A8] hover:text-[#D4527A] transition-colors p-[4px] ml-1">
+                        <Eye size={17}/>
+                      </button>
+                    </td>
                   </tr>
-                )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-        {filteredOrders.length === 0 && (
-          <div className="py-16 text-center text-text-muted font-sans text-[14px]">No orders found</div>
-        )}
-      </div>
+                  {expandedOrders[order.id] && (
+                    <tr className="md:hidden bg-[#FAFAFA]">
+                      <td colSpan="4" className="px-[12px] py-[10px]">
+                        <div className="grid grid-cols-2 gap-2 text-[11px]">
+                          <div>
+                            <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Date</p>
+                            <p className="text-text-main">{order.date}</p>
+                          </div>
+                          <div>
+                            <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Payment</p>
+                            <p className="text-text-main">{order.paymentMethod}</p>
+                          </div>
+                          <div className="col-span-2 mt-1 border-t border-border-main pt-2">
+                            <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Customer Details</p>
+                            <p className="text-text-main mt-0.5">{order.customerName}</p>
+                            <p className="text-text-muted">{order.customerPhone} · {order.customerEmail}</p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+          {filteredOrders.length === 0 && (
+            <div className="py-16 text-center text-text-muted font-sans text-[14px]">No orders found</div>
+          )}
+        </div>
+      )}
     </div>
   );
 

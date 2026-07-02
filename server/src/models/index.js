@@ -12,6 +12,7 @@ import ContactMessage from './ContactMessage.js';
 import GiftCard from './GiftCard.js';
 import GiftCardTransaction from './GiftCardTransaction.js';
 import Notification from './Notification.js';
+import CallRequest from './CallRequest.js';
 import { sequelize } from '../config/db.js';
 
 // User <-> Address (1:N)
@@ -73,5 +74,6 @@ export {
   ContactMessage,
   GiftCard,
   GiftCardTransaction,
-  Notification
+  Notification,
+  CallRequest
 };

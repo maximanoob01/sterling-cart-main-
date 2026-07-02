@@ -27,6 +27,7 @@ import giftCardRoutes from './routes/giftCards.js';
 import settingsRoutes from './routes/settings.js';
 import notificationRoutes from './routes/notifications.js';
 import webhooksRoutes from './routes/webhooks.js';
+import callRequestRoutes from './routes/callRequests.js';
 
 // Init Cron Jobs
 import './jobs/cronJobs.js';
@@ -79,6 +80,8 @@ app.use('/api/custom-orders', customOrderRoutes);
 app.use('/api/gift-cards', giftCardRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/admin/notifications', notificationRoutes);
+app.use('/api/admin/call-requests', callRequestRoutes); // Using same router, it handles GET/PUT inside
+app.use('/api/call-requests', callRequestRoutes); // Public POST
 app.use('/api/webhooks', webhooksRoutes);
 
 // Health check
