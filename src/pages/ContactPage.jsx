@@ -160,8 +160,8 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-serif text-lg font-semibold text-charcoal mb-1">Our Store</h3>
                   <p className="text-sm text-silver-500 leading-relaxed">
-                    42, Silver Lane, Jewellery Quarter,<br />
-                    Mumbai, Maharashtra 400001
+                    B.T. Ganj | Civil Lines,<br />
+                    Roorkee
                   </p>
                 </div>
               </div>
@@ -171,8 +171,15 @@ export default function ContactPage() {
                   <Phone size={18} className="text-pink-400" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-lg font-semibold text-charcoal mb-1">Phone</h3>
-                  <p className="text-sm text-silver-500">+91 98765 43210</p>
+                  <h3 className="font-serif text-lg font-semibold text-charcoal mb-1">WhatsApp / Phone</h3>
+                  <a 
+                    href="https://wa.me/918445205669?text=I%20have%20a%20query%20regarding%20xyz" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-silver-500 hover:text-pink-400 transition-colors"
+                  >
+                    +91 84452 05669
+                  </a>
                 </div>
               </div>
 
@@ -182,7 +189,9 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-serif text-lg font-semibold text-charcoal mb-1">Email</h3>
-                  <p className="text-sm text-silver-500">hello@sterlingcart.com</p>
+                  <a href="mailto:sterlingkart925@gmail.com" className="text-sm text-silver-500 hover:text-pink-400 transition-colors">
+                    sterlingkart925@gmail.com
+                  </a>
                 </div>
               </div>
 
