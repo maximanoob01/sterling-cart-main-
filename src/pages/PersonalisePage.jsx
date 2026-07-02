@@ -414,10 +414,10 @@ export default function PersonalisePage() {
               </div>
               <div className="space-y-3 pt-2 border-t border-white/10">
                 {[
-                  { icon: Clock,       text: 'Reviewed by 6pm same business day' },
-                  { icon: Sparkles,    text: 'Engraved next business day' },
-                  { icon: Truck,       text: 'Dispatched in 2 business days' },
-                  { icon: ShieldCheck, text: 'Full refund if design rejected twice' },
+                  { icon: Clock,       text: 'Review within 24 hrs' },
+                  { icon: Sparkles,    text: 'Precision engraving on your 10g sterling silver coin.' },
+                  { icon: Truck,       text: 'Dispatched in 2 days' },
+                  { icon: ShieldCheck, text: 'Delivered in 3–5 business days after dispatch. 15 day exchange available t&c applied' },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-start gap-3 pt-3">
                     <Icon size={15} className="text-[#D4527A] flex-shrink-0 mt-0.5" strokeWidth={1.5} />
