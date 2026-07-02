@@ -175,14 +175,14 @@ const AdminCallRequestsTab = () => {
                        <span className="font-medium text-gray-900">{req.finalTime || 'Not set'}</span>
                     ) : '-'}
                   </td>
-                  <td className="px-6 py-4 text-right flex justify-end gap-1">
+                  <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
                     {req.status === 'Pending' && (
                       <button 
                         onClick={() => handleQuickConfirmOpen(req)}
                         title="Quick Confirm"
-                        className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        className="px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors shadow-sm"
                       >
-                        <Check size={16} />
+                        <Check size={14} strokeWidth={3} /> Quick Confirm
                       </button>
                     )}
                     <button 
