@@ -1,5 +1,5 @@
 import React from 'react';
-import shiprocketImg from '../assets/images/image.png';
+import shiprocketImg from '../../assets/images/image.png';
 
 export const VisaLogo = () => (
   <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center px-[3px]">
