@@ -617,74 +617,7 @@ function KpiCard({ label, value, sub, icon, iconBg, iconColor, trend, trendLabel
 }
 
 // ─── Notification Bell ───────────────────────────────────────────────────────
-const INITIAL_NOTIFICATIONS = [
-  {
-    id: 1,
-    type: 'order',
-    icon: PackageCheck,
-    iconBg: '#E0F2FE',
-    iconColor: '#0369A1',
-    title: 'New order received',
-    message: 'SC-ORD-10010 · Meera Iyer — ₹3,713',
-    time: '2 min ago',
-    read: false,
-  },
-  {
-    id: 2,
-    type: 'order',
-    icon: PackageCheck,
-    iconBg: '#E6F4EA',
-    iconColor: '#137333',
-    title: 'Order delivered',
-    message: 'SC-ORD-10004 · Ritu Agarwal marked as delivered',
-    time: '18 min ago',
-    read: false,
-  },
-  {
-    id: 3,
-    type: 'alert',
-    icon: AlertTriangle,
-    iconBg: '#FFF3E0',
-    iconColor: '#E65100',
-    title: 'Low stock alert',
-    message: 'Plain Silver Band Ring — only 4 units left',
-    time: '1 hr ago',
-    read: false,
-  },
-  {
-    id: 4,
-    type: 'info',
-    icon: Info,
-    iconBg: '#F3E8FF',
-    iconColor: '#7E22CE',
-    title: 'New customer signed up',
-    message: 'Sanya Kapoor joined Sterling Kart',
-    time: '3 hr ago',
-    read: true,
-  },
-  {
-    id: 5,
-    type: 'order',
-    icon: PackageCheck,
-    iconBg: '#FFF0F5',
-    iconColor: '#D4527A',
-    title: 'Payment received',
-    message: 'SC-ORD-10009 · ₹2,546 via Net Banking',
-    time: '5 hr ago',
-    read: true,
-  },
-  {
-    id: 6,
-    type: 'alert',
-    icon: AlertTriangle,
-    iconBg: '#FCE8E6',
-    iconColor: '#C5221F',
-    title: 'Order cancelled',
-    message: 'SC-ORD-10008 · Ishita Gupta cancelled her order',
-    time: 'Yesterday',
-    read: true,
-  },
-];
+
 
 function NotificationBell({ notifications, onMarkAllRead, onMarkRead }) {
   const [open, setOpen] = useState(false);
@@ -753,11 +686,24 @@ function NotificationBell({ notifications, onMarkAllRead, onMarkRead }) {
               </div>
             ) : (
               notifications.map(n => {
-                const Icon = n.icon;
+                let Icon = Info;
+                let iconBg = '#F3E8FF';
+                let iconColor = '#7E22CE';
+
+                if (n.type === 'order') {
+                  Icon = PackageCheck; iconBg = '#E0F2FE'; iconColor = '#0369A1';
+                } else if (n.type === 'alert') {
+                  Icon = AlertTriangle; iconBg = '#FCE8E6'; iconColor = '#C5221F';
+                }
+
+                // Format relative time
+                const timeDiff = Math.floor((new Date() - new Date(n.createdAt)) / 60000); // mins
+                const timeStr = timeDiff < 1 ? 'Just now' : timeDiff < 60 ? `${timeDiff} min ago` : timeDiff < 1440 ? `${Math.floor(timeDiff/60)} hr ago` : 'Yesterday';
+
                 return (
                   <div
                     key={n.id}
-                    onClick={() => onMarkRead(n.id)}
+                    onClick={() => onMarkRead(n.id, n.link)}
                     className={`flex items-start gap-3 px-5 py-3.5 cursor-pointer transition-colors ${
                       n.read ? 'hover:bg-[#FAFAFA]' : 'bg-[#FFF8FA] hover:bg-[#FFF0F5]'
                     }`}
@@ -765,9 +711,9 @@ function NotificationBell({ notifications, onMarkAllRead, onMarkRead }) {
                     {/* Icon */}
                     <div
                       className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 mt-0.5"
-                      style={{ background: n.iconBg }}
+                      style={{ background: iconBg }}
                     >
-                      <Icon size={16} style={{ color: n.iconColor }} />
+                      <Icon size={16} style={{ color: iconColor }} />
                     </div>
 
                     {/* Content */}
@@ -776,7 +722,7 @@ function NotificationBell({ notifications, onMarkAllRead, onMarkRead }) {
                         n.read ? 'text-text-muted font-normal' : 'text-text-main font-semibold'
                       }`}>{n.title}</p>
                       <p className="font-sans text-[11px] text-text-muted mt-0.5 leading-snug truncate">{n.message}</p>
-                      <p className="font-sans text-[10px] text-[#C0C0C0] mt-1">{n.time}</p>
+                      <p className="font-sans text-[10px] text-[#C0C0C0] mt-1">{timeStr}</p>
                     </div>
 
                     {/* Unread dot */}
@@ -844,7 +790,7 @@ export default function AdminDashboardPage() {
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [heroUploading, setHeroUploading] = useState(false);
 
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState([]);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectOrderId, setRejectOrderId] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -854,8 +800,20 @@ export default function AdminDashboardPage() {
   const toggleOrderExpand = (id) => setExpandedOrders(prev => ({...prev, [id]: !prev[id]}));
   const toggleProductExpand = (id) => setExpandedProducts(prev => ({...prev, [id]: !prev[id]}));
 
-  const handleMarkAllRead = () => setNotifications(n => n.map(x => ({ ...x, read: true })));
-  const handleMarkRead = (id) => setNotifications(n => n.map(x => x.id === id ? { ...x, read: true } : x));
+  const handleMarkAllRead = async () => {
+    try {
+      await api.patch('/admin/notifications/read-all');
+      setNotifications(n => n.map(x => ({ ...x, read: true })));
+    } catch (err) { console.error(err); }
+  };
+  
+  const handleMarkRead = async (id, link) => {
+    try {
+      await api.patch(`/admin/notifications/${id}/read`);
+      setNotifications(n => n.map(x => x.id === id ? { ...x, read: true } : x));
+      if (link) window.open(link, '_blank');
+    } catch (err) { console.error(err); }
+  };
 
   useEffect(() => {
     if (!user || !isAdmin) return;
@@ -863,14 +821,16 @@ export default function AdminDashboardPage() {
     const fetchAdminData = async () => {
       setAdminDataLoading(true);
       try {
-        const [ordersRes, customersRes, settingsRes] = await Promise.all([
+        const [ordersRes, customersRes, settingsRes, notifRes] = await Promise.all([
           api.get('/orders/admin/all?limit=500'),
           api.get('/admin/customers?limit=500'),
           api.get('/admin/settings'),
+          api.get('/admin/notifications').catch(() => ({ notifications: [] }))
         ]);
 
         setOrders((ordersRes.orders || []).map(normalizeOrder));
         setCustomers((customersRes.customers || []).map(normalizeCustomer));
+        setNotifications(notifRes.notifications || []);
         setSettingsForm(prev => ({
           ...prev,
           adminUserId: settingsRes.admin?.userId || '',

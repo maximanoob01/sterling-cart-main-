@@ -11,6 +11,7 @@ import Wishlist from './Wishlist.js';
 import ContactMessage from './ContactMessage.js';
 import GiftCard from './GiftCard.js';
 import GiftCardTransaction from './GiftCardTransaction.js';
+import Notification from './Notification.js';
 import { sequelize } from '../config/db.js';
 
 // User <-> Address (1:N)
@@ -71,5 +72,6 @@ export {
   Wishlist,
   ContactMessage,
   GiftCard,
-  GiftCardTransaction
+  GiftCardTransaction,
+  Notification
 };

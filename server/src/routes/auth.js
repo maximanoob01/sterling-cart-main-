@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import process from 'node:process';
-import { User, Address, Loyalty, LoyaltyHistory } from '../models/index.js';
+import { User, Address, Loyalty, LoyaltyHistory, Notification } from '../models/index.js';
 import { syncExpiredPoints } from '../services/loyaltyService.js';
 import { authenticate } from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
@@ -149,6 +149,14 @@ router.post('/verify-otp', [
       }
       user = await User.create({ phone, name, email, role: 'user' });
       isNewUser = true;
+
+      // Create Admin Notification
+      await Notification.create({
+        type: 'info',
+        title: 'New customer signed up',
+        message: `${name} joined Sterling Kart`,
+        link: '/admin/customers',
+      });
     } else {
       // Login: user MUST exist
       if (!user) {

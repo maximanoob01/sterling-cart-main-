@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { Op } from 'sequelize';
-import { Order, OrderItem, OrderTimeline, Product, Loyalty, LoyaltyHistory, Coupon, GiftCard, GiftCardTransaction, sequelize } from '../models/index.js';
+import { Order, OrderItem, OrderTimeline, Product, Loyalty, LoyaltyHistory, Coupon, GiftCard, GiftCardTransaction, Notification, sequelize } from '../models/index.js';
 import { authenticate, requireAdmin, optionalAuth } from '../middleware/auth.js';
 import crypto from 'crypto';
 import validate from '../middleware/validate.js';
@@ -217,6 +217,14 @@ router.post('/', optionalAuth, [
       }
     }
 
+    // 8. Create Admin Notification
+    await Notification.create({
+      type: 'order',
+      title: 'New order received',
+      message: `${orderId} · ${form.fullName} — ₹${totalAmount.toLocaleString('en-IN')}`,
+      link: `/admin/orders?search=${orderId}`,
+    }, { transaction: t });
+
     await t.commit();
 
     // Send confirmation email (non-blocking)
@@ -395,6 +403,14 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
     if (courierName) updates.courierName = courierName;
     if (status === 'Cancelled') {
       updates.paymentStatus = 'refunded';
+      
+      await Notification.create({
+        type: 'alert',
+        title: 'Order cancelled',
+        message: `${order.orderId} · ${order.customerName} cancelled their order`,
+        link: `/admin/orders?search=${order.orderId}`,
+      }, { transaction: t });
+
       if (order.userId) {
         const loyaltyAccount = await Loyalty.findOne({ where: { userId: order.userId }, transaction: t });
         if (loyaltyAccount) {
@@ -421,6 +437,13 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
     if (status === 'Delivered' && order.orderStatus !== 'Delivered') {
       updates.paymentStatus = 'paid';
       
+      await Notification.create({
+        type: 'order',
+        title: 'Order delivered',
+        message: `${order.orderId} · ${order.customerName} marked as delivered`,
+        link: `/admin/orders?search=${order.orderId}`,
+      }, { transaction: t });
+
       // Confirm pending Royal Points
       if (order.userId) {
         const loyaltyAccount = await Loyalty.findOne({ where: { userId: order.userId }, transaction: t });
