@@ -714,7 +714,7 @@ function SilverPriceModal({ onClose }) {
         <div className="overflow-y-auto px-5 py-5 sm:px-7">
           <div className="rounded-2xl bg-[#1C1C2E] p-6 sm:p-8 text-white sm:flex sm:items-end sm:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[1.3px] text-[#E7BCC5]">999 fine silver · per gram (24k)</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[1.3px] text-[#E7BCC5]">925 silver · per gram</p>
               {isLoading ? (
                 <div className="mt-3 h-16 w-48 animate-pulse rounded-xl bg-white/10" />
               ) : (
@@ -741,7 +741,7 @@ function SilverPriceModal({ onClose }) {
                 <SilverStat label="Previous close" value={snap.previous ? `₹${snap.previous.toFixed(2)}` : 'N/A'} />
                 <SilverStat label="Today's low" value={snap.low ? `₹${snap.low.toFixed(2)}` : 'N/A'} />
                 <SilverStat label="Today's high" value={snap.high ? `₹${snap.high.toFixed(2)}` : 'N/A'} />
-                <SilverStat label="Ask price" value={snap.ask ? `₹${(snap.ask / 31.1035).toFixed(2)}/g` : 'N/A'} icon={<TrendingUp size={14} />} />
+                <SilverStat label="Ask price" value={snap.ask ? `₹${snap.ask.toFixed(2)}/g` : 'N/A'} icon={<TrendingUp size={14} />} />
               </>
             )}
           </div>

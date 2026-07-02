@@ -53,17 +53,20 @@ router.get('/silver-price', async (_req, res) => {
       req.end();
     });
 
-    // Map fields to our format
+    // 925 silver is 92.5% purity of fine (24k/999) silver
+    const PURITY_MULTIPLIER = 0.925;
+
+    // Map fields to our format and apply the 925 purity multiplier
     const mapped = {
-      today:        data.price_gram_24k,   // pure silver ₹/gram (24k purity = pure silver)
-      previous:     data.prev_close_price ? (data.prev_close_price / 31.1035) : null, // troy oz → gram
-      low:          data.low_price         ? (data.low_price         / 31.1035) : null,
-      high:         data.high_price        ? (data.high_price        / 31.1035) : null,
+      today:        data.price_gram_24k * PURITY_MULTIPLIER,   
+      previous:     data.prev_close_price ? ((data.prev_close_price / 31.1035) * PURITY_MULTIPLIER) : null,
+      low:          data.low_price         ? ((data.low_price         / 31.1035) * PURITY_MULTIPLIER) : null,
+      high:         data.high_price        ? ((data.high_price        / 31.1035) * PURITY_MULTIPLIER) : null,
       price_gram_24k: data.price_gram_24k,
-      change:       data.ch,
+      change:       data.ch ? (data.ch / 31.1035) * PURITY_MULTIPLIER : 0,
       changePercent: data.chp,
-      ask:          data.ask,
-      bid:          data.bid,
+      ask:          data.ask * PURITY_MULTIPLIER,
+      bid:          data.bid * PURITY_MULTIPLIER,
       updatedAt:    new Date().toISOString(),
     };
 
