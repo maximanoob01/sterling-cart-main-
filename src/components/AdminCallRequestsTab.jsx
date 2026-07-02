@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Phone, Calendar, Clock, Edit2, X, Check, Eye } from 'lucide-react';
+import { Search, Filter, Phone, Calendar, Clock, Edit2, X, Check, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -21,6 +21,7 @@ const AdminCallRequestsTab = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isQuickConfirmOpen, setIsQuickConfirmOpen] = useState(false);
   const [quickTime, setQuickTime] = useState('');
+  const [expandedRows, setExpandedRows] = useState({});
   
   const [modalForm, setModalForm] = useState({
     status: '',
@@ -57,6 +58,13 @@ const AdminCallRequestsTab = () => {
       adminNotes: req.adminNotes || ''
     });
     setIsModalOpen(true);
+  };
+
+  const toggleExpand = (id) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
   };
 
   const handleQuickConfirmOpen = (req) => {
@@ -142,11 +150,11 @@ const AdminCallRequestsTab = () => {
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50/50 text-gray-500 border-b border-gray-100">
             <tr>
-              <th className="px-6 py-4 font-medium">Customer</th>
-              <th className="px-6 py-4 font-medium">Requested Slot</th>
-              <th className="px-6 py-4 font-medium">Status</th>
-              <th className="px-6 py-4 font-medium">Confirmed Time</th>
-              <th className="px-6 py-4 font-medium text-right">Actions</th>
+              <th className="px-4 py-3 md:px-6 md:py-4 font-medium">Customer</th>
+              <th className="hidden md:table-cell px-6 py-4 font-medium">Requested Slot</th>
+              <th className="px-4 py-3 md:px-6 md:py-4 font-medium">Status</th>
+              <th className="hidden md:table-cell px-6 py-4 font-medium">Confirmed Time</th>
+              <th className="px-4 py-3 md:px-6 md:py-4 font-medium text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -156,44 +164,72 @@ const AdminCallRequestsTab = () => {
               <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-500">No requests found.</td></tr>
             ) : (
               filteredData.map(req => (
-                <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-semibold text-gray-900">{req.name}</div>
-                    <div className="text-gray-500 text-xs flex items-center gap-1 mt-0.5"><Phone size={12}/> {req.phone}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-gray-900 font-medium">{new Date(req.preferredDate).toLocaleDateString()}</div>
-                    <div className="text-gray-500 text-xs">{req.timeSlot}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[req.status]}`}>
-                      {req.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500">
-                    {req.status === 'Confirmed' || req.status === 'Completed' ? (
-                       <span className="font-medium text-gray-900">{req.finalTime || 'Not set'}</span>
-                    ) : '-'}
-                  </td>
-                  <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
-                    {req.status === 'Pending' && (
+                <React.Fragment key={req.id}>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-4 py-3 md:px-6 md:py-4">
+                      <div className="flex items-start gap-2">
+                        <button onClick={() => toggleExpand(req.id)} className="md:hidden mt-0.5 p-1 -ml-2 text-gray-400 hover:text-[#D4527A] transition-colors">
+                          {expandedRows[req.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                        <div>
+                          <div className="font-semibold text-gray-900">{req.name}</div>
+                          <div className="text-gray-500 text-xs flex items-center gap-1 mt-0.5"><Phone size={12}/> {req.phone}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="hidden md:table-cell px-6 py-4">
+                      <div className="text-gray-900 font-medium">{new Date(req.preferredDate).toLocaleDateString()}</div>
+                      <div className="text-gray-500 text-xs">{req.timeSlot}</div>
+                    </td>
+                    <td className="px-4 py-3 md:px-6 md:py-4">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] md:text-xs font-semibold ${STATUS_COLORS[req.status]}`}>
+                        {req.status}
+                      </span>
+                    </td>
+                    <td className="hidden md:table-cell px-6 py-4 text-gray-500">
+                      {req.status === 'Confirmed' || req.status === 'Completed' ? (
+                         <span className="font-medium text-gray-900">{req.finalTime || 'Not set'}</span>
+                      ) : '-'}
+                    </td>
+                    <td className="px-4 py-3 md:px-6 md:py-4 text-right flex items-center justify-end gap-1 md:gap-2">
+                      {req.status === 'Pending' && (
+                        <button 
+                          onClick={() => handleQuickConfirmOpen(req)}
+                          title="Quick Confirm"
+                          className="px-2 py-1.5 md:px-3 md:py-1.5 flex items-center gap-1 md:gap-1.5 text-[10px] md:text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors shadow-sm whitespace-nowrap"
+                        >
+                          <Check size={14} strokeWidth={3} /> <span className="hidden sm:inline">Quick Confirm</span>
+                        </button>
+                      )}
                       <button 
-                        onClick={() => handleQuickConfirmOpen(req)}
-                        title="Quick Confirm"
-                        className="px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors shadow-sm"
+                        onClick={() => handleOpenModal(req)}
+                        title="Edit Details"
+                        className="p-1.5 text-gray-400 hover:text-[#D4527A] hover:bg-pink-50 rounded-lg transition-colors"
                       >
-                        <Check size={14} strokeWidth={3} /> Quick Confirm
+                        <Edit2 size={16} />
                       </button>
-                    )}
-                    <button 
-                      onClick={() => handleOpenModal(req)}
-                      title="Edit Details"
-                      className="p-1.5 text-gray-400 hover:text-[#D4527A] hover:bg-pink-50 rounded-lg transition-colors"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
+                  {expandedRows[req.id] && (
+                    <tr className="md:hidden bg-gray-50/50">
+                      <td colSpan="3" className="px-4 py-3 border-t border-gray-100">
+                        <div className="grid grid-cols-2 gap-4 text-xs">
+                          <div>
+                            <span className="block font-medium text-gray-500 mb-0.5 uppercase tracking-wider text-[10px]">Requested Slot</span>
+                            <div className="text-gray-900 font-medium">{new Date(req.preferredDate).toLocaleDateString()}</div>
+                            <div className="text-gray-500">{req.timeSlot}</div>
+                          </div>
+                          <div>
+                            <span className="block font-medium text-gray-500 mb-0.5 uppercase tracking-wider text-[10px]">Confirmed Time</span>
+                            {req.status === 'Confirmed' || req.status === 'Completed' ? (
+                               <span className="font-medium text-gray-900">{req.finalTime || 'Not set'}</span>
+                            ) : '-'}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))
             )}
           </tbody>
