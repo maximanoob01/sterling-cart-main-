@@ -30,10 +30,17 @@ Order.init({
     type: DataTypes.STRING,
     allowNull: false
   },
-  // Store snapshot of address
+  // Store snapshot of address as JSON string (SQLite compatible)
   shippingAddress: {
-    type: DataTypes.JSONB,
-    allowNull: false
+    type: DataTypes.TEXT,
+    allowNull: false,
+    get() {
+      const raw = this.getDataValue('shippingAddress');
+      try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return raw; }
+    },
+    set(value) {
+      this.setDataValue('shippingAddress', typeof value === 'string' ? value : JSON.stringify(value));
+    }
   },
   subtotal: {
     type: DataTypes.FLOAT,

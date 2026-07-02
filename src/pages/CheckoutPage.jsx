@@ -242,14 +242,13 @@ const CheckoutPage = () => {
         // Save address for next time
         localStorage.setItem('sk_saved_address', JSON.stringify(form));
         setSavedAddress(form);
-        toast.success('Order placed successfully!');
         return res;
       }
+      throw new Error('Order creation failed');
     } catch (err) {
       console.error('Order API error:', err);
-      toast.error('Order placed, but confirmation may be delayed.');
+      throw err;
     }
-    return { order: { orderId: generateOrderId() }, earnedPoints: 0 };
   };
 
   const handlePlaceOrder = async () => {
@@ -263,6 +262,7 @@ const CheckoutPage = () => {
 
         if (isAuthenticated) await refreshLoyalty();
 
+        toast.success('Order placed successfully! 🎉');
         clearCart();
         setIsPlacingOrder(false);
         setOrderSuccessData({ orderId: res.order?.orderId || generateOrderId(), earnedPoints: earned });
@@ -327,6 +327,7 @@ const CheckoutPage = () => {
 
           if (isAuthenticated) await refreshLoyalty();
 
+          toast.success('Order placed successfully! 🎉');
           clearCart();
           setIsPlacingOrder(false);
           setOrderSuccessData({ orderId: res.order?.orderId || generateOrderId(), earnedPoints: earned });
@@ -444,7 +445,7 @@ const CheckoutPage = () => {
 
         {/* ── Loyalty Points Earned Dialog ── */}
         <AnimatePresence>
-          {showLoyaltyEarnedDialog && isAuthenticated && orderSuccessData.earnedPoints > 0 && (
+          {showLoyaltyEarnedDialog && isAuthenticated && (
             <motion.div
               initial={{ scale: 0.7, y: 50, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
