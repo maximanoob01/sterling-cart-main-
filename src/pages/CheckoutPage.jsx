@@ -11,7 +11,7 @@ import { generateOrderId } from '../utils/formatPrice';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import FreeDeliveryBar from '../components/cart/FreeDeliveryBar';
-import { VisaLogo, MastercardLogo, AmexLogo, RazorpayLogo, GPayLogo, PhonePeLogo, PaytmLogo, RupayLogo, AmazonPayLogo, MobikwikLogo, BankLogo, CashLogo } from '../components/ui/PaymentLogos';
+import { VisaLogo, MastercardLogo, AmexLogo, RazorpayLogo, ShiprocketLogo, GPayLogo, PhonePeLogo, PaytmLogo, RupayLogo, AmazonPayLogo, MobikwikLogo, BankLogo, CashLogo } from '../components/ui/PaymentLogos';
 import royalPointsCoinImg from '../assets/images/royal_points_coin.png';
 
 const indianStates = [
@@ -1009,6 +1009,7 @@ const CheckoutPage = () => {
                       <AmexLogo />
                       <div className="w-[1px] h-4 bg-[#F0E8EA] mx-1"></div>
                       <RazorpayLogo />
+                      <ShiprocketLogo />
                     </div>
                   </div>
 

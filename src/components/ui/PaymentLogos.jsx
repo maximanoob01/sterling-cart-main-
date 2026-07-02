@@ -1,24 +1,33 @@
+import React from 'react';
+import shiprocketImg from '../assets/images/image.png';
+
 export const VisaLogo = () => (
   <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center px-[3px]">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" className="w-full h-auto object-contain" />
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="w-full h-auto object-contain" />
   </div>
 );
 
 export const MastercardLogo = () => (
   <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center px-[3px]">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/512px-Mastercard-logo.svg.png" alt="Mastercard" className="w-full h-auto object-contain scale-[1.1]" />
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="w-full h-auto object-contain scale-[1.1]" />
   </div>
 );
 
 export const AmexLogo = () => (
   <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center p-[2px]">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo_%282018%29.svg/512px-American_Express_logo_%282018%29.svg.png" alt="Amex" className="w-full h-auto object-contain" />
+    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg" alt="Amex" className="w-full h-auto object-contain" />
   </div>
 );
 
 export const RazorpayLogo = () => (
   <div className="w-[54px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center px-[4px]">
     <img src="https://upload.wikimedia.org/wikipedia/commons/8/89/Razorpay_logo.svg" alt="Razorpay" className="w-full h-auto object-contain scale-[1.1]" />
+  </div>
+);
+
+export const ShiprocketLogo = () => (
+  <div className="w-[64px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center px-[4px]">
+    <img src={shiprocketImg} alt="Shiprocket" className="w-full h-auto object-contain" />
   </div>
 );
 
