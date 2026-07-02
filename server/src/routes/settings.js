@@ -56,8 +56,8 @@ router.get('/silver-price', async (_req, res) => {
     // The API returns the International Spot Price. 
     // In India, physical silver includes ~15% import duty, 3% GST, and dealer premiums.
     // The Google search price (e.g. ₹245) is the retail physical price, not spot.
-    // We apply an Indian Market Premium Multiplier (approx 33% total markup) to match local retail rates.
-    const INDIAN_RETAIL_MULTIPLIER = 1.334;
+    // We apply an Indian Market Premium Multiplier (approx 24% total markup) to match local retail rates.
+    const INDIAN_RETAIL_MULTIPLIER = 1.24;
 
     const applyMultiplier = (val) => val ? val * INDIAN_RETAIL_MULTIPLIER : null;
 
