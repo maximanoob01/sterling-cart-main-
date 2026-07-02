@@ -6,6 +6,7 @@ import { authenticate, requireAdmin, optionalAuth } from '../middleware/auth.js'
 import crypto from 'crypto';
 import validate from '../middleware/validate.js';
 import { sendOrderConfirmation } from '../services/emailService.js';
+import shiprocketService from '../services/shiprocketService.js';
 import {
   generateOrderId, getItemPrice, FREE_DELIVERY_THRESHOLD,
   DELIVERY_FEE, COD_FEE, GIFT_WRAP_FEE, LOYALTY_EARN_RATE, LOYALTY_REDEEM_CAP,
@@ -229,6 +230,39 @@ router.post('/', optionalAuth, [
 
     // Send confirmation email (non-blocking)
     sendOrderConfirmation(orderId, form, orderItems, totalAmount).catch(console.error);
+
+    // Create Shiprocket Order and Generate AWB (non-blocking)
+    (async () => {
+      try {
+        // Create custom order in Shiprocket
+        const srOrder = await shiprocketService.createCustomOrder(order, items);
+        if (srOrder && srOrder.order_id && srOrder.shipment_id) {
+          // Generate AWB immediately
+          const awbRes = await shiprocketService.generateAWB(srOrder.shipment_id);
+          
+          let awbCode = null;
+          let courierName = null;
+          let routingCode = null;
+
+          if (awbRes && awbRes.response && awbRes.response.data) {
+            awbCode = awbRes.response.data.awb_code;
+            courierName = awbRes.response.data.courier_name;
+            routingCode = awbRes.response.data.routing_code;
+          }
+
+          // Update our DB with Shiprocket details
+          await order.update({
+            shiprocketOrderId: srOrder.order_id.toString(),
+            shiprocketShipmentId: srOrder.shipment_id.toString(),
+            awbCode: awbCode,
+            courierName: courierName || order.courierName,
+            trackingUrl: awbCode ? `https://shiprocket.co/tracking/${awbCode}` : null
+          });
+        }
+      } catch (err) {
+        console.error('Shiprocket Integration Error during Order Creation:', err.message);
+      }
+    })();
 
     res.status(201).json({
       success: true,

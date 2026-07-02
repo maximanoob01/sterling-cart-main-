@@ -117,11 +117,15 @@ const OrderCard = ({ order }) => {
           <span className="text-xs text-silver-500 font-medium">{formatDate(order.date)} • {totalItems} item{totalItems !== 1 ? 's' : ''}</span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {order.trackingNumber && (
+          {order.trackingUrl ? (
+            <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50/80 text-[#D4527A] hover:bg-pink-100 rounded-full text-[12px] font-semibold transition-colors">
+              <Truck size={14} /> Track
+            </a>
+          ) : order.trackingNumber ? (
             <Link to="/track-order" className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50/80 text-[#D4527A] hover:bg-pink-100 rounded-full text-[12px] font-semibold transition-colors">
               <Truck size={14} /> Track
             </Link>
-          )}
+          ) : null}
           <button
             onClick={handleDownloadInvoice}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-silver-600 hover:text-charcoal border border-silver-200 hover:border-silver-300 rounded-full text-[12px] font-semibold transition-colors shadow-sm"

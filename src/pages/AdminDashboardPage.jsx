@@ -79,6 +79,9 @@ const normalizeOrder = (order) => {
     customerEmail: order.customerEmail || '',
     customerPhone: order.customerPhone || '',
     paymentMethod: order.paymentMethod || '-',
+    trackingNumber: order.awbCode || order.trackingNumber || '',
+    trackingUrl: order.trackingUrl || '',
+    shippingLabelUrl: order.shippingLabelUrl || '',
     items: Array.isArray(order.items) ? order.items : [],
     timeline,
   };
@@ -256,11 +259,17 @@ function OrderDetailPanel({ order, onClose }) {
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
 
           {/* Status */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <StatusBadge status={order.status} size="lg" />
             {order.trackingNumber && (
-              <span className="font-sans text-[12px] text-text-muted">
-                {order.courierName} · {order.trackingNumber}
+              <span className="font-sans text-[12px] text-text-muted flex items-center gap-2">
+                <span>{order.courierName || 'Shiprocket'} · {order.trackingNumber}</span>
+                {order.trackingUrl && (
+                  <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-[#D4527A] hover:underline font-semibold">Track</a>
+                )}
+                {order.shippingLabelUrl && (
+                  <a href={order.shippingLabelUrl} target="_blank" rel="noopener noreferrer" className="text-[#0369A1] hover:underline font-semibold ml-2 border-l pl-2 border-gray-300">Label</a>
+                )}
               </span>
             )}
           </div>

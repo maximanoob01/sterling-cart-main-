@@ -26,6 +26,7 @@ import customOrderRoutes from './routes/customOrders.js';
 import giftCardRoutes from './routes/giftCards.js';
 import settingsRoutes from './routes/settings.js';
 import notificationRoutes from './routes/notifications.js';
+import webhooksRoutes from './routes/webhooks.js';
 
 // Init Cron Jobs
 import './jobs/cronJobs.js';
@@ -78,6 +79,7 @@ app.use('/api/custom-orders', customOrderRoutes);
 app.use('/api/gift-cards', giftCardRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/admin/notifications', notificationRoutes);
+app.use('/api/webhooks', webhooksRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

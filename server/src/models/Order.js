@@ -137,6 +137,30 @@ Order.init({
   resubmitTokenStartedAt: {
     type: DataTypes.DATE,
     allowNull: true
+  },
+  shiprocketOrderId: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  shiprocketShipmentId: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  awbCode: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  shippingLabelUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  manifestUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  trackingUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 }, {
   sequelize,
