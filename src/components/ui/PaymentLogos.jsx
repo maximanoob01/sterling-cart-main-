@@ -2,8 +2,10 @@ import React from 'react';
 import shiprocketImg from '../../assets/images/ship.png';
 
 export const VisaLogo = () => (
-  <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center overflow-hidden">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="max-w-[80%] max-h-[80%] object-contain" onError={(e) => { e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png' }} />
+  <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center overflow-hidden text-[#1434CB]">
+    <svg viewBox="0 0 32 32" className="w-[85%] h-[85%]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.984 21.037l2.006-12.72h3.242l-2.008 12.72h-3.24zm14.184-12.441c-0.603-0.28-1.599-0.589-2.883-0.589-3.187 0-5.436 1.706-5.454 4.148-0.024 1.782 1.624 2.775 2.859 3.385 1.272 0.627 1.696 1.032 1.694 1.593-0.003 0.859-1.028 1.258-1.979 1.258-1.328 0-2.031-0.201-3.118-0.686l-0.44-0.206-0.457 2.85c0.776 0.358 2.203 0.669 3.693 0.686 3.384 0 5.603-1.67 5.626-4.256 0.013-1.408-0.841-2.483-2.738-3.39-1.135-0.59-1.83-0.984-1.833-1.583 0-0.548 0.624-1.127 1.884-1.127 1.054-0.021 1.82 0.222 2.404 0.493l0.292 0.137 0.451-2.712zm-18.066 12.441l-2.527-11.973c-0.344-1.385-1.472-1.786-2.585-1.956l-3.328-0.395 0.046 0.219c0.71 0.15 1.517 0.428 2.025 0.672 0.776 0.373 0.986 0.677 1.185 1.455l2.008 11.979h3.424l5.35-12.72h-3.411l-2.186 12.72h-0.001z"/>
+    </svg>
   </div>
 );
 
