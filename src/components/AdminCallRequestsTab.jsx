@@ -19,6 +19,9 @@ const AdminCallRequestsTab = () => {
   
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isQuickConfirmOpen, setIsQuickConfirmOpen] = useState(false);
+  const [quickTime, setQuickTime] = useState('');
+  
   const [modalForm, setModalForm] = useState({
     status: '',
     finalTime: '',
@@ -54,6 +57,34 @@ const AdminCallRequestsTab = () => {
       adminNotes: req.adminNotes || ''
     });
     setIsModalOpen(true);
+  };
+
+  const handleQuickConfirmOpen = (req) => {
+    setSelectedRequest(req);
+    setQuickTime('');
+    setIsQuickConfirmOpen(true);
+  };
+
+  const handleQuickConfirmSubmit = async (e) => {
+    e.preventDefault();
+    if (!quickTime) {
+      toast.error('Please enter a time');
+      return;
+    }
+    try {
+      const payload = {
+        status: 'Confirmed',
+        finalTime: quickTime
+      };
+      const res = await api.put(`/admin/call-requests/${selectedRequest.id}`, payload);
+      if (res.success) {
+        toast.success('Call request confirmed');
+        setIsQuickConfirmOpen(false);
+        fetchRequests();
+      }
+    } catch (err) {
+      toast.error('Failed to confirm request');
+    }
   };
 
   const handleUpdate = async (e) => {
@@ -144,9 +175,19 @@ const AdminCallRequestsTab = () => {
                        <span className="font-medium text-gray-900">{req.finalTime || 'Not set'}</span>
                     ) : '-'}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right flex justify-end gap-1">
+                    {req.status === 'Pending' && (
+                      <button 
+                        onClick={() => handleQuickConfirmOpen(req)}
+                        title="Quick Confirm"
+                        className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      >
+                        <Check size={16} />
+                      </button>
+                    )}
                     <button 
                       onClick={() => handleOpenModal(req)}
+                      title="Edit Details"
                       className="p-1.5 text-gray-400 hover:text-[#D4527A] hover:bg-pink-50 rounded-lg transition-colors"
                     >
                       <Edit2 size={16} />
@@ -233,6 +274,44 @@ const AdminCallRequestsTab = () => {
                   <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
                   <button type="submit" className="px-5 py-2 text-sm font-semibold bg-[#D4527A] hover:bg-[#B33F62] text-white rounded-lg transition-colors flex items-center gap-2">
                     <Check size={16} /> Save Changes
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Quick Confirm Modal */}
+      <AnimatePresence>
+        {isQuickConfirmOpen && selectedRequest && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center px-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsQuickConfirmOpen(false)} className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-sm bg-white rounded-2xl shadow-xl z-10 p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-lg font-bold font-serif text-gray-900">Quick Confirm</h3>
+                </div>
+                <button onClick={() => setIsQuickConfirmOpen(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-400"><X size={18}/></button>
+              </div>
+
+              <form onSubmit={handleQuickConfirmSubmit}>
+                <div className="mb-4">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1.5">Set Final Time</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., 11:30 AM"
+                    value={quickTime} 
+                    onChange={e => setQuickTime(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#D4527A] outline-none"
+                    required
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Requested slot: {selectedRequest.timeSlot}</p>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button type="button" onClick={() => setIsQuickConfirmOpen(false)} className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                  <button type="submit" className="px-5 py-2 text-sm font-semibold bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center gap-2">
+                    <Check size={16} /> Confirm
                   </button>
                 </div>
               </form>
