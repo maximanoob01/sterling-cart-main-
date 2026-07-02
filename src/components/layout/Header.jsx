@@ -8,6 +8,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useProducts } from '../../context/ProductContext';
 import { formatPrice } from '../../utils/formatPrice';
+import api from '../../services/api';
 import engravedCoinImg from '../../assets/images/engraved_coin.png';
 
 const announcements = [
@@ -635,21 +636,47 @@ export default function Header() {
   );
 }
 
-const silverSnapshot = {
+// Fallback hardcoded snapshot (used if API is down)
+const SILVER_FALLBACK = {
   today: 102.4,
   previous: 101.1,
   low: 98.6,
   high: 104.8,
-  allTimeLow: 34.7,
 };
 
 function SilverPriceModal({ onClose }) {
   const { products } = useProducts();
+  const [silverData, setSilverData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isStale, setIsStale] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchPrice = async () => {
+      try {
+        const res = await api.get('/settings/silver-price');
+        if (!cancelled && res.success) {
+          setSilverData(res.data);
+          setIsStale(res.stale || false);
+        }
+      } catch {
+        if (!cancelled) setSilverData(null); // will fall back to SILVER_FALLBACK
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+    fetchPrice();
+    return () => { cancelled = true; };
+  }, []);
+
   const trendingProducts = [...products]
     .sort((a, b) => (b.reviewCount + b.rating * 20) - (a.reviewCount + a.rating * 20))
     .slice(0, 4);
-  const dailyChange = silverSnapshot.today - silverSnapshot.previous;
-  const dailyChangePercent = (dailyChange / silverSnapshot.previous) * 100;
+
+  const snap = silverData || SILVER_FALLBACK;
+  const dailyChange = snap.change ?? (snap.today - (snap.previous || snap.today));
+  const dailyChangePercent = snap.changePercent ?? (snap.previous ? ((snap.today - snap.previous) / snap.previous) * 100 : 0);
+  const isUp = dailyChange >= 0;
   const dateLabel = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
@@ -675,7 +702,9 @@ function SilverPriceModal({ onClose }) {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[1.6px] text-[#B94B68]">Sterling Kart silver tracker</p>
             <h2 id="silver-price-title" className="mt-1 font-serif text-[28px] text-text-main sm:text-[32px]">Silver price today</h2>
-            <p className="mt-1 text-[12px] text-[#888]">{dateLabel} · Indicative retail reference</p>
+            <p className="mt-1 text-[12px] text-[#888]">
+              {dateLabel} · {isLoading ? 'Fetching live rate...' : isStale ? 'Cached rate · Indicative' : 'Live rate · goldapi.io'}
+            </p>
           </div>
           <button type="button" onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F8F5F4] text-text-muted transition-colors hover:bg-pink-50 hover:text-[#B94B68]" aria-label="Close silver price tracker">
             <X size={18} />
@@ -685,22 +714,40 @@ function SilverPriceModal({ onClose }) {
         <div className="overflow-y-auto px-5 py-5 sm:px-7">
           <div className="rounded-2xl bg-[#1C1C2E] p-6 sm:p-8 text-white sm:flex sm:items-end sm:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[1.3px] text-[#E7BCC5]">925 silver · per gram</p>
-              <p className="mt-3 font-serif text-[48px] sm:text-[64px] leading-none text-[#F4A0B0]">Rs. {silverSnapshot.today.toFixed(2)}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[1.3px] text-[#E7BCC5]">999 fine silver · per gram (24k)</p>
+              {isLoading ? (
+                <div className="mt-3 h-16 w-48 animate-pulse rounded-xl bg-white/10" />
+              ) : (
+                <p className="mt-3 font-serif text-[48px] sm:text-[64px] leading-none text-[#F4A0B0]">
+                  ₹{snap.today.toFixed(2)}
+                </p>
+              )}
             </div>
-            <p className="mt-3 flex items-center gap-1 text-[12px] font-semibold text-[#98D9B0] sm:mt-0">
-              <TrendingUp size={15} /> +Rs. {dailyChange.toFixed(2)} ({dailyChangePercent.toFixed(2)}%) vs previous close
-            </p>
+            {!isLoading && (
+              <p className={`mt-3 flex items-center gap-1 text-[12px] font-semibold sm:mt-0 ${isUp ? 'text-[#98D9B0]' : 'text-red-400'}`}>
+                {isUp ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
+                {isUp ? '+' : ''}₹{dailyChange.toFixed(2)} ({dailyChangePercent.toFixed(2)}%) vs prev close
+              </p>
+            )}
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <SilverStat label="Previous close" value={`Rs. ${silverSnapshot.previous.toFixed(2)}`} />
-            <SilverStat label="Today's low" value={`Rs. ${silverSnapshot.low.toFixed(2)}`} />
-            <SilverStat label="Today's high" value={`Rs. ${silverSnapshot.high.toFixed(2)}`} />
-            <SilverStat label="All-time low" value={`Rs. ${silverSnapshot.allTimeLow.toFixed(2)}`} icon={<TrendingDown size={14} />} />
+            {isLoading ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-100" />
+              ))
+            ) : (
+              <>
+                <SilverStat label="Previous close" value={snap.previous ? `₹${snap.previous.toFixed(2)}` : 'N/A'} />
+                <SilverStat label="Today's low" value={snap.low ? `₹${snap.low.toFixed(2)}` : 'N/A'} />
+                <SilverStat label="Today's high" value={snap.high ? `₹${snap.high.toFixed(2)}` : 'N/A'} />
+                <SilverStat label="Ask price" value={snap.ask ? `₹${(snap.ask / 31.1035).toFixed(2)}/g` : 'N/A'} icon={<TrendingUp size={14} />} />
+              </>
+            )}
           </div>
 
           <p className="mt-3 text-[11px] leading-5 text-text-muted">
+            {silverData ? 'Live data powered by goldapi.io. ' : 'Using estimated rates. '}
             Indicative store reference only. Jewellery prices also depend on design, craftsmanship, stones, and applicable taxes.
           </p>
 
