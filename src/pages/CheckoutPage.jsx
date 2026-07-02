@@ -1001,7 +1001,7 @@ const CheckoutPage = () => {
                       <span className="text-[16px]">🌍</span> Secure International Checkout
                     </p>
                     <p className="font-sans text-[11px] text-text-muted leading-relaxed mb-3">
-                      Payments processed safely through <span className="font-bold text-text-main">Razorpay</span>. We accept Visa, Mastercard, American Express, and other major international cards.
+                      Payments are securely processed via <span className="font-bold text-text-main">Razorpay</span> (accepting Visa, Mastercard, Amex). Your order is swiftly and safely delivered via <span className="font-bold text-text-main">Shiprocket</span>.
                     </p>
                     <div className="flex items-center gap-3">
                       <VisaLogo />
