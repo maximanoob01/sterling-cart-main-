@@ -2,32 +2,32 @@ import React from 'react';
 import shiprocketImg from '../../assets/images/ship.png';
 
 export const VisaLogo = () => (
-  <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center px-[3px]">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="w-full h-auto object-contain" />
+  <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center overflow-hidden">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="max-w-[80%] max-h-[80%] object-contain" onError={(e) => { e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png' }} />
   </div>
 );
 
 export const MastercardLogo = () => (
-  <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center px-[3px]">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="w-full h-auto object-contain scale-[1.1]" />
+  <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center overflow-hidden">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="max-w-[80%] max-h-[80%] object-contain" />
   </div>
 );
 
 export const AmexLogo = () => (
-  <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center p-[2px]">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg" alt="Amex" className="w-full h-auto object-contain" />
+  <div className="w-[38px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center overflow-hidden bg-[#006FCF]">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg" alt="Amex" className="w-full h-full object-contain" />
   </div>
 );
 
 export const RazorpayLogo = () => (
-  <div className="w-[54px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center px-[4px]">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/8/89/Razorpay_logo.svg" alt="Razorpay" className="w-full h-auto object-contain scale-[1.1]" />
+  <div className="w-[54px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center overflow-hidden">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/89/Razorpay_logo.svg" alt="Razorpay" className="max-w-[85%] max-h-[85%] object-contain" />
   </div>
 );
 
 export const ShiprocketLogo = () => (
-  <div className="w-[64px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center px-[4px]">
-    <img src={shiprocketImg} alt="Shiprocket" className="w-full h-auto object-contain" />
+  <div className="w-[54px] h-[24px] rounded-[3px] bg-white border border-[#E8DDD5] flex items-center justify-center overflow-hidden">
+    <img src={shiprocketImg} alt="Shiprocket" className="w-full h-full object-cover" />
   </div>
 );
 
