@@ -1,15 +1,13 @@
 import { Router } from 'express';
-import { getSiteSettings } from '../services/siteSettings.js';
+import { getSiteSettings, updateSiteSettings } from '../services/siteSettings.js';
 import https from 'https';
 
 const router = Router();
 
-const GOLD_API_KEY = 'goldapi-4a0d6b2158fba080159fd070f6f839c4-io';
+const METALPRICE_API_KEY = '2fb5a1acd97bd1497d6dd5a14b927659';
 
-// Cache to avoid hammering the API (refresh every 5 minutes)
-let silverPriceCache = null;
-let silverPriceCacheTime = 0;
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+// 12 hours TTL for metalprice API to stay under 60 requests/month (limit is 100/mo)
+const CACHE_TTL = 12 * 60 * 60 * 1000; 
 
 // ─── GET /api/settings — Site settings ───────────────────────────────────────
 router.get('/', async (_req, res, next) => {
@@ -19,25 +17,25 @@ router.get('/', async (_req, res, next) => {
   } catch (error) { next(error); }
 });
 
-// ─── GET /api/settings/silver-price — Live silver price from goldapi.io ──────
+// ─── GET /api/settings/silver-price — Live silver price ──────
 router.get('/silver-price', async (_req, res) => {
   try {
-    // Serve from cache if fresh
-    if (silverPriceCache && Date.now() - silverPriceCacheTime < CACHE_TTL) {
-      return res.json({ success: true, data: silverPriceCache, cached: true });
+    // 1. Check persistent cache from site settings
+    const settings = await getSiteSettings();
+    const cache = settings.silverPriceCache;
+    const cacheTime = settings.silverPriceCacheTime || 0;
+
+    // Serve from persistent cache if fresh
+    if (cache && Date.now() - cacheTime < CACHE_TTL) {
+      return res.json({ success: true, data: cache, cached: true });
     }
 
-    // Fetch live from goldapi.io
+    // 2. Fetch live from metalpriceapi.com
     const data = await new Promise((resolve, reject) => {
       const options = {
-        hostname: 'www.goldapi.io',
-        path: '/api/XAG/INR',
+        hostname: 'api.metalpriceapi.com',
+        path: `/v1/latest?api_key=${METALPRICE_API_KEY}&base=INR&currencies=XAG`,
         method: 'GET',
-        family: 4,
-        headers: {
-          'x-access-token': GOLD_API_KEY,
-          'Content-Type': 'application/json',
-        },
       };
 
       const req = https.request(options, (apiRes) => {
@@ -45,46 +43,68 @@ router.get('/silver-price', async (_req, res) => {
         apiRes.on('data', (chunk) => { raw += chunk; });
         apiRes.on('end', () => {
           try { resolve(JSON.parse(raw)); }
-          catch (e) { reject(new Error('Invalid JSON from goldapi.io')); }
+          catch (e) { reject(new Error('Invalid JSON from metalprice API')); }
         });
       });
 
       req.on('error', reject);
-      req.setTimeout(15000, () => { req.destroy(); reject(new Error('goldapi.io timeout')); });
+      req.setTimeout(15000, () => { req.destroy(); reject(new Error('metalprice API timeout')); });
       req.end();
     });
 
-    // The API returns the International Spot Price. 
+    if (!data.success || !data.rates || !data.rates.INRXAG) {
+      throw new Error('Invalid response from metalprice API');
+    }
+
+    // The API returns the International Spot Price for 1 Troy Ounce of Silver (XAG) in INR.
+    // 1 Troy Ounce = 31.1035 grams
+    const spotGram = data.rates.INRXAG / 31.1035;
+
     // In India, physical silver includes ~15% import duty, 3% GST, and dealer premiums.
-    // The Google search price (e.g. ₹245) is the retail physical price, not spot.
     // We apply an Indian Market Premium Multiplier (approx 24% total markup) to match local retail rates.
     const INDIAN_RETAIL_MULTIPLIER = 1.24;
-
     const applyMultiplier = (val) => val ? val * INDIAN_RETAIL_MULTIPLIER : null;
+    
+    const todayPrice = applyMultiplier(spotGram);
+
+    // Calculate synthetic change from the last cached value
+    let previous = null;
+    let change = null;
+    let changePercent = null;
+
+    if (cache && cache.today) {
+      previous = cache.today;
+      change = todayPrice - previous;
+      changePercent = (change / previous) * 100;
+    }
 
     // Map fields to our format
     const mapped = {
-      today:        applyMultiplier(data.price_gram_24k),
-      previous:     applyMultiplier(data.prev_close_price ? (data.prev_close_price / 31.1035) : null),
-      low:          applyMultiplier(data.low_price         ? (data.low_price         / 31.1035) : null),
-      high:         applyMultiplier(data.high_price        ? (data.high_price        / 31.1035) : null),
-      price_gram_24k: applyMultiplier(data.price_gram_24k),
-      change:       applyMultiplier(data.ch ? data.ch / 31.1035 : 0),
-      changePercent: data.chp,
-      ask:          applyMultiplier(data.ask),
-      bid:          applyMultiplier(data.bid),
-      updatedAt:    new Date().toISOString(),
+      today: todayPrice,
+      previous: previous,
+      low: null,
+      high: null,
+      price_gram_24k: todayPrice,
+      change: change,
+      changePercent: changePercent,
+      ask: null,
+      bid: null,
+      updatedAt: new Date().toISOString(),
     };
 
-    silverPriceCache = mapped;
-    silverPriceCacheTime = Date.now();
+    // 3. Save to persistent cache
+    await updateSiteSettings({
+      silverPriceCache: mapped,
+      silverPriceCacheTime: Date.now()
+    });
 
     res.json({ success: true, data: mapped, cached: false });
   } catch (err) {
     console.error('❌ Silver price API error:', err.message);
     // Return last cached data if available, else error
-    if (silverPriceCache) {
-      return res.json({ success: true, data: silverPriceCache, cached: true, stale: true });
+    const settings = await getSiteSettings();
+    if (settings.silverPriceCache) {
+      return res.json({ success: true, data: settings.silverPriceCache, cached: true, stale: true });
     }
     res.status(503).json({ success: false, error: 'Silver price unavailable', message: err.message });
   }
