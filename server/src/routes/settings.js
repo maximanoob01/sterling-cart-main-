@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { getSiteSettings, updateSiteSettings } from '../services/siteSettings.js';
 import https from 'https';
+import process from 'node:process';
 
 const router = Router();
 
-const METALPRICE_API_KEY = '2fb5a1acd97bd1497d6dd5a14b927659';
+const METALPRICE_API_KEY = process.env.METALPRICE_API_KEY;
 
 // ─── GET /api/settings — Site settings ───────────────────────────────────────
 router.get('/', async (_req, res, next) => {
