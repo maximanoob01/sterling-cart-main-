@@ -6,9 +6,6 @@ const router = Router();
 
 const METALPRICE_API_KEY = '2fb5a1acd97bd1497d6dd5a14b927659';
 
-// 12 hours TTL for metalprice API to stay under 60 requests/month (limit is 100/mo)
-const CACHE_TTL = 12 * 60 * 60 * 1000; 
-
 // ─── GET /api/settings — Site settings ───────────────────────────────────────
 router.get('/', async (_req, res, next) => {
   try {
@@ -25,8 +22,40 @@ router.get('/silver-price', async (_req, res) => {
     const cache = settings.silverPriceCache;
     const cacheTime = settings.silverPriceCacheTime || 0;
 
-    // Serve from persistent cache if fresh
-    if (cache && Date.now() - cacheTime < CACHE_TTL) {
+    // Helper to get the last strictly scheduled refresh timestamp (10 AM or 5 PM IST)
+    const getLastRefreshTimestamp = () => {
+      const now = new Date();
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric', month: 'numeric', day: 'numeric'
+      });
+      
+      const parts = formatter.formatToParts(now);
+      const getPart = (type) => parseInt(parts.find(p => p.type === type).value, 10);
+      
+      const year = getPart('year');
+      const month = getPart('month') - 1; 
+      const day = getPart('day');
+      
+      const tenAmUTC = Date.UTC(year, month, day, 4, 30, 0); 
+      const fivePmUTC = Date.UTC(year, month, day, 11, 30, 0); 
+      const yesterdayFivePmUTC = Date.UTC(year, month, day - 1, 11, 30, 0);
+      
+      const currentUTC = now.getTime();
+      
+      if (currentUTC >= fivePmUTC) {
+        return fivePmUTC;
+      } else if (currentUTC >= tenAmUTC) {
+        return tenAmUTC;
+      } else {
+        return yesterdayFivePmUTC;
+      }
+    };
+
+    const targetRefreshTime = getLastRefreshTimestamp();
+
+    // Serve from persistent cache if cacheTime is strictly AFTER the last refresh point
+    if (cache && cacheTime >= targetRefreshTime) {
       return res.json({ success: true, data: cache, cached: true });
     }
 
