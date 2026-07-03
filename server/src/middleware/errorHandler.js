@@ -7,8 +7,9 @@ const errorHandler = (err, req, res, _next) => {
   }
 
   // Sequelize validation error
-  if (err instanceof ValidationError) {
+  if (err.name === 'SequelizeValidationError' || err instanceof ValidationError) {
     const messages = err.errors.map(e => e.message);
+    console.error('❌ Validation Error Details:', messages);
     return res.status(400).json({ success: false, error: 'Validation Error', details: messages });
   }
 

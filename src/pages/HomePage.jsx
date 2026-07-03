@@ -247,7 +247,7 @@ export default function HomePage() {
 
     const timer = window.setInterval(() => {
       setHeroIndex((currentIndex) => (currentIndex + 1) % activeHeroSlides.length);
-    }, 3500);
+    }, 6000);
 
     return () => window.clearInterval(timer);
   }, [activeHeroSlides.length, isHeroHovered, isHeroPaused]);
