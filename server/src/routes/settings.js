@@ -33,6 +33,7 @@ router.get('/silver-price', async (_req, res) => {
         hostname: 'www.goldapi.io',
         path: '/api/XAG/INR',
         method: 'GET',
+        family: 4,
         headers: {
           'x-access-token': GOLD_API_KEY,
           'Content-Type': 'application/json',
@@ -49,7 +50,7 @@ router.get('/silver-price', async (_req, res) => {
       });
 
       req.on('error', reject);
-      req.setTimeout(8000, () => { req.destroy(); reject(new Error('goldapi.io timeout')); });
+      req.setTimeout(15000, () => { req.destroy(); reject(new Error('goldapi.io timeout')); });
       req.end();
     });
 
