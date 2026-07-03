@@ -35,11 +35,13 @@ export const WishlistProvider = ({ children }) => {
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     };
 
+    const targetId = product.id || product._id;
+
     setItems(prev => {
-      const exists = prev.find(item => (item.id === product.id || item._id === product._id));
+      const exists = prev.find(item => (item.id || item._id) === targetId);
       if (exists) {
         toast.success(`${product.name} removed from wishlist`, toastStyle);
-        return prev.filter(item => item.id !== product.id && item._id !== product._id);
+        return prev.filter(item => (item.id || item._id) !== targetId);
       } else {
         toast.success(`${product.name} added to wishlist ♡`, toastStyle);
         return [...prev, product];
@@ -48,19 +50,18 @@ export const WishlistProvider = ({ children }) => {
 
     // Sync with API (non-blocking)
     try {
-      const productId = product._id || product.id;
-      await api.post(`/wishlist/${productId}`);
+      await api.post(`/wishlist/${targetId}`);
     } catch (err) {
       // Silently fail — local state is already updated
     }
   }, []);
 
   const isWishlisted = useCallback((productId) => {
-    return items.some(item => item.id === productId || item._id === productId);
+    return items.some(item => (item.id || item._id) === productId);
   }, [items]);
 
   const removeItem = useCallback(async (productId) => {
-    setItems(prev => prev.filter(item => item.id !== productId && item._id !== productId));
+    setItems(prev => prev.filter(item => (item.id || item._id) !== productId));
     try {
       await api.delete(`/wishlist/${productId}`);
     } catch (err) { /* silent */ }

@@ -184,6 +184,27 @@ function ImageZoom({ image, name, onClose }) {
   );
 }
 
+function RoyalPointsGuide({ onClose }) {
+  return (
+    <ModalShell title="Royal Points Program" onClose={onClose}>
+      <div className="space-y-5 text-[13px] md:text-[14px] text-[#666] leading-relaxed">
+        <p>
+          <strong className="text-[#1A1A1A]">Earn points on every purchase:</strong><br />
+          You earn 1 Royal Point for every ₹100 spent on our website. Points are credited to your account once your order is marked as "Delivered".
+        </p>
+        <p>
+          <strong className="text-[#1A1A1A]">Redeem points:</strong><br />
+          You can use your Royal Points to get a discount on future orders. You can redeem points up to 10% of your total order value.
+        </p>
+        <p>
+          <strong className="text-[#1A1A1A]">Validity:</strong><br />
+          Royal Points are valid for exactly 12 months from the date they are credited to your account.
+        </p>
+      </div>
+    </ModalShell>
+  );
+}
+
 /* ── main page ───────────────────────────────────────────────────────── */
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -212,6 +233,8 @@ export default function ProductDetailPage() {
   const [isProductDetailsOpen, setIsProductDetailsOpen] = useState(false);
   const [isEngravingEnabled, setIsEngravingEnabled] = useState(false);
   const [engravingText, setEngravingText] = useState('');
+  const [engravingType, setEngravingType] = useState('text');
+  const [isRoyalPointsGuideOpen, setIsRoyalPointsGuideOpen] = useState(false);
 
   if (!product) {
     if (!isLoaded) {
@@ -240,7 +263,16 @@ export default function ProductDetailPage() {
   const isRing = product.category === 'rings';
   const isWished = isWishlisted(product.id);
 
-  const addToCart = () => addItem(product, selectedSize, quantity, isEngravingEnabled ? engravingText : '');
+  const addToCart = () => {
+    let finalEngraving = engravingText;
+    if (isEngravingEnabled && engravingType === 'date' && engravingText) {
+      const parts = engravingText.split('-');
+      if (parts.length === 3) {
+        finalEngraving = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+    addItem(product, selectedSize, quantity, isEngravingEnabled ? finalEngraving : '');
+  };
   const buyNow = () => { addToCart(); navigate('/checkout'); };
   const checkDelivery = () => {
     if (!/^\d{6}$/.test(pincode)) { setDeliveryMessage('Enter a valid 6-digit pincode.'); return; }
@@ -412,16 +444,24 @@ export default function ProductDetailPage() {
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="mt-3 pt-3 border-t border-[#F4A0B0]/30 flex items-center gap-2.5"
+                    className="mt-3 pt-3 border-t border-[#F4A0B0]/30 flex items-center justify-between gap-2.5"
                   >
-                    <img
-                      src={royalPointsCoinImg}
-                      alt="Royal Points"
-                      className="w-7 h-7 rounded-full object-cover flex-shrink-0 drop-shadow-[0_0_4px_rgba(212,82,122,0.4)]"
-                    />
-                    <p className="font-sans text-[12px] font-bold text-[#D4527A]">
-                      Earn <span className="text-[14px]">{earnOnThis}</span> Royal Points
-                    </p>
+                    <div className="flex items-center gap-2.5">
+                      <img
+                        src={royalPointsCoinImg}
+                        alt="Royal Points"
+                        className="w-7 h-7 rounded-full object-cover flex-shrink-0 drop-shadow-[0_0_4px_rgba(212,82,122,0.4)]"
+                      />
+                      <p className="font-sans text-[12px] font-bold text-[#D4527A]">
+                        Earn <span className="text-[14px]">{earnOnThis}</span> Royal Points
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => setIsRoyalPointsGuideOpen(true)} 
+                      className="text-[10px] text-text-muted hover:text-[#D4527A] underline shrink-0 font-medium"
+                    >
+                      How does it work?
+                    </button>
                   </motion.div>
                 );
               })()}
@@ -497,18 +537,45 @@ export default function ProductDetailPage() {
               
               {isEngravingEnabled && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-3 overflow-hidden">
-                  <input
-                    type="text"
-                    value={engravingText}
-                    onChange={(e) => setEngravingText(e.target.value)}
-                    placeholder="Enter name, date, or message..."
-                    className="w-full rounded-xl border border-[#F0E8EA] px-4 py-2.5 text-[13px] outline-none transition-all focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] bg-white"
-                    maxLength={20}
-                  />
-                  <p className="mt-1.5 text-[10.5px] text-text-muted flex justify-between">
-                    <span>Will be engraved exactly as entered</span>
-                    <span className={engravingText.length >= 20 ? 'text-[#D4527A]' : ''}>{engravingText.length}/20</span>
-                  </p>
+                  <div className="flex gap-2 mb-3">
+                    <button 
+                      onClick={() => { setEngravingType('text'); setEngravingText(''); }}
+                      className={`px-3 py-1.5 text-[11px] rounded-full border transition-all ${engravingType === 'text' ? 'bg-[#1C1C2E] text-white border-[#1C1C2E]' : 'bg-white text-text-muted border-[#F0E8EA]'}`}
+                    >Text</button>
+                    <button 
+                      onClick={() => { setEngravingType('date'); setEngravingText(''); }}
+                      className={`px-3 py-1.5 text-[11px] rounded-full border transition-all ${engravingType === 'date' ? 'bg-[#1C1C2E] text-white border-[#1C1C2E]' : 'bg-white text-text-muted border-[#F0E8EA]'}`}
+                    >Date</button>
+                  </div>
+                  
+                  {engravingType === 'text' ? (
+                    <>
+                      <input
+                        type="text"
+                        value={engravingText}
+                        onChange={(e) => setEngravingText(e.target.value)}
+                        placeholder="Enter name or message..."
+                        className="w-full rounded-xl border border-[#F0E8EA] px-4 py-2.5 text-[13px] outline-none transition-all focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] bg-white"
+                        maxLength={10}
+                      />
+                      <p className="mt-1.5 text-[10.5px] text-text-muted flex justify-between">
+                        <span>Will be engraved exactly as entered</span>
+                        <span className={engravingText.length >= 10 ? 'text-[#D4527A]' : ''}>{engravingText.length}/10</span>
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <input
+                        type="date"
+                        value={engravingText}
+                        onChange={(e) => setEngravingText(e.target.value)}
+                        className="w-full rounded-xl border border-[#F0E8EA] px-4 py-2.5 text-[13px] outline-none transition-all focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] bg-white text-text-main"
+                      />
+                      <p className="mt-1.5 text-[10.5px] text-text-muted">
+                        Will be engraved in DD-MM-YYYY format
+                      </p>
+                    </>
+                  )}
                 </motion.div>
               )}
             </div>
@@ -760,6 +827,7 @@ export default function ProductDetailPage() {
       <AnimatePresence>
         {isSizeGuideOpen && <RingSizeGuide onClose={() => setIsSizeGuideOpen(false)} />}
         {isZoomOpen && <ImageZoom image={mainImage} name={product.name} onClose={() => setIsZoomOpen(false)} />}
+        {isRoyalPointsGuideOpen && <RoyalPointsGuide onClose={() => setIsRoyalPointsGuideOpen(false)} />}
       </AnimatePresence>
     </div>
   );
