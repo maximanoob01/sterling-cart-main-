@@ -6,8 +6,17 @@ import { User, Address, Loyalty, LoyaltyHistory, Notification } from '../models/
 import { syncExpiredPoints } from '../services/loyaltyService.js';
 import { authenticate } from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
+import rateLimit from 'express-rate-limit';
+import { createHybridStore } from '../utils/rateLimitStore.js';
 
 const router = Router();
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 OTP requests per window
+  message: { success: false, error: 'Too many requests, please try again after 15 minutes' },
+  store: createHybridStore(),
+});
 
 // ─── GET /api/auth/me — Get current user ─────────────────────────────────────
 router.get('/me', authenticate, async (req, res, next) => {
@@ -88,7 +97,7 @@ router.delete('/addresses/:id', authenticate, async (req, res, next) => {
 });
 
 // ─── POST /api/auth/request-otp — Validate phone & send OTP ─────────────────
-router.post('/request-otp', [
+router.post('/request-otp', authLimiter, [
   body('phone').trim().notEmpty().withMessage('Phone number is required'),
   body('isSignup').isBoolean().withMessage('isSignup flag is required'),
 ], validate, async (req, res, next) => {
@@ -118,7 +127,7 @@ router.post('/request-otp', [
 });
 
 // ─── POST /api/auth/verify-otp — Verify OTP and login/signup ────────────────
-router.post('/verify-otp', [
+router.post('/verify-otp', authLimiter, [
   body('phone').trim().notEmpty().withMessage('Phone number is required'),
   body('otp').trim().notEmpty().withMessage('OTP is required'),
 ], validate, async (req, res, next) => {

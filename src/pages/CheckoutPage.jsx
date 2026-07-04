@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift, Coins, Star, X, PenTool, MapPin } from 'lucide-react';
+import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift, Coins, Star, X, PenTool, MapPin, Copy, Package, Truck, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useAuth } from '../context/AuthContext';
 import { useLoyalty } from '../context/LoyaltyContext';
+import { useProducts } from '../context/ProductContext';
 import { getItemPrice } from '../context/CartContext';
 import { generateOrderId } from '../utils/formatPrice';
 import api from '../services/api';
@@ -45,6 +46,7 @@ const CheckoutPage = () => {
   const { formatPrice, currency } = useCurrency();
   const { isAuthenticated } = useAuth();
   const { balance, refreshLoyalty, maxRedeemable, pointsEarned } = useLoyalty();
+  const { products } = useProducts();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedPayment, setSelectedPayment] = useState('online');
@@ -74,7 +76,7 @@ const CheckoutPage = () => {
   const codFee = selectedPayment === 'cod' ? 9 : 0;
   const giftWrapFee = isGiftWrapped ? 49 : 0;
   const loyaltyDiscount = appliedPoints; // 1 pt = ₹1
-  
+
   const subtotalBeforeGC = Math.max(0, totalAmount + codFee + giftWrapFee - loyaltyDiscount);
   const gcDiscount = appliedGiftCard ? Math.min(appliedGiftCard.remainingBalance, subtotalBeforeGC) : 0;
   const finalTotalAmount = Math.max(0, subtotalBeforeGC - gcDiscount);
@@ -140,6 +142,13 @@ const CheckoutPage = () => {
     landmark: '',
   });
 
+  const getItemImage = (item) => {
+    if (item.images && item.images.length > 0) return item.images[0];
+    const fullProduct = products.find(p => String(p.id) === String(item.id));
+    if (fullProduct && fullProduct.images && fullProduct.images.length > 0) return fullProduct.images[0];
+    return 'https://via.placeholder.com/150?text=No+Image';
+  };
+
   const applyUseSavedAddress = () => {
     if (savedAddress) {
       setForm(savedAddress);
@@ -187,15 +196,15 @@ const CheckoutPage = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!form.fullName.trim()) newErrors.fullName = 'Full name is required';
-    if (!form.email.trim()) newErrors.email = 'Email is required';
+    if (!form.fullName?.trim()) newErrors.fullName = 'Full name is required';
+    if (!form.email?.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Invalid email address';
-    if (!form.phone.trim()) newErrors.phone = 'Phone number is required';
+    if (!form.phone?.trim()) newErrors.phone = 'Phone number is required';
     else if (!/^[6-9]\d{9}$/.test(form.phone.replace(/\s/g, ''))) newErrors.phone = 'Invalid phone number';
-    if (!form.addressLine1.trim()) newErrors.addressLine1 = 'Address is required';
-    if (!form.city.trim()) newErrors.city = 'City is required';
+    if (!form.addressLine1?.trim()) newErrors.addressLine1 = 'Address is required';
+    if (!form.city?.trim()) newErrors.city = 'City is required';
     if (!form.state) newErrors.state = 'State is required';
-    if (!form.pincode.trim()) newErrors.pincode = 'Pincode is required';
+    if (!form.pincode?.trim()) newErrors.pincode = 'Pincode is required';
     else if (!/^\d{6}$/.test(form.pincode)) newErrors.pincode = 'Invalid pincode';
 
     setErrors(newErrors);
@@ -215,8 +224,12 @@ const CheckoutPage = () => {
   };
 
   const createOrderOnBackend = async (paymentId, razorpayOrderId) => {
+    const sanitizedForm = {
+      ...form,
+      phone: form.phone ? form.phone.replace(/\s/g, '') : '',
+    };
     const orderPayload = {
-      form,
+      form: sanitizedForm,
       items: items.map(item => ({
         productId: item._id || item.id,
         name: item.name,
@@ -365,86 +378,145 @@ const CheckoutPage = () => {
   if (orderSuccessData) {
     return (
       <div className="fixed inset-0 z-50 bg-[#1A1A1A] flex flex-col items-center justify-center p-6 overflow-hidden">
-        {/* Background Particles */}
-        {[...Array(30)].map((_, i) => (
-          <motion.div
-            key={i}
-            className={`absolute rounded-full ${i % 3 === 0 ? 'bg-[#D4527A]' : i % 3 === 1 ? 'bg-[#F4A0B0]' : 'bg-white'}`}
-            style={{
-              width: Math.random() * 10 + 5 + 'px',
-              height: Math.random() * 10 + 5 + 'px',
-              top: '50%',
-              left: '50%',
-            }}
-            initial={{ x: 0, y: 0, opacity: 1, scale: 0 }}
-            animate={{ 
-              x: (Math.random() - 0.5) * (typeof window !== 'undefined' ? window.innerWidth : 800) * 1.5,
-              y: (Math.random() - 0.5) * (typeof window !== 'undefined' ? window.innerHeight : 800) * 1.5,
-              opacity: 0,
-              scale: Math.random() * 1.5 + 0.5,
-              rotate: Math.random() * 360
-            }}
-            transition={{ duration: Math.random() * 2 + 1.5, ease: 'easeOut' }}
-          />
-        ))}
 
         {/* ── Success Card (exits after 3 s) ── */}
         <AnimatePresence mode="wait">
           {showSuccessScreen && (
             <motion.div
               key="success-card"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              initial={{ scale: 0.8, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.85, opacity: 0, y: -30 }}
-              transition={{ type: 'spring', duration: 0.8, bounce: 0.4 }}
-              className="relative z-10 glass-panel bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-[32px] text-center max-w-md w-full shadow-2xl"
+              transition={{ type: 'spring', duration: 0.7, bounce: 0.4 }}
+              className="relative z-10 bg-white p-5 md:p-6 rounded-[24px] text-center max-w-[400px] w-full shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
             >
+              {/* Confetti Background */}
+              <div className="absolute top-8 left-12 w-2 h-2 bg-[#F4A0B0] rotate-45 transform rounded-sm opacity-80" />
+              <div className="absolute top-16 left-8 w-1.5 h-1.5 bg-[#9B6BFA] rounded-sm opacity-80" />
+              <div className="absolute top-10 right-16 w-1.5 h-2.5 bg-[#50D293] rotate-12 opacity-80" />
+              <div className="absolute top-6 right-24 w-2 h-2 bg-[#F4A0B0] rounded-full opacity-80" />
+              <div className="absolute top-16 right-10 w-2 h-2 bg-[#FFB057] rotate-45 opacity-80" />
+              <div className="absolute top-20 left-16 w-1.5 h-1.5 bg-[#F4A0B0] rounded-full opacity-60" />
+              <div className="absolute top-6 right-32 w-1.5 h-1.5 bg-[#9B6BFA] rotate-12 opacity-80" />
+
+              {/* Checkmark Circle */}
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', delay: 0.2, duration: 0.6 }}
-                className="w-24 h-24 bg-[#D4527A] rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_60px_rgba(212,82,122,0.6)] relative"
+                className="w-[64px] h-[64px] mx-auto mb-4 rounded-full bg-[#50D293] flex items-center justify-center ring-[4px] ring-[#E6F8F0] shadow-sm relative z-10"
               >
-                <Check size={48} strokeWidth={3} className="text-white" />
-                <motion.div 
-                  animate={{ rotate: 360 }} 
-                  transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-                  className="absolute inset-0 border-[4px] border-dashed border-white/40 rounded-full" 
-                />
+                <Check size={32} strokeWidth={4} className="text-white" />
               </motion.div>
 
+              {/* Title and Subtitle */}
               <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}>
-                <h1 className="font-serif text-[32px] md:text-[40px] text-white mb-2 flex items-center justify-center gap-3">
-                  <Sparkles className="text-[#F4A0B0]" size={28} />
-                  Success!
-                  <Sparkles className="text-[#F4A0B0]" size={28} />
+                <h1 className="font-serif text-[22px] md:text-[24px] text-gray-900 mb-1 font-medium flex items-center justify-center gap-2">
+                  Order Placed Successfully! 🎉
                 </h1>
-                <p className="font-sans text-[14px] text-white/70 mb-8 max-w-[280px] mx-auto leading-relaxed">
-                  Your order is confirmed. We're packing it with care and getting it ready for delivery.
-                </p>
+                <div className="font-sans text-[12px] text-gray-500 mb-4 space-y-1">
+                  <p>Thank you for shopping with us.</p>
+                  <p>We've received your order and are preparing it.</p>
+                  <p>You'll receive a tracking update soon! 💗</p>
+                </div>
               </motion.div>
 
+              {/* Order Number Box */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-6"
+                className="bg-[#FFF4F6] rounded-[16px] py-3 px-4 mb-4 flex flex-col items-center justify-center relative"
               >
-                <p className="font-sans text-[11px] uppercase tracking-[2px] font-bold text-[#D4527A] mb-1">Order Number</p>
-                <p className="font-sans text-[20px] font-bold tracking-[1.5px] text-white">{orderSuccessData.orderId}</p>
+                <p className="font-sans text-[10px] font-bold uppercase tracking-[2px] text-[#D4527A] mb-1">
+                  Order Number
+                </p>
+                <div className="flex items-center gap-3">
+                  <span className="font-sans text-[16px] font-bold tracking-[1px] text-gray-900">
+                    {orderSuccessData.orderId}
+                  </span>
+                  <button onClick={() => { navigator.clipboard.writeText(orderSuccessData.orderId); toast.success('Order ID copied'); }} className="w-7 h-7 rounded-full bg-[#FADDE5] text-[#D4527A] flex items-center justify-center hover:bg-[#F4A0B0] hover:text-white transition-colors">
+                    <Copy size={12} strokeWidth={2.5} />
+                  </button>
+                </div>
               </motion.div>
 
+              {/* Timeline Box */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="bg-[#FAFAFA] border border-[#F0F0F0] rounded-[16px] py-4 px-2 mb-4 relative"
+              >
+                <div className="flex items-start justify-between relative z-10">
+                  {/* Line Background */}
+                  <div className="absolute top-[16px] left-[12%] right-[12%] h-[1px] bg-transparent border-t-[1.5px] border-dashed border-gray-300 -z-10" />
+                  <div className="absolute top-[16px] left-[12%] w-[20%] h-[2px] bg-[#F4A0B0] -z-10" />
+                  
+                  {/* Step 1 */}
+                  <div className="flex flex-col items-center flex-1">
+                    <div className="w-8 h-8 rounded-full bg-[#F4A0B0] flex items-center justify-center mb-1.5 shadow-sm ring-4 ring-white">
+                      <ShoppingCart size={14} className="text-white" />
+                    </div>
+                    <p className="text-[8px] font-bold text-[#D4527A] uppercase tracking-[0.5px]">Order Placed</p>
+                    <p className="text-[8.5px] text-gray-500 mt-0.5 font-medium">{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                    <p className="text-[8.5px] text-gray-500 font-medium">{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                  
+                  {/* Step 2 */}
+                  <div className="flex flex-col items-center flex-1">
+                    <div className="w-8 h-8 rounded-full bg-[#F5F5F5] border-[1.5px] border-[#E8E8E8] flex items-center justify-center mb-1.5 ring-4 ring-[#FAFAFA]">
+                      <Package size={14} strokeWidth={1.5} className="text-gray-400" />
+                    </div>
+                    <p className="text-[8px] font-bold text-gray-500 uppercase tracking-[0.5px]">Packing</p>
+                    <p className="text-[8.5px] text-gray-400 mt-0.5 font-medium">In Progress</p>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="flex flex-col items-center flex-1">
+                    <div className="w-8 h-8 rounded-full bg-[#F5F5F5] border-[1.5px] border-[#E8E8E8] flex items-center justify-center mb-1.5 ring-4 ring-[#FAFAFA]">
+                      <Truck size={14} strokeWidth={1.5} className="text-gray-400" />
+                    </div>
+                    <p className="text-[8px] font-bold text-gray-500 uppercase tracking-[0.5px]">Shipped</p>
+                    <p className="text-[8.5px] text-gray-400 mt-0.5 font-medium">Upcoming</p>
+                  </div>
+
+                  {/* Step 4 */}
+                  <div className="flex flex-col items-center flex-1">
+                    <div className="w-8 h-8 rounded-full bg-[#F5F5F5] border-[1.5px] border-[#E8E8E8] flex items-center justify-center mb-1.5 ring-4 ring-[#FAFAFA]">
+                      <Home size={14} strokeWidth={1.5} className="text-gray-400" />
+                    </div>
+                    <p className="text-[8px] font-bold text-gray-500 uppercase tracking-[0.5px]">Delivered</p>
+                    <p className="text-[8.5px] text-gray-400 mt-0.5 font-medium">Upcoming</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Trust Badge */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="bg-[#F0F9F4] rounded-[12px] py-2.5 px-3 mb-4 flex items-center justify-center gap-2"
+              >
+                <div className="w-4 h-4 rounded-full border-[1.5px] border-[#50D293] flex items-center justify-center opacity-80">
+                   <ShieldCheck size={10} strokeWidth={2.5} className="text-[#50D293]" />
+                </div>
+                <p className="text-[11px] text-gray-700 font-medium">Your order is safe with us. We'll notify you at every step.</p>
+              </motion.div>
+
+              {/* Button */}
               <motion.button
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ delay: 0.6 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ delay: 0.8 }}
                 onClick={() => navigate('/shop', { state: { showTrackOrderPointer: true } })}
-                className="w-full h-[54px] bg-white text-[#1A1A1A] rounded-full font-bold text-[13px] tracking-[1.5px] uppercase flex items-center justify-center gap-2 hover:bg-[#D4527A] hover:text-white transition-all duration-300 shadow-lg"
+                className="w-full h-[46px] bg-gradient-to-r from-[#FF7A8F] to-[#D4527A] text-white rounded-full font-bold text-[12px] tracking-[1px] uppercase flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(212,82,122,0.4)] hover:shadow-[0_6px_20px_rgba(212,82,122,0.5)] transition-all duration-300"
               >
                 Continue Shopping
-                <ArrowRight size={18} strokeWidth={2.5} />
+                <ArrowRight size={16} strokeWidth={2.5} />
               </motion.button>
             </motion.div>
           )}
@@ -460,71 +532,71 @@ const CheckoutPage = () => {
               transition={{ type: 'spring', stiffness: 280, damping: 24 }}
               className="relative z-10 max-w-sm w-full rounded-[28px] overflow-hidden shadow-[0_32px_80px_rgba(212,82,122,0.5)]"
             >
-                {/* Gradient top band */}
-                <div className="h-2 w-full bg-gradient-to-r from-[#D4527A] via-[#F4A0B0] to-[#D4527A]" />
+              {/* Gradient top band */}
+              <div className="h-2 w-full bg-gradient-to-r from-[#D4527A] via-[#F4A0B0] to-[#D4527A]" />
 
-                <div className="bg-[#1A1A1A] border border-white/10 px-8 py-8 text-center relative">
-                  <button
-                    onClick={() => setShowLoyaltyEarnedDialog(false)}
-                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 transition-all"
-                  >
-                    <X size={14} />
-                  </button>
+              <div className="bg-[#1A1A1A] border border-white/10 px-8 py-8 text-center relative">
+                <button
+                  onClick={() => setShowLoyaltyEarnedDialog(false)}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 transition-all"
+                >
+                  <X size={14} />
+                </button>
 
-                  {/* Coin animation */}
+                {/* Coin animation */}
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 10, 0], y: [0, -6, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-[#D4527A] to-[#F4A0B0] flex items-center justify-center shadow-[0_0_40px_rgba(212,82,122,0.5)]"
+                >
+                  <Coins size={36} className="text-white" />
+                </motion.div>
+
+                {/* Sparkle dots */}
+                {[...Array(6)].map((_, i) => (
                   <motion.div
-                    animate={{ rotate: [0, 10, -10, 10, 0], y: [0, -6, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                    className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-[#D4527A] to-[#F4A0B0] flex items-center justify-center shadow-[0_0_40px_rgba(212,82,122,0.5)]"
-                  >
-                    <Coins size={36} className="text-white" />
-                  </motion.div>
+                    key={i}
+                    className="absolute w-1.5 h-1.5 rounded-full bg-[#F4A0B0]"
+                    style={{
+                      top: `${20 + Math.sin(i * 60 * Math.PI / 180) * 50}%`,
+                      left: `${50 + Math.cos(i * 60 * Math.PI / 180) * 40}%`,
+                    }}
+                    animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.25 }}
+                  />
+                ))}
 
-                  {/* Sparkle dots */}
-                  {[...Array(6)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-1.5 h-1.5 rounded-full bg-[#F4A0B0]"
-                      style={{
-                        top: `${20 + Math.sin(i * 60 * Math.PI / 180) * 50}%`,
-                        left: `${50 + Math.cos(i * 60 * Math.PI / 180) * 40}%`,
-                      }}
-                      animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.25 }}
-                    />
-                  ))}
-
-                  <p className="font-sans text-[11px] uppercase tracking-[2.5px] font-bold text-[#F4A0B0] mb-2">Congratulations!</p>
-                  <h2 className="font-serif text-[28px] text-white leading-tight mb-1">
-                    You earned
-                  </h2>
-                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4527A]/20 to-[#F4A0B0]/10 border border-[#D4527A]/30 rounded-full px-5 py-2 my-3">
-                    <Coins size={18} className="text-[#F4A0B0]" />
-                    <span className="font-sans text-[26px] font-black text-white">{orderSuccessData.earnedPoints}</span>
-                    <span className="font-sans text-[13px] font-bold text-[#F4A0B0]">Royal Points</span>
-                  </div>
-                  <p className="font-sans text-[13px] text-white/60 leading-relaxed mt-2">
-                    Redeem them on your next order for an instant discount!
-                  </p>
-
-                  <div className="mt-6 flex flex-col gap-3">
-                    <motion.button
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => navigate('/dashboard')}
-                      className="w-full h-11 bg-gradient-to-r from-[#D4527A] to-[#B94B68] text-white rounded-full font-bold text-[12px] tracking-[1.2px] uppercase flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(212,82,122,0.4)] hover:shadow-[0_6px_28px_rgba(212,82,122,0.5)] transition-all"
-                    >
-                      <Star size={14} className="fill-white" /> View in My Profile
-                    </motion.button>
-                    <button
-                      onClick={() => { setShowLoyaltyEarnedDialog(false); navigate('/shop'); }}
-                      className="w-full h-11 border border-white/15 rounded-full text-white/60 font-semibold text-[12px] hover:text-white hover:border-white/30 transition-all"
-                    >
-                      Continue Shopping
-                    </button>
-                  </div>
+                <p className="font-sans text-[11px] uppercase tracking-[2.5px] font-bold text-[#F4A0B0] mb-2">Congratulations!</p>
+                <h2 className="font-serif text-[28px] text-white leading-tight mb-1">
+                  You earned
+                </h2>
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4527A]/20 to-[#F4A0B0]/10 border border-[#D4527A]/30 rounded-full px-5 py-2 my-3">
+                  <Coins size={18} className="text-[#F4A0B0]" />
+                  <span className="font-sans text-[26px] font-black text-white">{orderSuccessData.earnedPoints}</span>
+                  <span className="font-sans text-[13px] font-bold text-[#F4A0B0]">Royal Points</span>
                 </div>
-              </motion.div>
+                <p className="font-sans text-[13px] text-white/60 leading-relaxed mt-2">
+                  Redeem them on your next order for an instant discount!
+                </p>
+
+                <div className="mt-6 flex flex-col gap-3">
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => navigate('/dashboard')}
+                    className="w-full h-11 bg-gradient-to-r from-[#D4527A] to-[#B94B68] text-white rounded-full font-bold text-[12px] tracking-[1.2px] uppercase flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(212,82,122,0.4)] hover:shadow-[0_6px_28px_rgba(212,82,122,0.5)] transition-all"
+                  >
+                    <Star size={14} className="fill-white" /> View in My Profile
+                  </motion.button>
+                  <button
+                    onClick={() => { setShowLoyaltyEarnedDialog(false); navigate('/shop'); }}
+                    className="w-full h-11 border border-white/15 rounded-full text-white/60 font-semibold text-[12px] hover:text-white hover:border-white/30 transition-all"
+                  >
+                    Continue Shopping
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
@@ -534,8 +606,7 @@ const CheckoutPage = () => {
   if (items.length === 0 && !isPlacingOrder) return null;
 
   const inputClass = (field) =>
-    `w-full h-[40px] px-[16px] border border-white/60 rounded-[12px] font-sans text-[13px] bg-white/50 text-text-main outline-none transition-all duration-300 placeholder:text-text-muted/60 focus:bg-white focus:border-[#D4527A] focus:shadow-[0_2px_10px_rgba(212,82,122,0.1)] ${
-      errors[field] ? 'border-[#D4527A] bg-red-50/50' : ''
+    `w-full h-[40px] px-[16px] border border-white/60 rounded-[12px] font-sans text-[13px] bg-white/50 text-text-main outline-none transition-all duration-300 placeholder:text-text-muted/60 focus:bg-white focus:border-[#D4527A] focus:shadow-[0_2px_10px_rgba(212,82,122,0.1)] ${errors[field] ? 'border-[#D4527A] bg-red-50/50' : ''
     }`;
 
   return (
@@ -563,7 +634,7 @@ const CheckoutPage = () => {
         {/* Progress Bar */}
         <div className="mb-[32px] max-w-xl mx-auto relative">
           <div className="absolute top-[20px] left-[10%] right-[10%] h-[2px] bg-white shadow-sm z-0">
-            <motion.div 
+            <motion.div
               className="h-full bg-gradient-to-r from-[#D4527A] to-[#1A1A1A]"
               initial={{ width: '0%' }}
               animate={{ width: `${((currentStep - 1) / 2) * 100}%` }}
@@ -574,20 +645,18 @@ const CheckoutPage = () => {
             {steps.map((step) => (
               <div key={step.number} className="flex flex-col items-center w-[80px]">
                 <div
-                  className={`w-[40px] h-[40px] rounded-full flex items-center justify-center font-sans text-[13px] font-bold transition-all duration-500 shadow-sm ${
-                    currentStep > step.number
+                  className={`w-[40px] h-[40px] rounded-full flex items-center justify-center font-sans text-[13px] font-bold transition-all duration-500 shadow-sm ${currentStep > step.number
                       ? 'bg-[#1A1A1A] text-white border-none'
                       : currentStep === step.number
-                      ? 'bg-[#D4527A] text-white shadow-[0_4px_16px_rgba(212,82,122,0.3)] ring-4 ring-[#D4527A]/20 border-none scale-105'
-                      : 'glass bg-white/60 border border-white text-text-muted'
-                  }`}
+                        ? 'bg-[#D4527A] text-white shadow-[0_4px_16px_rgba(212,82,122,0.3)] ring-4 ring-[#D4527A]/20 border-none scale-105'
+                        : 'glass bg-white/60 border border-white text-text-muted'
+                    }`}
                 >
                   {currentStep > step.number ? <Check size={16} strokeWidth={3} /> : step.number}
                 </div>
                 <span
-                  className={`font-sans text-[10px] uppercase tracking-[1px] font-bold mt-[10px] transition-colors ${
-                    currentStep >= step.number ? 'text-text-main' : 'text-[#A8A8A8]'
-                  }`}
+                  className={`font-sans text-[10px] uppercase tracking-[1px] font-bold mt-[10px] transition-colors ${currentStep >= step.number ? 'text-text-main' : 'text-[#A8A8A8]'
+                    }`}
                 >
                   {step.label}
                 </span>
@@ -597,10 +666,10 @@ const CheckoutPage = () => {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-[20px] lg:gap-[40px] items-start">
-          
+
           {/* Mobile Order Summary Toggle */}
           <div className="w-full block lg:hidden relative z-20">
-            <button 
+            <button
               onClick={() => setIsMobileSummaryOpen(!isMobileSummaryOpen)}
               className="w-full flex items-center justify-between glass-panel bg-white/70 p-[16px] rounded-[16px] border border-white/60 shadow-sm transition-all active:scale-[0.99]"
             >
@@ -629,7 +698,7 @@ const CheckoutPage = () => {
                   className="glass-panel rounded-[24px] border border-white/60 p-[20px] md:p-[28px] shadow-xl relative overflow-hidden"
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-[#D4527A]/5 rounded-full blur-[30px] pointer-events-none" />
-                  
+
                   <h2 className="font-serif text-[22px] text-text-main mb-[20px] relative z-10">Delivery Details</h2>
 
                   {/* Saved Address Suggestion */}
@@ -834,7 +903,7 @@ const CheckoutPage = () => {
                 >
                   <div className="glass-panel rounded-[24px] border border-white/60 p-[20px] md:p-[28px] shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-[#D4527A]/5 rounded-full blur-[30px] pointer-events-none" />
-                    
+
                     <div className="flex items-center justify-between mb-[16px] relative z-10">
                       <h2 className="font-serif text-[22px] text-text-main">Delivery Address</h2>
                       <button
@@ -866,7 +935,7 @@ const CheckoutPage = () => {
                       {items.map((item) => (
                         <div key={`${item.id}-${item.selectedSize}`} className="flex gap-[16px] items-start py-[12px] border-b border-white last:border-b-0 last:pb-0">
                           <img
-                            src={item.images?.[0]}
+                            src={getItemImage(item)}
                             alt={item.name}
                             className="w-[60px] h-[60px] object-cover rounded-[12px] bg-[#F7F5F4] border border-white/50 shadow-sm shrink-0"
                           />
@@ -928,7 +997,7 @@ const CheckoutPage = () => {
                 >
                   <div className="glass-panel rounded-[24px] border border-white/60 p-[20px] md:p-[28px] shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-[#D4527A]/5 rounded-full blur-[30px] pointer-events-none" />
-                    
+
                     <h2 className="font-serif text-[22px] text-text-main mb-[20px] relative z-10">Select Payment Method</h2>
 
                     <div className="space-y-[12px] relative z-10">
@@ -938,11 +1007,10 @@ const CheckoutPage = () => {
                           return (
                             <label
                               key={method.id}
-                              className={`group flex items-center gap-[12px] sm:gap-[16px] p-[12px] sm:p-[16px] rounded-[16px] border-2 cursor-pointer transition-all duration-300 ${
-                                selectedPayment === method.id
+                              className={`group flex items-center gap-[12px] sm:gap-[16px] p-[12px] sm:p-[16px] rounded-[16px] border-2 cursor-pointer transition-all duration-300 ${selectedPayment === method.id
                                   ? 'border-[#1A1A1A] bg-white/80 shadow-md transform scale-[1.01]'
                                   : 'border-white/60 glass bg-white/40 hover:bg-white/60'
-                              }`}
+                                }`}
                             >
                               <input
                                 type="radio"
@@ -953,21 +1021,19 @@ const CheckoutPage = () => {
                                 className="sr-only"
                               />
                               <div
-                                className={`w-[20px] h-[20px] rounded-full border-[2px] flex items-center justify-center shrink-0 transition-colors ${
-                                  selectedPayment === method.id ? 'border-[#1A1A1A]' : 'border-[#C0C0C0] bg-white/50'
-                                }`}
+                                className={`w-[20px] h-[20px] rounded-full border-[2px] flex items-center justify-center shrink-0 transition-colors ${selectedPayment === method.id ? 'border-[#1A1A1A]' : 'border-[#C0C0C0] bg-white/50'
+                                  }`}
                               >
                                 {selectedPayment === method.id && (
-                                  <motion.div 
-                                    initial={{ scale: 0 }} 
-                                    animate={{ scale: 1 }} 
-                                    className="w-[10px] h-[10px] rounded-full bg-[#1A1A1A]" 
+                                  <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="w-[10px] h-[10px] rounded-full bg-[#1A1A1A]"
                                   />
                                 )}
                               </div>
-                              <div className={`w-[40px] h-[40px] rounded-[12px] flex items-center justify-center shrink-0 transition-colors ${
-                                selectedPayment === method.id ? 'bg-[#1A1A1A] text-white shadow-md' : 'bg-white border border-white shadow-sm text-text-muted'
-                              }`}>
+                              <div className={`w-[40px] h-[40px] rounded-[12px] flex items-center justify-center shrink-0 transition-colors ${selectedPayment === method.id ? 'bg-[#1A1A1A] text-white shadow-md' : 'bg-white border border-white shadow-sm text-text-muted'
+                                }`}>
                                 <Icon size={20} strokeWidth={selectedPayment === method.id ? 2 : 1.5} />
                               </div>
                               <div>
@@ -1060,7 +1126,7 @@ const CheckoutPage = () => {
             <div className="lg:sticky lg:top-[100px]">
               <div className="glass-panel rounded-[24px] p-[24px] shadow-xl border border-white/60 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-[#D4527A]/10 rounded-full blur-[30px] pointer-events-none" />
-                
+
                 <h3 className="font-serif text-[20px] text-text-main mb-[20px] pb-[16px] border-b border-white relative z-10">
                   Order Summary
                 </h3>
@@ -1227,10 +1293,10 @@ const CheckoutPage = () => {
                 <div className="mt-[20px] pt-[20px] border-t border-white/40 relative z-10">
                   <div className="flex items-start gap-3">
                     <div className="relative flex items-center justify-center mt-0.5">
-                      <input 
-                        type="checkbox" 
-                        id="giftWrap" 
-                        checked={isGiftWrapped} 
+                      <input
+                        type="checkbox"
+                        id="giftWrap"
+                        checked={isGiftWrapped}
                         onChange={(e) => setIsGiftWrapped(e.target.checked)}
                         className="peer appearance-none w-4 h-4 border border-text-muted/50 rounded-sm bg-white/50 checked:bg-[#D4527A] checked:border-[#D4527A] cursor-pointer transition-colors"
                       />
@@ -1243,12 +1309,12 @@ const CheckoutPage = () => {
                           Details <ChevronDown size={14} className={`transition-transform duration-300 ${isGiftDetailsOpen ? 'rotate-180' : ''}`} />
                         </button>
                       </label>
-                      
+
                       <AnimatePresence>
                         {isGiftDetailsOpen && (
-                          <motion.div 
-                            initial={{ height: 0, opacity: 0 }} 
-                            animate={{ height: 'auto', opacity: 1 }} 
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                           >
@@ -1261,14 +1327,14 @@ const CheckoutPage = () => {
 
                       <AnimatePresence>
                         {isGiftWrapped && (
-                          <motion.div 
-                            initial={{ height: 0, opacity: 0 }} 
-                            animate={{ height: 'auto', opacity: 1 }} 
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden mt-3"
                           >
-                            <textarea 
-                              placeholder="Write your gift message (optional)..." 
+                            <textarea
+                              placeholder="Write your gift message (optional)..."
                               value={giftNote}
                               onChange={(e) => setGiftNote(e.target.value)}
                               className="w-full text-[12px] p-3 rounded-xl border border-white/60 bg-white/50 outline-none focus:border-[#D4527A] focus:bg-white resize-none shadow-sm transition-colors"
@@ -1341,7 +1407,7 @@ const CheckoutPage = () => {
                     {items.slice(0, 4).map((item, i) => (
                       <div key={`${item.id}-${item.selectedSize}-${i}`} className="w-[44px] h-[44px] rounded-[10px] bg-white border border-white/60 p-1 shadow-sm">
                         <img
-                          src={item.images?.[0]}
+                          src={getItemImage(item)}
                           alt={item.name}
                           className="w-full h-full rounded-[6px] object-cover"
                         />

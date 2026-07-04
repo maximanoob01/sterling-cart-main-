@@ -14,7 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLoyalty } from '../context/LoyaltyContext';
 import { useProducts } from '../context/ProductContext';
 import { calculateDiscount } from '../utils/formatPrice';
-import { SILVER_RATE_PER_GRAM, computeWeightBasedPrice } from '../utils/silverRate';
+import { computeWeightBasedPrice } from '../utils/silverRate';
 import personaliseCoinImg from '../assets/images/personalise_coin.png';
 import royalPointsCoinImg from '../assets/images/royal_points_coin.png';
 
@@ -209,7 +209,7 @@ function RoyalPointsGuide({ onClose }) {
 export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const { addItem, silverRate } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
   const { formatPrice } = useCurrency();
   const { isAuthenticated } = useAuth();
@@ -235,6 +235,13 @@ export default function ProductDetailPage() {
   const [engravingText, setEngravingText] = useState('');
   const [engravingType, setEngravingType] = useState('text');
   const [isRoyalPointsGuideOpen, setIsRoyalPointsGuideOpen] = useState(false);
+
+  const getItemPrice = (prod) => {
+    if (prod.pricingType === 'weight' && prod.weightGrams != null && prod.makingCharges != null) {
+      return computeWeightBasedPrice(prod.weightGrams, prod.makingCharges, silverRate);
+    }
+    return prod.price;
+  };
 
   if (!product) {
     if (!isLoaded) {
@@ -263,7 +270,7 @@ export default function ProductDetailPage() {
   const isRing = product.category === 'rings';
   const isWished = isWishlisted(product.id);
 
-  const addToCart = () => {
+  const addToCart = async () => {
     let finalEngraving = engravingText;
     if (isEngravingEnabled && engravingType === 'date' && engravingText) {
       const parts = engravingText.split('-');
@@ -271,9 +278,9 @@ export default function ProductDetailPage() {
         finalEngraving = `${parts[2]}-${parts[1]}-${parts[0]}`;
       }
     }
-    addItem(product, selectedSize, quantity, isEngravingEnabled ? finalEngraving : '');
+    await addItem(product, selectedSize, quantity, isEngravingEnabled ? finalEngraving : '');
   };
-  const buyNow = () => { addToCart(); navigate('/checkout'); };
+  const buyNow = async () => { await addToCart(); navigate('/checkout'); };
   const checkDelivery = () => {
     if (!/^\d{6}$/.test(pincode)) { setDeliveryMessage('Enter a valid 6-digit pincode.'); return; }
     setDeliveryMessage('Delivery available. Expected in 3–5 business days.');
@@ -435,9 +442,7 @@ export default function ProductDetailPage() {
 
               {/* ── Royal Points badge (logged-in users only) ── */}
               {isAuthenticated && (() => {
-                const basePrice = product.pricingType === 'weight'
-                  ? computeWeightBasedPrice(product.weightGrams, product.makingCharges)
-                  : product.price;
+                const basePrice = getItemPrice(product);
                 const earnOnThis = pointsEarned(basePrice);
                 return (
                   <motion.div

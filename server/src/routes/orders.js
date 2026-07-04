@@ -29,7 +29,10 @@ const TIMELINE_ORDER = {
 router.post('/', optionalAuth, [
   body('form.fullName').trim().notEmpty(),
   body('form.email').isEmail(),
-  body('form.phone').trim().notEmpty(),
+  body('form.phone')
+    .trim()
+    .notEmpty().withMessage('Phone number is required')
+    .matches(/^[6-9]\d{9}$/).withMessage('Invalid phone number format'),
   body('form.addressLine1').trim().notEmpty(),
   body('form.city').trim().notEmpty(),
   body('form.state').trim().notEmpty(),

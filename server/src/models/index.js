@@ -6,6 +6,7 @@ import OrderItem from './OrderItem.js';
 import OrderTimeline from './OrderTimeline.js';
 import Coupon from './Coupon.js';
 import Loyalty from './Loyalty.js';
+
 import LoyaltyHistory from './LoyaltyHistory.js';
 import Wishlist from './Wishlist.js';
 import ContactMessage from './ContactMessage.js';
@@ -13,6 +14,8 @@ import GiftCard from './GiftCard.js';
 import GiftCardTransaction from './GiftCardTransaction.js';
 import Notification from './Notification.js';
 import CallRequest from './CallRequest.js';
+import Cart from './Cart.js';
+import CartItem from './CartItem.js';
 import { sequelize } from '../config/db.js';
 
 // User <-> Address (1:N)
@@ -59,6 +62,18 @@ GiftCard.belongsTo(User, { foreignKey: 'userId' });
 GiftCard.hasMany(GiftCardTransaction, { foreignKey: 'giftCardId', as: 'transactions' });
 GiftCardTransaction.belongsTo(GiftCard, { foreignKey: 'giftCardId' });
 
+// User <-> Cart (1:1)
+User.hasOne(Cart, { foreignKey: 'userId', as: 'cart' });
+Cart.belongsTo(User, { foreignKey: 'userId' });
+
+// Cart <-> CartItem (1:N)
+Cart.hasMany(CartItem, { foreignKey: 'cartId', as: 'items' });
+CartItem.belongsTo(Cart, { foreignKey: 'cartId' });
+
+// Product <-> CartItem (1:N)
+Product.hasMany(CartItem, { foreignKey: 'productId' });
+CartItem.belongsTo(Product, { foreignKey: 'productId' });
+
 export {
   sequelize,
   User,
@@ -75,5 +90,7 @@ export {
   GiftCard,
   GiftCardTransaction,
   Notification,
-  CallRequest
+  CallRequest,
+  Cart,
+  CartItem
 };

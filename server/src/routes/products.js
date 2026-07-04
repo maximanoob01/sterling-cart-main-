@@ -2,12 +2,36 @@ import { Router } from 'express';
 import { Op } from 'sequelize';
 import { Product } from '../models/index.js';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
+import crypto from 'crypto';
+import redisClient, { safeGet, safeSet, safeDel } from '../services/redisService.js';
 
 const router = Router();
+
+const clearProductCache = async (id, slug) => {
+  if (id) await safeDel(`product:${id}`);
+  if (slug) await safeDel(`product:${slug}`);
+  
+  if (redisClient.status === 'ready') {
+    try {
+      const listKeys = await redisClient.smembers('product_queries');
+      if (listKeys && listKeys.length > 0) {
+        await redisClient.del(...listKeys);
+        await redisClient.del('product_queries');
+      }
+    } catch (err) {
+      console.error('Error clearing product list cache', err);
+    }
+  }
+};
 
 // ─── GET /api/products — List products with filtering & pagination ───────────
 router.get('/', async (req, res, next) => {
   try {
+    const queryHash = crypto.createHash('md5').update(JSON.stringify(req.query)).digest('hex');
+    const cacheKey = `products:list:${queryHash}`;
+    const cachedData = await safeGet(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
     const {
       category, occasion, style, color, design, collection, stoneType,
       minPrice, maxPrice, badge, search, sort, page = 1, limit = 50,
@@ -61,7 +85,7 @@ router.get('/', async (req, res, next) => {
       offset
     });
 
-    res.json({
+    const responseData = {
       success: true,
       products,
       pagination: {
@@ -70,7 +94,14 @@ router.get('/', async (req, res, next) => {
         total: count,
         pages: Math.ceil(count / limitNum),
       },
-    });
+    };
+
+    await safeSet(cacheKey, responseData, 21600); // 6 hours TTL
+    if (redisClient.status === 'ready') {
+      redisClient.sadd('product_queries', cacheKey).catch(console.error);
+    }
+
+    res.json(responseData);
   } catch (error) { next(error); }
 });
 
@@ -78,6 +109,10 @@ router.get('/', async (req, res, next) => {
 router.get('/:idOrSlug', async (req, res, next) => {
   try {
     const { idOrSlug } = req.params;
+    const cacheKey = `product:${idOrSlug}`;
+    const cachedProduct = await safeGet(cacheKey);
+    if (cachedProduct) return res.json({ success: true, product: cachedProduct });
+
     let product;
 
     // Try by UUID first, then by slug
@@ -92,6 +127,7 @@ router.get('/:idOrSlug', async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
+    await safeSet(cacheKey, product, 21600); // 6 hours TTL
     res.json({ success: true, product });
   } catch (error) { next(error); }
 });
@@ -105,6 +141,7 @@ router.post('/', authenticate, requireAdmin, async (req, res, next) => {
       .replace(/(^-|-$)/g, '');
 
     const product = await Product.create({ ...req.body, slug });
+    await clearProductCache(product.id, product.slug);
     res.status(201).json({ success: true, product });
   } catch (error) { next(error); }
 });
@@ -116,6 +153,7 @@ router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
     if (!product) return res.status(404).json({ success: false, error: 'Product not found' });
 
     await product.update(req.body);
+    await clearProductCache(product.id, product.slug);
     res.json({ success: true, product });
   } catch (error) { next(error); }
 });
@@ -123,8 +161,11 @@ router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
 // ─── DELETE /api/products/:id — Delete product (admin) ───────────────────────
 router.delete('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    const deleted = await Product.destroy({ where: { id: req.params.id } });
-    if (!deleted) return res.status(404).json({ success: false, error: 'Product not found' });
+    const product = await Product.findByPk(req.params.id);
+    if (!product) return res.status(404).json({ success: false, error: 'Product not found' });
+
+    await product.destroy();
+    await clearProductCache(product.id, product.slug);
 
     res.json({ success: true, message: 'Product deleted' });
   } catch (error) { next(error); }
