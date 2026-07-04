@@ -67,11 +67,14 @@ export default function CircularGallery({
       video.muted = true;
       video.playsInline = true;
       video.autoplay = true;
-      video.style.position = 'absolute';
-      video.style.width = '0px';
-      video.style.height = '0px';
-      video.style.opacity = '0';
+      video.style.position = 'fixed';
+      video.style.top = '0px';
+      video.style.left = '0px';
+      video.style.width = '1px';
+      video.style.height = '1px';
+      video.style.opacity = '0.001';
       video.style.pointerEvents = 'none';
+      video.style.zIndex = '-1';
       document.body.appendChild(video);
       video.play().catch(e => {
         if (e.name !== 'AbortError') {

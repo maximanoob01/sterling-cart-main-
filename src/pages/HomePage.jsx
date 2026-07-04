@@ -193,6 +193,7 @@ function MobileFloatingGift() {
     </motion.div>
   );
 }
+const galleryVideos = [v4, storeVideo, v2, v3];
 
 export default function HomePage() {
   const { products, isLoaded } = useProducts();
@@ -717,7 +718,7 @@ export default function HomePage() {
 
         <div className="relative z-10 -mt-12 h-[240px] w-full md:-mt-8 md:h-[600px]">
           <CircularGallery 
-            videos={[v4, storeVideo, v2, v3]}
+            videos={galleryVideos}
             bend={0.06}
             itemWidth={isMobile ? 2.5 : 4}
             itemHeight={isMobile ? 4.4 : 7}
