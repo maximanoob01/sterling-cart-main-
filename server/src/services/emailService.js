@@ -191,7 +191,7 @@ export const sendWelcomeEmail = async (email, name) => {
     <h1>Welcome to Sterling Kart!</h1>
     <p>Hi ${name || 'there'},</p>
     <p>Your account has been successfully created. We are thrilled to have you join our community.</p>
-    <p>Explore our premium 925 Silver Jewellery collection and enjoy your exclusive welcome bonus of 200 Loyalty Points!</p>
+    <p>Explore our premium 925 Silver Jewellery collection and enjoy your exclusive welcome bonus of 50 Loyalty Points!</p>
     <p style="margin-top: 30px; font-size: 12px; color: #A8A8A8;">925 Silver Jewels | Hallmarked and Certified</p>
   </div></body></html>`;
 

@@ -188,11 +188,11 @@ router.post('/verify-otp', authLimiter, [
     // Ensure loyalty record exists
     let loyalty = await Loyalty.findOne({ where: { userId: user.id } });
     if (!loyalty) {
-      loyalty = await Loyalty.create({ userId: user.id, balance: 200 });
+      loyalty = await Loyalty.create({ userId: user.id, balance: 50 });
       await LoyaltyHistory.create({
         loyaltyId: loyalty.id,
         type: 'earned',
-        points: 200,
+        points: 50,
         description: 'Welcome bonus',
         date: new Date(),
         expiresAt: new Date(new Date().setMonth(new Date().getMonth() + 12))
