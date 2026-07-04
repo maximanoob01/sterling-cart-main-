@@ -2,7 +2,7 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import { GiftCard, GiftCardTransaction, sequelize } from '../models/index.js';
 import { authenticate } from '../middleware/auth.js';
-import { sendGiftCardEmail, sendOTPEmail } from '../services/emailService.js';
+import { sendGiftCardEmail } from '../services/emailService.js';
 import rateLimit from 'express-rate-limit';
 
 const router = Router();
@@ -111,7 +111,7 @@ router.post('/reveal-otp', authenticate, async (req, res, next) => {
     otpStore.set(req.dbUser.id, { otp, expires: Date.now() + 5 * 60 * 1000 });
     
     // Send email/whatsapp mock
-    await sendOTPEmail(req.dbUser.email, otp);
+    console.log(`[WHATSAPP MOCK] OTP for Gift Card to ${req.dbUser.phone || req.dbUser.email}: ${otp}`);
     console.log(`\n[WHATSAPP MOCK] To ${req.dbUser.phone}: Your Sterling Kart OTP to reveal gift card is ${otp}\n`);
 
     res.json({ success: true, message: 'OTP sent successfully' });

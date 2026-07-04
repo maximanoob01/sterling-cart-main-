@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import process from 'node:process';
 import { User, Address, Loyalty, LoyaltyHistory, Notification } from '../models/index.js';
 import { syncExpiredPoints } from '../services/loyaltyService.js';
+import { sendWelcomeEmail } from '../services/emailService.js';
 import { authenticate } from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
 import rateLimit from 'express-rate-limit';
@@ -166,6 +167,9 @@ router.post('/verify-otp', authLimiter, [
         message: `${name} joined Sterling Kart`,
         link: '/admin/customers',
       });
+
+      // Send Welcome Email
+      sendWelcomeEmail(email, name).catch(console.error);
     } else {
       // Login: user MUST exist
       if (!user) {

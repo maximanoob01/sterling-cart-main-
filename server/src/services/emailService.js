@@ -179,12 +179,27 @@ export const sendGiftCardEmail = async (email, name, amount, code, expiryDate) =
   });
 };
 
-export const sendOTPEmail = async (email, otp) => {
-  return await sendWithResend('OTP Verification', {
+export const sendWelcomeEmail = async (email, name) => {
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+  <style>
+    body { font-family: 'Inter', Arial, sans-serif; background-color: #F7E1E8; padding: 20px; text-align: center; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 40px; }
+    h1 { color: #D4527A; font-family: Georgia, serif; letter-spacing: 2px; text-transform: uppercase; }
+    p { color: #666; line-height: 1.6; font-size: 16px; }
+  </style></head><body>
+  <div class="container">
+    <h1>Welcome to Sterling Kart!</h1>
+    <p>Hi ${name || 'there'},</p>
+    <p>Your account has been successfully created. We are thrilled to have you join our community.</p>
+    <p>Explore our premium 925 Silver Jewellery collection and enjoy your exclusive welcome bonus of 200 Loyalty Points!</p>
+    <p style="margin-top: 30px; font-size: 12px; color: #A8A8A8;">925 Silver Jewels | Hallmarked and Certified</p>
+  </div></body></html>`;
+
+  return await sendWithResend('Welcome Email', {
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: `Your Sterling Kart Security Code`,
-    html: `<p>Your verification code is: <strong>${otp}</strong>. Do not share this code.</p>`,
+    subject: `Welcome to Sterling Kart! 🎉`,
+    html,
   });
 };
 
