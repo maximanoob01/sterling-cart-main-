@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Package, Heart, MapPin, User, Truck, LogOut, ShoppingCart,
-  Download, ChevronRight, Home, Plus, Star, Trash2, X, Edit, Menu, Lock, Coins, TrendingUp, Gift
+  Download, ChevronRight, Home, Plus, Star, Trash2, X, Edit, Menu, Lock, Coins, TrendingUp, Gift, Share2, Copy, ShieldCheck, ShoppingBag, Headphones
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -13,6 +13,7 @@ import { useProducts } from '../context/ProductContext';
 import { mockOrders } from '../data/orders';
 import { formatPrice, formatDate } from '../utils/formatPrice';
 import { generateInvoice } from '../utils/generateInvoice';
+import { shareGiftCardToWhatsApp } from '../utils/shareUtils';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 import royalPointsCoinImg from '../assets/images/royal_points_coin.png';
@@ -27,9 +28,16 @@ const statusColors = {
   Cancelled: 'bg-red-100 text-red-800 border-red-200',
 };
 
+// Custom Crown icon as it is missing from this version of lucide-react
+const Crown = ({ size = 24, className = '', color = 'currentColor' }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm1 16h18"/>
+  </svg>
+);
+
 const sidebarTabs = [
   { id: 'orders', label: 'My Orders', icon: Package },
-  { id: 'rewards', label: 'Royal Points', icon: Coins },
+  { id: 'rewards', label: 'Royal Points', icon: Crown },
   { id: 'wishlist', label: 'Wishlist', icon: Heart },
   { id: 'giftcards', label: 'My Gift Cards', icon: Gift },
   { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
@@ -81,10 +89,10 @@ const LoyaltyBalancePill = () => {
       initial={{ opacity: 0, scale: 0.85 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.2 }}
-      className="mt-2 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#D4527A]/10 to-[#F4A0B0]/10 border border-[#D4527A]/20 rounded-full px-3 py-1 mx-auto"
+      className="mt-3 inline-flex items-center gap-1.5 bg-[#FFEBF0] text-[#D4527A] px-4 py-1.5 rounded-full mx-auto shadow-sm"
     >
-      <Coins size={12} className="text-[#D4527A]" />
-      <span className="font-sans text-[11px] font-bold text-[#D4527A]">{balance} Royal Points</span>
+      <span className="text-sm">💎</span>
+      <span className="font-sans text-[12px] font-bold">{balance} Royal Points</span>
     </motion.div>
   );
 };
@@ -105,38 +113,34 @@ const OrderCard = ({ order }) => {
   };
 
   return (
-    <motion.div variants={fadeUpItem} className="bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl p-4 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_32px_rgba(212,82,122,0.08)] transition-shadow duration-300">
+    <motion.div variants={fadeUpItem} className="bg-white border border-pink-100/60 rounded-2xl p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_25px_rgba(212,82,122,0.06)] transition-all duration-300">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="flex flex-col gap-0.5">
-          <div className="flex items-center gap-2.5">
-            <span className="font-bold text-charcoal text-base">#{order.id}</span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}`}>
-              {order.status}
-            </span>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[#FFEBF0] flex items-center justify-center text-[#D4527A] shrink-0">
+            <ShoppingBag size={18} />
           </div>
-          <span className="text-xs text-silver-500 font-medium">{formatDate(order.date)} • {totalItems} item{totalItems !== 1 ? 's' : ''}</span>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-charcoal text-[14px] font-sans">#{order.id}</span>
+              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${order.status === 'CONFIRMED' ? 'bg-[#FFEBF0] text-[#B94B68]' : 'bg-gray-100 text-gray-700'}`}>
+                {order.status}
+              </span>
+            </div>
+            <span className="text-[12px] text-silver-500 font-medium">{formatDate(order.date)} • {totalItems} Item{totalItems !== 1 ? 's' : ''}</span>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {order.trackingUrl ? (
-            <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50/80 text-[#D4527A] hover:bg-pink-100 rounded-full text-[12px] font-semibold transition-colors">
-              <Truck size={14} /> Track
-            </a>
-          ) : order.trackingNumber ? (
-            <Link to="/track-order" className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50/80 text-[#D4527A] hover:bg-pink-100 rounded-full text-[12px] font-semibold transition-colors">
-              <Truck size={14} /> Track
-            </Link>
-          ) : null}
+        <div className="flex items-center gap-2">
           <button
             onClick={handleDownloadInvoice}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-silver-600 hover:text-charcoal border border-silver-200 hover:border-silver-300 rounded-full text-[12px] font-semibold transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-charcoal border border-pink-100 hover:bg-pink-50 rounded-xl text-[12px] font-semibold transition-colors shadow-sm"
           >
-            <Download size={14} /> Invoice
+            <Download size={14} className="text-silver-500" /> Invoice
           </button>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-charcoal text-white rounded-full text-[12px] font-semibold hover:bg-[#D4527A] transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#B94B68] text-white rounded-xl text-[12px] font-semibold hover:bg-[#9f3e58] transition-colors shadow-sm min-w-[120px] justify-center"
           >
-            {isExpanded ? 'Hide Details' : 'Show Details'}
+            {isExpanded ? 'Hide Details' : 'Show Details'} <ChevronRight size={14} className={`transform transition-transform ${isExpanded ? '-rotate-90' : 'rotate-90'}`} />
           </button>
         </div>
       </div>
@@ -149,24 +153,25 @@ const OrderCard = ({ order }) => {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="mt-6 pt-5 border-t border-pink-100/50 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mt-4 pt-4 border-t border-pink-50 grid grid-cols-1 gap-3">
               {order.items.map((item, idx) => {
                 const product = products.find(p => p.id === item.productId);
                 const imageUrl = item.image || (product ? product.images[0] : null);
                 return (
-                  <div key={idx} className="flex items-center gap-4 bg-white/40 p-3 rounded-2xl border border-white/50">
-                    <div className="w-20 h-20 rounded-xl overflow-hidden bg-pink-50 shrink-0 shadow-sm relative group">
+                  <div key={idx} className="flex items-center gap-4">
+                    <div className="w-[64px] h-[64px] rounded-[16px] overflow-hidden bg-[#FEF9F9] shrink-0 border border-pink-50/50 p-1">
                       {imageUrl ? (
-                        <img src={imageUrl} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <img src={imageUrl} alt={item.name} className="w-full h-full object-cover rounded-xl" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center"><Package className="text-pink-200" /></div>
                       )}
                     </div>
-                    <div className="flex flex-col flex-1 min-w-0">
-                      <h4 className="font-serif text-charcoal font-medium truncate text-base mb-1">{item.name}</h4>
-                      <div className="flex items-center gap-2 text-xs text-silver-500 mb-2">
-                        <span className="bg-white/60 px-2 py-0.5 rounded-md">Qty: {item.qty}</span>
-                        {item.size && <span className="bg-white/60 px-2 py-0.5 rounded-md">Size: {item.size}</span>}
+                    <div className="flex flex-col flex-1 min-w-0 justify-center">
+                      <h4 className="font-serif text-[#2D1F24] font-semibold truncate text-[15px] mb-0.5">{item.name}</h4>
+                      <div className="flex items-center gap-1.5 text-[12px] text-[#2D1F24]/60 font-medium">
+                        <span>Qty: {item.qty}</span>
+                        <span className="w-1 h-1 rounded-full bg-silver-300"></span>
+                        {item.size && <span>Size: {item.size}</span>}
                       </div>
                     </div>
                   </div>
@@ -174,9 +179,9 @@ const OrderCard = ({ order }) => {
               })}
             </div>
             
-            <div className="mt-4 pt-4 border-t border-pink-100/50 flex items-center justify-between">
-              <span className="text-sm font-medium text-silver-500">Total Amount</span>
-              <span className="text-xl font-bold text-charcoal">{formatPrice(order.total)}</span>
+            <div className="mt-4 pt-4 border-t border-pink-50 flex items-center justify-between bg-[#FEF9F9]/50 -mx-4 -mb-4 p-4 rounded-b-2xl">
+              <span className="text-[14px] font-medium text-silver-500">Total Amount</span>
+              <span className="text-[20px] font-bold text-charcoal">{formatPrice(order.total)}</span>
             </div>
           </motion.div>
         )}
@@ -231,15 +236,15 @@ const OrdersTab = () => {
 
   if (orders.length === 0) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 text-center bg-white/40 backdrop-blur-xl border border-white/50 rounded-3xl shadow-[0_8px_32px_rgba(212,82,122,0.05)]">
-        <div className="w-24 h-24 bg-gradient-to-br from-pink-100 to-white rounded-full flex items-center justify-center mb-6 shadow-inner">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 text-center bg-[#FEF9F9] rounded-[24px] shadow-sm border border-pink-100/50">
+        <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 shadow-sm border border-pink-50">
           <Package size={40} className="text-[#D4527A]" />
         </div>
-        <h3 className="text-2xl font-serif text-charcoal mb-2">No orders yet</h3>
+        <h3 className="text-2xl font-serif text-[#2D1F24] mb-2">No orders yet</h3>
         <p className="text-silver-500 font-sans mb-8 max-w-sm">
           You haven't placed any orders. Start exploring our premium collection!
         </p>
-        <Link to="/shop" className="px-8 py-3 bg-[#D4527A] text-white rounded-full font-semibold hover:bg-[#B94B68] transition-all shadow-lg hover:shadow-pink-500/25 flex items-center gap-2">
+        <Link to="/shop" className="px-8 py-3 bg-[#B94B68] text-white rounded-full font-semibold hover:bg-[#9f3e58] transition-all shadow-md flex items-center gap-2">
           <ShoppingCart size={18} /> Browse Collection
         </Link>
       </motion.div>
@@ -247,9 +252,21 @@ const OrdersTab = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-3xl font-serif text-charcoal tracking-tight">My Orders</h2>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-4 bg-[#FEF9F9] rounded-[24px] p-5 relative overflow-hidden border border-pink-50 shadow-sm">
+        <div className="relative z-10">
+          <h2 className="text-[28px] font-serif text-[#2D1F24] tracking-tight mb-0.5">My Orders</h2>
+          <p className="text-[13px] text-silver-500 font-medium">Track and manage all your orders in one place.</p>
+        </div>
+        
+        {/* Right side graphic */}
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-30 hidden sm:block">
+          <div className="relative text-5xl">
+            🛍️
+            <span className="absolute -top-4 -right-4 text-xl animate-pulse">✨</span>
+            <span className="absolute bottom-0 -left-4 text-lg animate-pulse delay-150">✨</span>
+          </div>
+        </div>
       </div>
       
       <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-3">
@@ -257,6 +274,21 @@ const OrdersTab = () => {
           <OrderCard key={order.id} order={order} />
         ))}
       </motion.div>
+
+      <div className="mt-4 bg-[#FEF9F9] rounded-[24px] p-4 flex items-center justify-between border border-pink-50 shadow-sm flex-col sm:flex-row gap-4 text-center sm:text-left">
+        <div className="flex items-center gap-3 flex-col sm:flex-row">
+          <div className="w-10 h-10 rounded-full bg-[#FFEBF0] flex items-center justify-center text-[#B94B68] shrink-0">
+            <Headphones size={18} />
+          </div>
+          <div>
+            <h4 className="font-serif text-[#2D1F24] font-semibold text-[15px] mb-0.5">Need help with your order?</h4>
+            <p className="text-[12px] text-silver-500">Our support team is here to help you 24/7.</p>
+          </div>
+        </div>
+        <Link to="/contact" className="px-4 py-2 rounded-xl bg-[#FFEBF0] border border-pink-100/50 text-[#B94B68] text-[13px] font-semibold hover:bg-pink-100 transition-colors flex items-center gap-1.5 shrink-0">
+          Contact Support <ChevronRight size={14} />
+        </Link>
+      </div>
     </div>
   );
 };
@@ -623,74 +655,84 @@ const RewardsTab = () => {
     : 100;
 
   return (
-    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-3xl font-serif text-charcoal tracking-tight">Royal Points</h2>
+    <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-1">
+        <div>
+          <h2 className="text-2xl font-serif text-[#5A1F2E] tracking-tight flex items-center gap-2">
+            <span>👑</span> Royal Points
+          </h2>
+          <p className="text-xs text-silver-500 mt-0.5 font-medium">Earn points on every purchase and unlock exclusive rewards.</p>
+        </div>
+        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FFEBF0] text-[#D4527A] font-semibold text-xs hover:bg-pink-100 transition-colors border border-pink-100/50 shadow-sm">
+          <span>🎁</span> How it works <ChevronRight size={12} />
+        </button>
       </div>
 
       {/* Balance hero card */}
       <motion.div
         variants={fadeUpItem}
-        className="relative rounded-[28px] overflow-hidden shadow-[0_16px_48px_rgba(212,82,122,0.15)] border border-[#D4527A]/20"
+        className="relative rounded-[24px] overflow-hidden shadow-[0_12px_40px_rgba(90,31,46,0.15)] border border-[#5A1F2E]/30"
       >
-        {/* Dark background matching site's dark tone */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1C1C2E] via-[#24162A] to-[#1C1C2E]" />
-        {/* Pink shimmer overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4527A]/5 to-transparent" />
-        {/* Top pink accent line */}
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[#D4527A]/80 to-transparent" />
+        {/* Dark maroon gradient matching the image */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#3B1927] via-[#2A131F] to-[#1C0D15]" />
         
         {/* Decorative elements */}
-        <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-[#D4527A]/10 blur-3xl" />
-        <div className="absolute -bottom-10 -left-10 w-56 h-56 rounded-full bg-[#D4527A]/5 blur-3xl" />
+        <div className="absolute -top-10 left-10 w-64 h-64 rounded-full bg-[#D4527A]/20 blur-[80px]" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#D4527A]/10 blur-[100px]" />
 
-        <div className="relative z-10 p-7 md:p-10">
-          <div className="flex items-start justify-between gap-4">
+        <div className="relative z-10 p-5 md:p-6 flex flex-col h-full">
+          <div className="flex items-start justify-between">
             <div>
-              <p className="font-sans text-[11px] uppercase tracking-[2.5px] font-bold text-[#F4A0B0]/70 mb-2">Your Balance</p>
-              <div className="flex items-end gap-3">
+              <p className="font-sans text-[10px] uppercase tracking-[2px] font-bold text-white/80 flex items-center gap-2 mb-2">
+                <span className="text-base">👑</span> YOUR BALANCE
+              </p>
+              <div className="flex items-baseline gap-2 mb-0.5">
                 <motion.span
                   key={balance}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="font-serif text-[56px] font-bold text-[#F4A0B0] leading-none drop-shadow-[0_0_12px_rgba(212,82,122,0.3)]"
+                  className="font-serif text-[48px] font-medium text-white leading-none drop-shadow-md"
                 >
                   {balance}
                 </motion.span>
-                <span className="font-sans text-[18px] font-semibold text-[#D4527A] mb-2">pts</span>
+                <span className="font-sans text-[18px] font-medium text-[#F4A0B0] mb-1.5">pts</span>
               </div>
-              <p className="font-sans text-[13px] text-white/60 mt-1">≈ ₹{balance} redeemable value</p>
+              <p className="font-sans text-[12px] text-white/70 mt-1">≈ ₹{balance} redeemable value</p>
             </div>
 
             {/* Animated coin icon */}
-            <div className="relative w-16 h-16 shrink-0 mt-2">
-              <div className="absolute inset-0 rounded-full bg-[#D4527A]/20 blur-lg animate-pulse" />
+            <div className="relative w-20 h-20 shrink-0 mt-1 mr-1">
+              <div className="absolute inset-0 rounded-full bg-[#D4527A]/30 blur-2xl animate-pulse" />
+              {/* Sparkles */}
+              <span className="absolute -top-1 -left-1 text-[#F4A0B0] text-sm animate-pulse">✨</span>
+              <span className="absolute bottom-1 -right-2 text-[#F4A0B0] text-xs animate-pulse delay-75">✨</span>
+              
               <motion.img
                 src={royalPointsCoinImg}
                 alt="Royal Points"
-                className="relative w-16 h-16 rounded-full object-cover shadow-[0_0_24px_rgba(212,82,122,0.4)]"
-                animate={{ rotate: [0, 8, -8, 8, 0], y: [0, -6, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative w-full h-full rounded-full object-cover drop-shadow-[0_0_10px_rgba(212,82,122,0.6)]"
+                animate={{ rotate: [0, 5, -5, 5, 0], y: [0, -4, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
               />
             </div>
           </div>
 
           {/* Tier + progress */}
-          <div className="mt-8 pt-6 border-t border-[#D4527A]/15">
-            <div className="flex items-center justify-between text-[12px] font-sans mb-3">
-              <span className="flex items-center gap-2 font-bold text-white tracking-wide">
-                <span className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_currentColor]" style={{ background: currentTier.color, color: currentTier.color }} />
+          <div className="mt-6 pt-4 border-t border-white/10">
+            <div className="flex items-center justify-between text-[12px] font-sans mb-2.5">
+              <span className="flex items-center gap-1.5 font-bold text-white tracking-wide">
+                <span className="text-sm">{currentTier.name === 'Silver' ? '🥈' : currentTier.name === 'Gold' ? '🥇' : currentTier.name === 'Platinum' ? '💠' : '💎'}</span>
                 {currentTier.name} Member
               </span>
               {nextTier && (
-                <span className="text-[#F4A0B0]/70 font-medium">
-                  {nextTier.min - balance} pts to {nextTier.name}
+                <span className="text-white/70 font-medium tracking-wide">
+                  <span className="text-[#F4A0B0]">{nextTier.min - balance} pts</span> to {nextTier.name}
                 </span>
               )}
             </div>
-            <div className="h-2.5 rounded-full bg-[#1C1C2E] border border-[#D4527A]/10 overflow-hidden shadow-inner">
+            <div className="h-2 rounded-full bg-black/40 overflow-hidden shadow-inner border border-white/5">
               <motion.div
-                className={`h-full rounded-full bg-gradient-to-r ${currentTier.gradient}`}
+                className="h-full rounded-full bg-gradient-to-r from-[#F4A0B0] to-[#D4527A]"
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPct}%` }}
                 transition={{ duration: 1.2, ease: 'easeOut', delay: 0.3 }}
@@ -700,60 +742,102 @@ const RewardsTab = () => {
         </div>
       </motion.div>
 
-      {/* How it works strip */}
-      <motion.div
-        variants={fadeUpItem}
-        className="grid grid-cols-3 gap-3"
-      >
-        {[
-          { icon: '🛍️', title: 'Shop', desc: 'Earn 10 points for every 10k spent' },
-          { icon: '🪙', title: 'Collect', desc: 'Points auto-added after delivery' },
-          { icon: '🎁', title: 'Redeem', desc: 'Up to 3% off on next order' },
-        ].map((step, i) => (
-          <div key={i} className="bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl p-4 text-center shadow-sm">
-            <span className="text-[24px]">{step.icon}</span>
-            <p className="font-serif text-[14px] text-charcoal mt-2 mb-1">{step.title}</p>
-            <p className="font-sans text-[10px] text-silver-500 leading-relaxed">{step.desc}</p>
+      {/* Ways to Earn */}
+      <div className="mt-6">
+        <h3 className="font-serif text-[16px] text-[#5A1F2E] flex items-center gap-1.5 mb-3 font-bold">
+          <Gift size={16} /> Ways to Earn
+        </h3>
+        <motion.div
+          variants={fadeUpItem}
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+        >
+          {[
+            { icon: '🛍️', title: 'Shop', desc: 'Earn 10 points for every ₹1000 spent' },
+            { icon: '📦', title: 'Collect', desc: 'Points auto-added after each delivery' },
+            { icon: '🎁', title: 'Redeem', desc: 'Use points to get exciting rewards & offers' },
+          ].map((step, i) => (
+            <div key={i} className="bg-[#FEF9F9] backdrop-blur-md rounded-[16px] p-3.5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-pink-50 flex items-center justify-between group hover:shadow-[0_4px_15px_rgba(212,82,122,0.04)] transition-all cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#FFEBF0] flex items-center justify-center text-xl shrink-0 shadow-inner relative">
+                  {step.icon}
+                  <span className="absolute -bottom-1 -right-1 bg-[#F4A0B0] text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-full border border-white shadow-sm">★</span>
+                </div>
+                <div>
+                  <p className="font-serif text-[14px] font-bold text-[#2D1F24] mb-0.5">{step.title}</p>
+                  <p className="font-sans text-[10px] text-[#2D1F24]/60 font-medium leading-snug pr-1">{step.desc}</p>
+                </div>
+              </div>
+              <ChevronRight size={14} className="text-[#D4527A]/50 group-hover:text-[#D4527A] transition-colors shrink-0" />
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* More Points, More Perks! Banner */}
+      {nextTier && (
+        <motion.div variants={fadeUpItem} className="mt-1 bg-gradient-to-r from-[#FFF0F3] to-[#FFE6EA] border border-pink-100 rounded-[16px] p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-xl relative z-10 border border-pink-100">
+                ⭐
+              </div>
+              <span className="absolute -top-1 -left-1 text-pink-400 text-[10px] animate-pulse">✨</span>
+              <span className="absolute -bottom-1 -right-1 text-pink-400 text-[10px] animate-pulse delay-100">✨</span>
+            </div>
+            <div>
+              <p className="font-serif text-[14px] font-bold text-[#5A1F2E] mb-0.5">More Points, More Perks!</p>
+              <p className="font-sans text-[11px] text-[#5A1F2E]/70 max-w-sm font-medium leading-snug">Move to {nextTier.name} & enjoy exclusive benefits, early access to sales and more.</p>
+            </div>
           </div>
-        ))}
-      </motion.div>
+          
+          <div className="flex items-center gap-4 sm:border-l sm:border-[#D4527A]/15 sm:pl-4">
+            <div className="text-center sm:text-right">
+              <p className="font-serif text-[24px] font-bold text-[#D4527A] leading-none">{nextTier.min - balance} <span className="font-sans text-[12px] font-medium text-[#D4527A]/70">pts</span></p>
+              <p className="font-sans text-[10px] font-medium text-[#5A1F2E]/60 mt-1 uppercase tracking-wider">away from {nextTier.name}</p>
+            </div>
+            <Link to="/shop" className="shrink-0 bg-[#C25874] hover:bg-[#A84A62] text-white px-4 py-2 rounded-full text-[12px] font-semibold transition-colors shadow-md flex items-center gap-1.5">
+              Keep Shopping <ShoppingCart size={12} />
+            </Link>
+          </div>
+        </motion.div>
+      )}
 
       {/* History */}
       <motion.div variants={fadeUpItem}>
-        <h3 className="font-serif text-xl text-charcoal mb-4">Transaction History</h3>
+        <h3 className="font-serif text-lg text-charcoal mb-3">Transaction History</h3>
         {history.length === 0 ? (
-          <div className="bg-white/40 backdrop-blur-md rounded-3xl border border-white/50 p-10 text-center">
-            <Coins size={36} className="text-[#D4527A]/30 mx-auto mb-3" />
-            <p className="text-silver-500 text-sm">No transactions yet. Start shopping to earn points!</p>
-            <Link to="/shop" className="inline-flex items-center gap-1.5 mt-4 px-5 py-2.5 bg-[#D4527A] text-white rounded-full font-semibold text-sm hover:bg-[#B94B68] transition-all">
-              <ShoppingCart size={14} /> Browse Collection
+          <div className="bg-white/40 backdrop-blur-md rounded-[20px] border border-white/50 p-6 text-center">
+            <Coins size={28} className="text-[#D4527A]/30 mx-auto mb-2" />
+            <p className="text-silver-500 text-xs">No transactions yet. Start shopping to earn points!</p>
+            <Link to="/shop" className="inline-flex items-center gap-1 mt-3 px-4 py-2 bg-[#D4527A] text-white rounded-full font-semibold text-xs hover:bg-[#B94B68] transition-all">
+              <ShoppingCart size={12} /> Browse Collection
             </Link>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {history.map((item, i) => (
               <motion.div
                 key={item.id}
                 variants={fadeUpItem}
-                className="flex items-center gap-4 bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl p-4 shadow-sm hover:shadow-[0_8px_24px_rgba(212,82,122,0.08)] transition-shadow"
+                className="flex items-center gap-3 bg-white/60 backdrop-blur-md border border-white/60 rounded-[16px] p-3 shadow-sm hover:shadow-[0_4px_12px_rgba(212,82,122,0.05)] transition-shadow"
               >
                 {/* Icon */}
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                   item.type === 'earned'
                     ? 'bg-green-100 text-green-600'
                     : 'bg-[#FFF0F5] text-[#D4527A]'
                 }`}>
-                  {item.type === 'earned' ? <TrendingUp size={17} /> : <Gift size={17} />}
+                  {item.type === 'earned' ? <TrendingUp size={14} /> : <Gift size={14} />}
                 </div>
                 {/* Details */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-sans text-[13px] font-semibold text-charcoal truncate">{item.description}</p>
-                  <p className="font-sans text-[11px] text-silver-500 mt-0.5">
+                  <p className="font-sans text-[12px] font-semibold text-charcoal truncate">{item.description}</p>
+                  <p className="font-sans text-[10px] text-silver-500 mt-0.5">
                     {new Date(item.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </p>
                 </div>
                 {/* Points */}
-                <div className={`font-sans text-[15px] font-bold shrink-0 ${
+                <div className={`font-sans text-[13px] font-bold shrink-0 ${
                   item.type === 'earned' ? 'text-green-600' : 'text-[#D4527A]'
                 }`}>
                   {item.type === 'earned' ? '+' : '−'}{item.points} pts
@@ -832,62 +916,69 @@ const GiftCardsTab = () => {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
           {giftCards.map(gc => (
-            <motion.div key={gc.id} variants={fadeUpItem} className="relative overflow-hidden rounded-[20px] shadow-[0_8px_30px_rgba(212,82,122,0.15)] group transition-transform hover:-translate-y-1">
-              {/* Card Background Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A24] to-[#2D2D3D] z-0"></div>
+            <motion.div key={gc.id} variants={fadeUpItem} className="relative overflow-hidden rounded-[24px] bg-[#FEF9F9] shadow-[0_8px_30px_rgba(212,82,122,0.06)] group transition-transform hover:-translate-y-1 border border-pink-100/50">
               
-              {/* Premium overlay pattern */}
-              <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] z-0"></div>
-              
-              <div className="relative z-10 p-4 sm:p-5 flex flex-col h-full text-white/90">
+              <div className="relative z-10 p-5 sm:p-6 flex flex-col h-full">
                 {/* Header: Value & Status */}
                 <div className="flex justify-between items-start mb-5">
                   <div>
-                    <p className="text-[10px] text-[#F4A0B0] font-bold uppercase tracking-widest mb-0.5 opacity-80">Value</p>
-                    <p className="font-serif text-2xl text-white">₹{gc.originalValue}</p>
+                    <p className="text-[11px] text-[#D4527A] font-bold uppercase tracking-wider mb-1">Value</p>
+                    <p className="font-serif text-3xl text-[#2D1F24]">₹{gc.originalValue}</p>
                   </div>
-                  <div className={`px-2.5 py-1 rounded border text-[10px] font-bold uppercase tracking-widest ${
-                    gc.status === 'active' ? 'bg-[#25D366]/20 border-[#25D366]/30 text-[#4ADE80]' :
-                    gc.status === 'expired' ? 'bg-red-500/20 border-red-500/30 text-red-400' :
-                    'bg-yellow-500/20 border-yellow-500/30 text-yellow-400'
+                  <div className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider ${
+                    gc.status === 'active' ? 'bg-[#FFEBEF] text-[#D4527A]' :
+                    gc.status === 'expired' ? 'bg-red-50 text-red-500' :
+                    'bg-yellow-50 text-yellow-600'
                   }`}>
+                    {gc.status === 'active' && <span className="w-1.5 h-1.5 rounded-full bg-[#D4527A]"></span>}
                     {gc.status}
                   </div>
                 </div>
+
+                <div className="border-t border-dashed border-pink-200/60 my-4"></div>
                 
                 {/* Code Box */}
-                <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-3 mb-4 flex items-center justify-between gap-3">
+                <div className="flex items-center justify-between gap-3 mb-2">
                   <div className="min-w-0">
-                    <p className="text-[9px] text-[#F4A0B0] uppercase tracking-widest mb-1 opacity-80">Gift Card Code</p>
-                    <p className="font-mono text-sm sm:text-base font-medium text-white tracking-widest truncate">{gc.maskedCode}</p>
+                    <p className="text-[11px] text-[#D4527A] font-bold uppercase tracking-wider mb-1.5">Gift Card Code</p>
+                    <p className="font-mono text-base sm:text-lg font-bold text-[#2D1F24] tracking-widest truncate">{gc.maskedCode}</p>
                   </div>
-                  <button onClick={() => handleRequestReveal(gc.id)} className="shrink-0 text-[10px] bg-[#D4527A] hover:bg-[#B33F62] text-white px-2.5 py-1.5 rounded-lg font-bold uppercase tracking-wider transition-colors shadow-sm">
-                    Reveal
+                  <button onClick={() => handleRequestReveal(gc.id)} className="shrink-0 text-[#D4527A] bg-[#FFEBEF] hover:bg-pink-100 p-2.5 rounded-xl transition-colors border border-pink-200/50 shadow-sm">
+                    <Copy size={18} />
                   </button>
                 </div>
 
+                <div className="border-t border-dashed border-pink-200/60 my-4"></div>
+
                 {/* Footer: Balance & Expiry */}
-                <div className="flex items-center justify-between mt-auto mb-2">
+                <div className="flex items-center justify-between mt-auto mb-5">
                   <div>
-                    <p className="text-[10px] text-white/50 uppercase tracking-wider mb-0.5">Balance</p>
-                    <p className="text-sm font-semibold text-white">₹{gc.remainingBalance}</p>
+                    <p className="text-[11px] text-[#D4527A] font-bold uppercase tracking-wider mb-1">Balance</p>
+                    <p className="text-base font-bold text-[#2D1F24]">₹{gc.remainingBalance}</p>
                   </div>
+                  <div className="w-px h-8 bg-pink-200/50 mx-2"></div>
                   <div className="text-right">
-                    <p className="text-[10px] text-white/50 uppercase tracking-wider mb-0.5">Expires</p>
-                    <p className="text-sm font-semibold text-white">{new Date(gc.expiresAt).toLocaleDateString()}</p>
+                    <p className="text-[11px] text-[#D4527A] font-bold uppercase tracking-wider mb-1">Expires On</p>
+                    <p className="text-base font-bold text-[#2D1F24]">{new Date(gc.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                   </div>
                 </div>
 
                 {gc.status !== 'exhausted' && (
-                  <a
-                    href={`https://wa.me/?text=${encodeURIComponent(`Here's your Sterling Kart gift card worth ₹${gc.originalValue}. Valid till ${new Date(gc.expiresAt).toLocaleDateString()}. Code: (Check your email/profile). Shop at sterlingkart.com`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 w-full flex items-center justify-center gap-1.5 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#4ADE80] border border-[#25D366]/20 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-colors"
+                  <button
+                    onClick={() => shareGiftCardToWhatsApp(gc.originalValue, gc.code || '(Check your email/profile)', new Date(gc.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }))}
+                    className="w-full flex items-center justify-center gap-2 bg-[#FFF0F3] hover:bg-[#FFE6EA] text-[#D4527A] border border-pink-200/60 py-3 rounded-2xl text-[13px] font-bold transition-colors mb-4 shadow-sm"
                   >
-                    <Share2 size={13} /> Share Details via WhatsApp
-                  </a>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" className="opacity-90">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.489-1.761-1.663-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+                    </svg>
+                    Share details via WhatsApp
+                  </button>
                 )}
+
+                <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-[#2D1F24]/50 font-medium pt-1">
+                  <ShieldCheck size={14} className="text-[#D4527A]/80" />
+                  Secure • Verified • Trusted
+                </div>
               </div>
             </motion.div>
           ))}
@@ -932,6 +1023,15 @@ const UserDashboardPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('orders');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const sidebarTabs = [
+    { id: 'orders', label: 'My Orders', icon: Package },
+    { id: 'rewards', label: 'Royal Points', icon: Crown },
+    { id: 'wishlist', label: 'Wishlist', icon: Heart },
+    { id: 'giftcards', label: 'Gift Cards', icon: Gift },
+    { id: 'profile', label: 'Profile Settings', icon: User },
+    { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
+  ];
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -988,74 +1088,98 @@ const UserDashboardPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Mobile Header */}
         <div className="lg:hidden mb-6">
-          <div className="flex items-center justify-between mb-4 bg-white/60 backdrop-blur-xl p-4 rounded-3xl border border-white/60 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4527A] to-[#B94B68] flex items-center justify-center text-white font-serif text-lg font-bold shadow-md">
-                {user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
+          <div className="bg-[#FEF9F9] rounded-[32px] p-4 shadow-sm border border-pink-50">
+            <div 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <div className="flex items-center gap-4 flex-1 min-w-0 pr-4">
+                <div className="w-14 h-14 rounded-full bg-[#B94B68] flex items-center justify-center shadow-sm shrink-0">
+                  <span className="text-white font-sans font-bold text-[22px]">
+                    {user?.name?.split(' ').map(n => n[0]).join('').slice(0, 1) || 'S'}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-sans font-bold text-[#2D1F24] text-[18px] leading-tight mb-0.5 truncate">{user?.name || 'My Profile'}</h3>
+                  <p className="text-[12px] text-gray-500 font-medium truncate">View and manage your account</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-lg font-serif text-charcoal leading-tight">My Account</h1>
-                <p className="text-xs text-silver-500 font-medium">{user?.name}</p>
+              <div className="w-10 h-10 rounded-full bg-[#FFEBF0] flex items-center justify-center text-[#D4527A] shrink-0">
+                <ChevronRight size={20} className={`transform transition-transform ${mobileMenuOpen ? '-rotate-90' : 'rotate-90'}`} />
               </div>
             </div>
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2.5 bg-white rounded-full shadow-sm text-charcoal hover:text-[#D4527A] transition-colors">
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
 
-          <AnimatePresence>
             {mobileMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: 'auto' }}
-                exit={{ opacity: 0, y: -10, height: 0 }}
-                className="bg-white/80 backdrop-blur-2xl border border-white rounded-3xl overflow-hidden mb-4 shadow-xl z-30 relative"
-              >
-                <div className="p-2 space-y-1">
-                  {sidebarTabs.map((tab) => {
-                    const Icon = tab.icon;
-                    const isActive = activeTab === tab.id;
-                    return (
-                      <button
-                        key={tab.id}
-                        onClick={() => handleTabClick(tab)}
-                        className={`w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold rounded-2xl transition-all ${
-                          isActive ? 'bg-[#D4527A] text-white shadow-md' : 'text-silver-600 hover:bg-white hover:text-charcoal'
-                        }`}
-                      >
-                        <Icon size={18} /> {tab.label}
-                      </button>
-                    );
-                  })}
-                  <div className="h-px bg-pink-100/50 my-2 mx-4" />
-                  <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-2xl transition-all">
-                    <LogOut size={18} /> Logout
-                  </button>
+              <div className="pt-6 mt-6 border-t border-pink-100">
+                <div className="px-2 mb-3">
+                  <span className="text-[11px] font-bold text-[#D4527A] tracking-wider uppercase">Account</span>
                 </div>
-              </motion.div>
+                  
+                  <nav className="flex flex-col gap-3">
+                    {sidebarTabs.map((tab) => {
+                      const Icon = tab.icon;
+                      const isActive = activeTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => handleTabClick(tab)}
+                          className={`w-full flex items-center justify-between px-4 py-3.5 rounded-[16px] transition-all ${
+                            isActive ? 'bg-[#FFEBF0] text-[#D4527A] shadow-sm' : 'bg-white text-[#2D1F24] shadow-sm border border-pink-50/50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center transition-colors ${isActive ? 'bg-[#D4527A] text-white' : 'bg-[#FFEBF0] text-[#D4527A]'}`}>
+                              <Icon size={18} />
+                            </div>
+                            <span className={`font-sans text-[15px] ${isActive ? 'font-bold' : 'font-medium'}`}>{tab.label}</span>
+                          </div>
+                          <ChevronRight size={16} className={isActive ? 'text-[#D4527A]' : 'text-silver-400'} />
+                        </button>
+                      );
+                    })}
+                  </nav>
+
+                  <div className="mt-4 pt-2">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center gap-2 px-6 py-4 text-[15px] font-sans font-semibold text-[#D4527A] bg-transparent border border-pink-100 hover:bg-pink-50 rounded-[16px] transition-all"
+                    >
+                      <LogOut size={18} /> Logout
+                    </button>
+                  </div>
+              </div>
             )}
-          </AnimatePresence>
+          </div>
         </div>
 
         <div className="flex gap-8 lg:gap-12 relative">
           {/* Desktop Sidebar */}
-          <aside className="hidden lg:block w-[280px] shrink-0 z-10">
-            <div className="bg-white/60 backdrop-blur-2xl border border-white rounded-[2rem] overflow-hidden shadow-[0_8px_32px_rgba(212,82,122,0.06)] sticky top-32 p-3">
+          <aside className="hidden lg:block w-[260px] shrink-0 z-10">
+            <div className="bg-[#FEF9F9] rounded-[24px] overflow-hidden shadow-[0_4px_20px_rgba(212,82,122,0.03)] sticky top-32 p-3 pb-4 border border-pink-50">
               {/* User Info */}
-              <div className="px-5 pt-6 pb-6 flex flex-col items-center text-center">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#D4527A] to-[#B94B68] flex items-center justify-center mb-4 shadow-lg ring-4 ring-white">
-                  <span className="text-white font-serif font-bold text-2xl tracking-wider">
-                    {user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                  </span>
+              <div className="px-3 pt-4 pb-3 flex flex-col items-center text-center">
+                <div className="relative">
+                  <div className="w-14 h-14 rounded-full bg-[#B94B68] flex items-center justify-center mb-2 shadow-sm ring-4 ring-white">
+                    <span className="text-white font-sans font-bold text-[20px]">
+                      {user?.name?.split(' ').map(n => n[0]).join('').slice(0, 1) || 'S'}
+                    </span>
+                  </div>
+                  <div className="absolute top-0 -right-1 bg-[#FCE3CF] w-5 h-5 rounded-full flex items-center justify-center shadow-sm border-2 border-white">
+                    <span className="text-[10px]">👑</span>
+                  </div>
                 </div>
-                <h3 className="font-serif text-charcoal text-xl leading-tight mb-1">{user?.name}</h3>
-                <p className="text-xs text-silver-500 font-medium bg-white/80 px-3 py-1 rounded-full">{user?.phone}</p>
+                <h3 className="font-sans font-bold text-[#2D1F24] text-[16px] leading-tight mb-1">{user?.name}</h3>
+                <p className="text-[10px] text-gray-500 font-medium bg-white border border-pink-100/50 px-2.5 py-0.5 rounded-full">{user?.phone || '+91 8267056560'}</p>
                 {/* Points balance pill */}
                 <LoyaltyBalancePill />
               </div>
 
+              <div className="px-2 mb-1.5 mt-1">
+                <span className="text-[9px] font-bold text-[#D4527A] tracking-wider uppercase">Account</span>
+              </div>
+
               {/* Nav Links */}
-              <nav className="p-2 relative flex flex-col gap-1">
+              <nav className="flex flex-col gap-1.5">
                 {sidebarTabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -1063,34 +1187,28 @@ const UserDashboardPage = () => {
                     <button
                       key={tab.id}
                       onClick={() => handleTabClick(tab)}
-                      className={`relative w-full flex items-center gap-3 px-5 py-4 text-sm font-semibold rounded-2xl transition-all z-10 overflow-hidden group ${
-                        isActive ? 'text-white' : 'text-silver-600 hover:text-charcoal'
+                      className={`relative w-full flex items-center justify-between px-3 py-2 rounded-[12px] transition-all group ${
+                        isActive ? 'bg-[#FFEBF0] text-[#D4527A] shadow-sm' : 'bg-white text-[#2D1F24] hover:bg-pink-50/50 shadow-sm border border-pink-50/50'
                       }`}
                     >
-                      {isActive && (
-                        <motion.div
-                          layoutId="activeTab"
-                          className="absolute inset-0 bg-[#D4527A] rounded-2xl z-[-1] shadow-md"
-                          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        />
-                      )}
-                      {!isActive && (
-                        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-100 rounded-2xl z-[-1] transition-opacity duration-300" />
-                      )}
-                      <Icon size={18} className={isActive ? "text-white" : "text-silver-400 group-hover:text-[#D4527A] transition-colors"} />
-                      {tab.label}
-                      {tab.link && <ChevronRight size={14} className="ml-auto opacity-50" />}
+                      <div className="flex items-center gap-3">
+                        <div className={`w-7 h-7 rounded-[8px] flex items-center justify-center transition-colors ${isActive ? 'bg-[#D4527A] text-white' : 'bg-[#FFEBF0] text-[#D4527A] group-hover:bg-[#D4527A] group-hover:text-white'}`}>
+                          <Icon size={14} />
+                        </div>
+                        <span className={`font-sans text-[13px] ${isActive ? 'font-bold' : 'font-medium'}`}>{tab.label}</span>
+                      </div>
+                      <ChevronRight size={14} className={isActive ? 'text-[#D4527A]' : 'text-silver-400 group-hover:text-[#D4527A]'} />
                     </button>
                   );
                 })}
               </nav>
 
-              <div className="p-2 mt-2">
+              <div className="mt-2 pt-2">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 px-5 py-4 text-sm font-semibold text-charcoal bg-white hover:bg-red-50 hover:text-red-500 rounded-2xl transition-all shadow-sm"
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-[13px] font-sans font-semibold text-[#D4527A] bg-transparent hover:bg-pink-50 border border-pink-100 rounded-[12px] transition-all shadow-sm"
                 >
-                  <LogOut size={18} /> Logout
+                  <LogOut size={14} /> Logout
                 </button>
               </div>
             </div>
