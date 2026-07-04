@@ -10,7 +10,8 @@ import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/formatPrice';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { Copy, X, Share2 } from 'lucide-react';
+import { Copy, X, Share2, Calendar, Lock, ShieldCheck, Award, ShoppingBag, Headphones, MessageCircle } from 'lucide-react';
+import { shareGiftCardToWhatsApp } from '../utils/shareUtils';
 
 import giftingHero from '../assets/images/gifting_hero.png';
 import forHerImg from '../assets/images/gifting_for_her.png';
@@ -579,88 +580,138 @@ export default function GiftingPage() {
 
       {/* ── SUCCESS MODAL (PRO MAX UI) ────────────────────────────────────────── */}
       {generatedGiftCard && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="w-full max-w-lg rounded-[32px] shadow-2xl relative overflow-hidden"
+            className="w-full max-w-[440px] max-h-[90vh] overflow-y-auto bg-[#FCFAF6] rounded-[24px] shadow-2xl relative flex flex-col scrollbar-hide"
           >
-            {/* Background Image & Overlay */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center z-0" 
-              style={{ backgroundImage: `url(${luxuryBg})` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-white/80 to-[#FFF0F5]/90 backdrop-blur-[8px] z-0" />
+            {/* Background elements */}
+            <div className="absolute inset-0 pointer-events-none opacity-40">
+              <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-[#E8D4BB]/30 to-transparent"></div>
+            </div>
             
-            {/* Content Container */}
-            <div className="relative z-10 p-8 sm:p-12 text-center flex flex-col items-center">
+            <div className="relative z-10 p-5 sm:p-6 flex flex-col items-center w-full">
               
               <button
                 onClick={() => setGeneratedGiftCard(null)}
-                className="absolute top-6 right-6 p-2 text-text-muted hover:text-[#D4527A] hover:bg-white/50 rounded-full transition-all"
+                className="absolute top-3 right-3 p-1.5 text-[#5A1F2E] hover:bg-[#5A1F2E]/10 rounded-full transition-all"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
               
               <motion.div 
-                initial={{ rotate: -15, scale: 0.5 }}
-                animate={{ rotate: 0, scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
-                className="w-20 h-20 bg-gradient-to-br from-[#FFD0E0] to-[#FFF0F5] border border-white/60 shadow-lg rounded-2xl flex items-center justify-center mb-6 text-[#D4527A] rotate-3"
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="mb-2 text-[#5A1F2E]"
               >
-                <Gift size={40} strokeWidth={1.5} />
+                {/* A stylized gift box icon */}
+                <div className="w-12 h-12 bg-gradient-to-br from-[#7A263A] to-[#5A1F2E] rounded-xl flex items-center justify-center shadow-lg relative">
+                  <div className="absolute top-0 w-full h-1/2 border-b-2 border-[#C6A87C]/50"></div>
+                  <div className="absolute left-1/2 h-full w-2 border-l-2 border-[#C6A87C]/50 -translate-x-1/2"></div>
+                  <Gift size={24} className="text-[#C6A87C] z-10" strokeWidth={1.5} />
+                </div>
               </motion.div>
               
-              <h3 className="font-serif text-[32px] sm:text-[38px] bg-clip-text text-transparent bg-gradient-to-r from-[#7A263A] via-[#B94B68] to-[#7A263A] mb-2 tracking-tight">
-                Gift Card Ready!
+              <h3 className="font-serif text-[26px] text-[#5A1F2E] mb-0 flex items-center justify-center gap-2">
+                <span className="text-[#C6A87C] text-lg">✦</span> Congratulations! <span className="text-[#C6A87C] text-lg">✦</span>
               </h3>
-              <p className="text-[#8B5A65] text-[15px] mb-8 max-w-[280px]">
-                Your <strong className="font-bold">₹{generatedGiftCard.originalValue.toLocaleString()}</strong> gift card has been securely generated.
+              
+              <p className="text-[#333] text-[13px] mb-4 text-center leading-snug">
+                You've earned a <strong className="font-bold text-[#5A1F2E]">Sterling Kart Gift Card</strong><br />
+                Treat yourself to something special.
               </p>
 
-              {/* Glassmorphism Code Box */}
-              <div className="w-full bg-white/40 backdrop-blur-xl border border-white/80 rounded-[24px] p-6 mb-8 shadow-[0_8px_32px_rgba(212,82,122,0.1)] relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FFD0E0] via-[#D4527A] to-[#FFD0E0]" />
-                
-                <p className="text-[11px] uppercase font-bold text-[#D4527A] tracking-[0.2em] mb-4">Your Private Code</p>
-                <div className="flex items-center justify-center gap-3">
-                  <span className="font-mono text-[20px] sm:text-[24px] font-bold text-text-main tracking-widest px-4 py-2 bg-white/70 rounded-xl border border-white/60 shadow-inner">
-                    {generatedGiftCard.plainCode}
-                  </span>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(generatedGiftCard.plainCode);
-                      toast.success('Code copied to clipboard!', { icon: '✨' });
-                    }}
-                    className="p-3 rounded-xl bg-gradient-to-br from-[#D4527A] to-[#B94B68] text-white hover:shadow-lg hover:scale-105 transition-all shadow-md"
-                    title="Copy code"
-                  >
-                    <Copy size={20} />
-                  </button>
+              {/* Card Container */}
+              <div className="w-full bg-gradient-to-b from-[#6A2535] to-[#4A1723] rounded-[20px] border-2 border-[#C6A87C] p-4 mb-4 shadow-xl relative text-center">
+                <p className="text-[#C6A87C] text-[10px] font-bold tracking-[0.2em] uppercase mb-1">Gift Card Value</p>
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <span className="text-[#C6A87C] text-lg">✧</span>
+                  <span className="font-serif text-[38px] text-[#C6A87C] leading-none">₹{generatedGiftCard.originalValue.toLocaleString()}</span>
+                  <span className="text-[#C6A87C] text-lg">✧</span>
                 </div>
-                <p className="text-[13px] text-[#8B5A65] mt-5 font-medium flex items-center justify-center gap-1.5">
-                  <Sparkles size={14} className="text-[#D4527A]" /> 
-                  Valid until {new Date(generatedGiftCard.expiresAt).toLocaleDateString()}
+
+                {/* Ticket cutout area */}
+                <div className="bg-[#FAF7F2] rounded-xl py-3 px-3 relative w-full border border-[#E8D4BB] shadow-inner flex flex-col items-center">
+                  <p className="text-[#5A1F2E] text-[10px] font-bold tracking-[0.15em] uppercase mb-1">Your Private Code</p>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="font-mono text-[15px] sm:text-[16px] font-bold text-[#333] tracking-[0.08em]">
+                      {generatedGiftCard.plainCode}
+                    </span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(generatedGiftCard.plainCode);
+                        toast.success('Code copied to clipboard!', { icon: '✨' });
+                      }}
+                      className="text-[#5A1F2E] flex items-center gap-1 text-[12px] font-bold hover:opacity-70 transition-opacity bg-[#5A1F2E]/5 px-2 py-1 rounded-md"
+                    >
+                      <Copy size={12} /> Copy
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-[#E8D4BB] text-[12px] mt-4 flex items-center justify-center gap-1.5">
+                  <Calendar size={13} />
+                  Valid until {new Date(generatedGiftCard.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </p>
               </div>
 
-              <p className="text-[13px] text-[#8B5A65]/80 mb-6 font-medium">
-                We've also sent this code to your email & WhatsApp.
-              </p>
-
-              <a
-                href={`https://wa.me/?text=${encodeURIComponent(`Here's your Sterling Kart gift card worth ₹${generatedGiftCard.originalValue}. Code: ${generatedGiftCard.plainCode}. Valid till ${new Date(generatedGiftCard.expiresAt).toLocaleDateString()}. Shop at sterlingkart.com`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full relative group overflow-hidden rounded-2xl p-[2px]"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-[#25D366] via-[#128C7E] to-[#25D366] opacity-90 group-hover:opacity-100 transition-opacity" />
-                <div className="relative bg-[#25D366]/10 backdrop-blur-sm px-6 py-4 rounded-xl flex items-center justify-center gap-3 text-white font-bold text-[15px] tracking-wide border border-white/20 hover:bg-[#25D366]/20 transition-colors">
-                  <Share2 size={20} /> SHARE VIA WHATSAPP
+              {/* Notification Pill */}
+              <div className="bg-[#F3EBE1] rounded-xl py-2 px-4 flex items-center justify-center gap-3 mb-4 w-11/12">
+                <div className="w-7 h-7 rounded-full bg-[#E5D5C5] flex items-center justify-center text-[#5A1F2E] shrink-0">
+                  <Lock size={13} />
                 </div>
-              </a>
+                <p className="text-[#5A1F2E] text-[12px] text-left leading-snug">
+                  We've also sent this code to your<br/>
+                  <strong className="font-extrabold">email & WhatsApp.</strong>
+                </p>
+              </div>
+
+              {/* WhatsApp Share Button */}
+              <button
+                onClick={() => shareGiftCardToWhatsApp(generatedGiftCard.originalValue, generatedGiftCard.plainCode, new Date(generatedGiftCard.expiresAt).toLocaleDateString())}
+                className="w-11/12 bg-gradient-to-b from-[#5A1F2E] to-[#40121F] rounded-xl py-3 flex items-center justify-center gap-3 text-white font-bold text-[13px] tracking-widest shadow-[0_4px_15px_rgba(90,31,46,0.3)] hover:shadow-[0_6px_20px_rgba(90,31,46,0.4)] transition-all border border-[#C6A87C]/30 mb-5 hover:-translate-y-0.5"
+              >
+                <div className="bg-[#25D366] text-white p-1 rounded-full flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.489-1.761-1.663-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+                  </svg>
+                </div>
+                SHARE VIA WHATSAPP
+              </button>
+
+              {/* Features Row */}
+              <div className="w-full grid grid-cols-4 gap-1 border-t border-[#E8D4BB] pt-4 mb-0">
+                <div className="flex flex-col items-center justify-start text-center">
+                  <ShieldCheck size={18} className="text-[#C6A87C] mb-1.5" strokeWidth={1.5} />
+                  <p className="text-[8px] font-bold text-[#5A1F2E] leading-tight tracking-wide">100% SECURE<br/>& VERIFIED</p>
+                </div>
+                <div className="flex flex-col items-center justify-start text-center border-l border-[#E8D4BB]">
+                  <Award size={18} className="text-[#C6A87C] mb-1.5" strokeWidth={1.5} />
+                  <p className="text-[8px] font-bold text-[#5A1F2E] leading-tight tracking-wide">PREMIUM<br/>EXPERIENCE</p>
+                </div>
+                <div className="flex flex-col items-center justify-start text-center border-l border-[#E8D4BB]">
+                  <ShoppingBag size={18} className="text-[#C6A87C] mb-1.5" strokeWidth={1.5} />
+                  <p className="text-[8px] font-bold text-[#5A1F2E] leading-tight tracking-wide">EXCLUSIVE<br/>COLLECTIONS</p>
+                </div>
+                <div className="flex flex-col items-center justify-start text-center border-l border-[#E8D4BB]">
+                  <Headphones size={18} className="text-[#C6A87C] mb-1.5" strokeWidth={1.5} />
+                  <p className="text-[8px] font-bold text-[#5A1F2E] leading-tight tracking-wide">DEDICATED<br/>SUPPORT</p>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-center gap-2 mt-4 opacity-90">
+                <div className="w-8 h-8 rounded-full border border-[#5A1F2E] flex items-center justify-center text-[#5A1F2E] font-serif font-bold text-xs">SK</div>
+                <div className="text-left">
+                  <p className="text-[#5A1F2E] font-serif text-[13px] leading-none mb-1">STERLING KART</p>
+                  <p className="text-[#8B5A65] text-[9px] leading-none">www.sterlingkart.in</p>
+                </div>
+              </div>
+
             </div>
           </motion.div>
         </div>
