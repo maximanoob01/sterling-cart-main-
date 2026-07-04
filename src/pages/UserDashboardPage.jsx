@@ -376,12 +376,15 @@ const WishlistTab = () => {
 
 /* ==================== PROFILE TAB ==================== */
 const ProfileTab = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, logout } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState({
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
   });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleProfileSave = (e) => {
     e.preventDefault();
@@ -390,6 +393,26 @@ const ProfileTab = () => {
       style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
       iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
     });
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      setIsDeleting(true);
+      const res = await api.delete('/auth/me');
+      if (res.success) {
+        toast.success('Account deleted successfully');
+        logout();
+        navigate('/');
+      } else {
+        toast.error(res.error || 'Failed to delete account');
+        setIsDeleting(false);
+        setShowDeleteConfirm(false);
+      }
+    } catch (err) {
+      toast.error('An error occurred while deleting account');
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
   };
 
   return (
@@ -447,6 +470,43 @@ const ProfileTab = () => {
           </button>
         </div>
       </motion.form>
+
+      {/* Danger Zone */}
+      <motion.div variants={fadeUpItem} className="bg-red-50/50 backdrop-blur-xl border border-red-100 rounded-3xl p-6 md:p-8 mt-6 shadow-[0_8px_32px_rgba(220,38,38,0.05)]">
+        <h3 className="text-xl font-serif text-red-900 mb-2">Danger Zone</h3>
+        <p className="text-sm text-red-700/80 mb-6">
+          Once you delete your account, there is no going back. Please be certain.
+        </p>
+        
+        {!showDeleteConfirm ? (
+          <button 
+            onClick={() => setShowDeleteConfirm(true)}
+            className="px-6 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-full font-semibold transition-all duration-300 shadow-sm flex items-center gap-2 text-sm"
+          >
+            <Trash2 size={16} /> Delete Account
+          </button>
+        ) : (
+          <div className="bg-white p-4 rounded-2xl border border-red-200 shadow-sm inline-block">
+            <p className="text-sm font-bold text-red-900 mb-3">Are you absolutely sure?</p>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold transition-all shadow-sm text-sm disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : 'Yes, Delete My Account'}
+              </button>
+              <button 
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-charcoal rounded-full font-semibold transition-all text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </motion.div>
     </motion.div>
   );
 };

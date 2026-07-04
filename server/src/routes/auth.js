@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import process from 'node:process';
-import { User, Address, Loyalty, LoyaltyHistory, Notification } from '../models/index.js';
+import { User, Address, Loyalty, LoyaltyHistory, Notification, Order, Wishlist, Cart, CartItem } from '../models/index.js';
 import { syncExpiredPoints } from '../services/loyaltyService.js';
 import { sendWelcomeEmail } from '../services/emailService.js';
 import { authenticate } from '../middleware/auth.js';
@@ -26,6 +26,36 @@ router.get('/me', authenticate, async (req, res, next) => {
       include: [{ model: Address, as: 'addresses' }]
     });
     res.json({ success: true, user });
+  } catch (error) { next(error); }
+});
+
+// ─── DELETE /api/auth/me — Delete current user ───────────────────────────────
+router.delete('/me', authenticate, async (req, res, next) => {
+  try {
+    const user = req.dbUser;
+    
+    // Nullify userId on existing orders so they are kept for admin records
+    await Order.update({ userId: null }, { where: { userId: user.id } });
+    
+    // Destroy dependent records to prevent foreign key errors
+    await Address.destroy({ where: { userId: user.id } });
+    await Wishlist.destroy({ where: { userId: user.id } });
+    
+    const loyalty = await Loyalty.findOne({ where: { userId: user.id } });
+    if (loyalty) {
+      await LoyaltyHistory.destroy({ where: { loyaltyId: loyalty.id } });
+      await loyalty.destroy();
+    }
+    
+    const cart = await Cart.findOne({ where: { userId: user.id } });
+    if (cart) {
+      await CartItem.destroy({ where: { cartId: cart.id } });
+      await cart.destroy();
+    }
+    
+    await user.destroy();
+    
+    res.json({ success: true, message: 'Account deleted successfully' });
   } catch (error) { next(error); }
 });
 
