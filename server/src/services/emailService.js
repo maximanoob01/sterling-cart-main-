@@ -187,19 +187,20 @@ export const sendWelcomeEmail = async (email, name) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', Helvetica, Arial, sans-serif; background-color: #222222; margin: 0; padding: 40px 10px; -webkit-font-smoothing: antialiased; }
-    .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    table { border-collapse: collapse; border-spacing: 0; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    body { font-family: 'Inter', Helvetica, Arial, sans-serif; background-color: #222222; margin: 0; padding: 20px 0; -webkit-font-smoothing: antialiased; width: 100% !important; }
+    .wrapper { width: 100%; table-layout: fixed; background-color: #222222; padding-bottom: 40px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; }
+    table { border-collapse: collapse; border-spacing: 0; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; }
     td, th { padding: 0; font-weight: normal; }
     a { text-decoration: none; }
     
     /* Hero Section */
     .hero { background-color: #0d0d0d; background-image: url('https://images.unsplash.com/photo-1599643478514-4a42095ce801?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'); background-size: cover; background-position: center; color: #ffffff; text-align: center; }
     .hero-content { padding: 40px 20px; background-color: rgba(13,13,13,0.85); }
-    .logo-container { margin-bottom: 40px; }
-    .logo-sk { font-family: 'Playfair Display', serif; font-size: 38px; color: #ffffff; line-height: 1; }
-    .logo-text { font-family: 'Inter', sans-serif; font-size: 14px; letter-spacing: 5px; color: #E85D9E; text-transform: uppercase; margin-top: 8px; }
-    .logo-sub { font-size: 9px; letter-spacing: 3px; color: #aaaaaa; text-transform: uppercase; margin-top: 5px; }
+    .logo-container { margin-bottom: 40px; text-align: center; }
+    .logo-sk { font-family: 'Playfair Display', serif; font-size: 38px; color: #ffffff; line-height: 1; margin: 0; }
+    .logo-text { font-family: 'Inter', sans-serif; font-size: 14px; letter-spacing: 5px; color: #E85D9E; text-transform: uppercase; margin: 8px 0 0 0; }
+    .logo-sub { font-size: 9px; letter-spacing: 3px; color: #aaaaaa; text-transform: uppercase; margin: 5px 0 0 0; }
     .hero-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: normal; margin: 20px 0 15px; letter-spacing: 1px; text-align: left; padding-left: 20px;}
     .hero-title span { color: #E85D9E; }
     .hero-divider { text-align: left; padding-left: 20px; margin-bottom: 15px; }
@@ -223,19 +224,11 @@ export const sendWelcomeEmail = async (email, name) => {
     .gift-divider { font-size: 10px; color: #E85D9E; margin: 8px 0; }
     .gift-desc { font-size: 11px; color: #777; line-height: 1.5; margin: 0; }
 
-    /* Features */
-    .features-wrapper { border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 30px 0; }
-    .feature-item { text-align: center; padding: 0 5px; border-right: 1px solid #f0f0f0; vertical-align: top; }
-    .feature-item:last-child { border-right: none; }
-    .feature-icon { font-size: 22px; color: #555; margin-bottom: 8px; }
-    .feature-text { font-size: 10px; color: #555; line-height: 1.4; }
-
     /* CTA */
     .cta-section { text-align: center; padding: 50px 20px; }
     .cta-title { font-family: 'Playfair Display', serif; font-size: 24px; color: #333; margin: 0 0 12px 0; font-weight: normal; }
     .cta-desc { font-size: 13px; color: #777; margin: 0 0 30px 0; line-height: 1.6; }
     .cta-button { display: inline-block; background-color: #E85D9E; color: #ffffff; padding: 14px 28px; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; transition: background-color 0.3s; }
-    .cta-button:hover { background-color: #d14988; }
 
     /* Footer Support */
     .footer-support { background-color: #fafafa; padding: 30px 40px; border-top: 1px solid #f0f0f0; }
@@ -252,137 +245,117 @@ export const sendWelcomeEmail = async (email, name) => {
     .social-icon { display: inline-block; width: 30px; height: 30px; border: 1px solid #ddd; border-radius: 50%; line-height: 30px; text-align: center; margin: 0 5px; color: #555; font-size: 14px; vertical-align: middle; }
     .footer-bottom { font-size: 11px; color: #999; margin-top: 25px; }
 
-    @media only screen and (max-width: 480px) {
-      .hero-content { padding: 30px 15px; }
-      .hero-col { display: block; width: 100%; text-align: center !important; padding: 0 !important; }
-      .hero-title, .hero-divider, .hero-subtitle { text-align: center !important; padding-left: 0 !important; }
-      .greeting-col, .gift-col { display: block; width: 100%; padding: 0; }
-      .gift-col { margin-top: 35px; }
-      .feature-item { border-right: none; border-bottom: 1px solid #f0f0f0; padding: 20px 0; display: block; width: 100%; }
-      .feature-item:last-child { border-bottom: none; }
-      .footer-support td.support-col { display: block; width: 100%; text-align: center; }
-      .support-inner { margin: 0 auto; }
-      .footer-sign { border-left: none; border-top: 1px solid #eaeaea; margin-top: 25px; padding-top: 25px; padding-left: 0; display: block; width: 100%; }
+    /* MOBILE RESPONSIVE MEDIA QUERY */
+    @media screen and (max-width: 600px) {
+      .container { width: 100% !important; max-width: 100% !important; box-shadow: none !important; }
+      body { padding: 0 !important; }
+      .hero-content { padding: 30px 15px !important; }
+      .hero-col { display: block !important; width: 100% !important; text-align: center !important; padding: 0 !important; }
+      .hero-title { text-align: center !important; padding-left: 0 !important; margin: 0 auto 15px auto !important; }
+      .hero-divider { text-align: center !important; padding-left: 0 !important; margin: 0 auto 15px auto !important; }
+      .hero-subtitle { text-align: center !important; padding-left: 0 !important; margin: 0 auto !important; }
+      
+      .content-area { padding: 30px 20px !important; }
+      .greeting-col { display: block !important; width: 100% !important; padding: 0 !important; text-align: center !important; }
+      .gift-col { display: block !important; width: 100% !important; padding: 0 !important; margin-top: 30px !important; }
+      
+      .footer-support { padding: 30px 20px !important; }
+      .support-col { display: block !important; width: 100% !important; text-align: center !important; }
+      .support-inner { margin: 0 auto !important; }
+      .footer-sign { border-left: none !important; border-top: 1px solid #eaeaea !important; margin-top: 20px !important; padding-top: 20px !important; padding-left: 0 !important; display: block !important; width: 100% !important; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    
-    <!-- Hero / Header -->
-    <div class="hero">
-      <div class="hero-content">
-        <div class="logo-container">
-          <div class="logo-sk">SK</div>
-          <div class="logo-text">STERLING KART</div>
-          <div class="logo-sub">&mdash; 925 SILVER JEWELLERY &mdash;</div>
+  <div class="wrapper">
+    <div class="container">
+      
+      <!-- Hero / Header -->
+      <div class="hero">
+        <div class="hero-content">
+          <div class="logo-container">
+            <p class="logo-sk">SK</p>
+            <p class="logo-text">STERLING KART</p>
+            <p class="logo-sub">&mdash; 925 SILVER JEWELLERY &mdash;</p>
+          </div>
+          
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <th class="hero-col" width="100%" style="vertical-align: middle;">
+                <h2 class="hero-title">WELCOME TO<br><span>STERLING KART</span></h2>
+                <div class="hero-divider"><span class="line"></span><span class="star">✦</span><span class="line"></span></div>
+                <p class="hero-subtitle">Timeless Silver. Made for You.</p>
+              </th>
+            </tr>
+          </table>
         </div>
-        
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area">
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <th class="hero-col" width="60%" style="vertical-align: middle;">
-              <h2 class="hero-title">WELCOME TO<br><span>STERLING KART</span></h2>
-              <div class="hero-divider"><span class="line"></span><span class="star">✦</span><span class="line"></span></div>
-              <p class="hero-subtitle">Timeless Silver. Made for You.</p>
+            <th class="greeting-col" width="55%" style="vertical-align: top; text-align: left;">
+              <h3 class="greeting-title">Hi <span>${name || 'Customer'}</span>,</h3>
+              <p class="greeting-text">Your account has been created successfully.<br>We're thrilled to have you with us.</p>
+              <p class="greeting-text">You are now part of a community that<br>celebrates elegance, quality and<br><span>925 Sterling Silver Jewellery</span>.</p>
             </th>
-            <th width="40%"></th>
+            <th class="gift-col" width="45%" style="vertical-align: top;">
+              <div class="gift-card">
+                <div class="gift-icon">🎁</div>
+                <p class="gift-title">WELCOME GIFT</p>
+                <h2 class="gift-amount">50 Loyalty Points</h2>
+                <div class="gift-divider"><span style="display:inline-block;width:30px;height:1px;background:#fae8f0;vertical-align:middle;"></span> ✦ <span style="display:inline-block;width:30px;height:1px;background:#fae8f0;vertical-align:middle;"></span></div>
+                <p class="gift-desc">Added to your account<br>as our welcome gift!</p>
+              </div>
+            </th>
           </tr>
         </table>
       </div>
-    </div>
 
-    <!-- Content Area -->
-    <div class="content-area">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <th width="55%" class="greeting-col" style="vertical-align: middle; text-align: left;">
-            <h3 class="greeting-title">Hi <span>${name || 'Customer'}</span>,</h3>
-            <p class="greeting-text">Your account has been created successfully.<br>We're thrilled to have you with us.</p>
-            <p class="greeting-text">You are now part of a community that<br>celebrates elegance, quality and<br><span>925 Sterling Silver Jewellery</span>.</p>
-          </th>
-          <th width="45%" class="gift-col" style="vertical-align: middle;">
-            <div class="gift-card">
-              <div class="gift-icon">🎁</div>
-              <p class="gift-title">WELCOME GIFT</p>
-              <h2 class="gift-amount">50 Loyalty Points</h2>
-              <div class="gift-divider"><span style="display:inline-block;width:30px;height:1px;background:#fae8f0;vertical-align:middle;"></span> ✦ <span style="display:inline-block;width:30px;height:1px;background:#fae8f0;vertical-align:middle;"></span></div>
-              <p class="gift-desc">Added to your account<br>as our welcome gift!</p>
-            </div>
-          </th>
-        </tr>
-      </table>
-    </div>
-
-    <!-- Features -->
-    <div class="features-wrapper">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td class="feature-item" width="20%">
-            <div class="feature-icon">💎</div>
-            <div class="feature-text">925 Sterling<br>Silver</div>
-          </td>
-          <td class="feature-item" width="20%">
-            <div class="feature-icon">🛡️</div>
-            <div class="feature-text">Hallmarked &<br>Certified</div>
-          </td>
-          <td class="feature-item" width="20%">
-            <div class="feature-icon">🚚</div>
-            <div class="feature-text">Secure Shipping<br>Across India</div>
-          </td>
-          <td class="feature-item" width="20%">
-            <div class="feature-icon">🤍</div>
-            <div class="feature-text">Exclusive<br>Member Benefits</div>
-          </td>
-          <td class="feature-item" width="20%">
-            <div class="feature-icon">🎀</div>
-            <div class="feature-text">Elegant<br>Packaging</div>
-          </td>
-        </tr>
-      </table>
-    </div>
-
-    <!-- CTA Section -->
-    <div class="cta-section">
-      <h2 class="cta-title">Ready to find your perfect piece?</h2>
-      <p class="cta-desc">Explore rings, necklaces, bracelets, earrings and more&mdash;<br>crafted to shine for years to come.</p>
-      <a href="https://sterlingkart.in/shop" class="cta-button">EXPLORE COLLECTION &rarr;</a>
-    </div>
-
-    <!-- Footer Support -->
-    <div class="footer-support">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td width="55%" class="support-col" style="vertical-align: middle;">
-            <table class="support-inner" border="0" cellspacing="0" cellpadding="0">
-              <tr>
-                <td style="padding-right: 15px;"><div class="support-icon">🎧</div></td>
-                <td style="text-align: left;">
-                  <p class="support-text-h">Need any help?</p>
-                  <p class="support-text-p">Reply to this email or contact<br>our support team.</p>
-                </td>
-              </tr>
-            </table>
-          </td>
-          <td width="45%" class="support-col footer-sign" style="vertical-align: middle;">
-            <p class="footer-sign-love">With Love,</p>
-            <p class="footer-sign-team">Team Sterling Kart <span style="color: #E85D9E;">♡</span></p>
-          </td>
-        </tr>
-      </table>
-    </div>
-
-    <!-- Footer Social -->
-    <div class="footer-social">
-      <span class="social-title">Follow Us</span>
-      <a href="#" class="social-icon">📷</a>
-      <a href="#" class="social-icon">f</a>
-      <a href="#" class="social-icon">P</a>
-      
-      <div class="footer-bottom">
-        &copy; 2026 Sterling Kart &nbsp;|&nbsp; Timeless 925 Silver Jewellery
+      <!-- CTA Section -->
+      <div class="cta-section">
+        <h2 class="cta-title">Ready to find your perfect piece?</h2>
+        <p class="cta-desc">Explore rings, necklaces, bracelets, earrings and more&mdash;<br>crafted to shine for years to come.</p>
+        <a href="https://sterlingkart.in/shop" class="cta-button">EXPLORE COLLECTION &rarr;</a>
       </div>
-    </div>
 
+      <!-- Footer Support -->
+      <div class="footer-support">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <th class="support-col" width="55%" style="vertical-align: middle;">
+              <table class="support-inner" border="0" cellspacing="0" cellpadding="0" style="margin: 0;">
+                <tr>
+                  <td style="padding-right: 15px;"><div class="support-icon">🎧</div></td>
+                  <td style="text-align: left;">
+                    <p class="support-text-h">Need any help?</p>
+                    <p class="support-text-p">Reply to this email or contact<br>our support team.</p>
+                  </td>
+                </tr>
+              </table>
+            </th>
+            <th class="support-col footer-sign" width="45%" style="vertical-align: middle;">
+              <p class="footer-sign-love">With Love,</p>
+              <p class="footer-sign-team">Team Sterling Kart <span style="color: #E85D9E;">♡</span></p>
+            </th>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Footer Social -->
+      <div class="footer-social">
+        <span class="social-title">Follow Us</span>
+        <a href="#" class="social-icon">📷</a>
+        <a href="#" class="social-icon">f</a>
+        <a href="#" class="social-icon">P</a>
+        
+        <div class="footer-bottom">
+          &copy; 2026 Sterling Kart &nbsp;|&nbsp; Timeless 925 Silver Jewellery
+        </div>
+      </div>
+
+    </div>
   </div>
 </body>
 </html>`;
