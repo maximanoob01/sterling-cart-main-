@@ -21,6 +21,12 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  * Helper to send email via Resend with retries and structured logging
  */
 const sendWithResend = async (type, payload, retries = 1) => {
+  // TEMPORARY DEVELOPMENT OVERRIDE
+  // Remove before production
+  if (process.env.NODE_ENV !== "production") {
+    payload.to = process.env.ADMIN_EMAIL || "awayontech@gmail.com";
+  }
+
   let attempt = 0;
   while (attempt <= retries) {
     try {
