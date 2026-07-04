@@ -1,21 +1,57 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-let transporter = null;
+// Validate environment variables on startup
+const validateEnv = () => {
+  const missing = [];
+  if (!process.env.RESEND_API_KEY) missing.push('RESEND_API_KEY');
+  if (!process.env.EMAIL_FROM) missing.push('EMAIL_FROM');
+  if (!process.env.ADMIN_EMAIL) missing.push('ADMIN_EMAIL');
 
-const getTransporter = () => {
-  if (transporter) return transporter;
+  if (missing.length > 0) {
+    throw new Error(`Missing required email environment variables: ${missing.join(', ')}`);
+  }
+};
 
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+validateEnv();
 
-  return transporter;
+// Single initialized Resend client
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+/**
+ * Helper to send email via Resend with retries and structured logging
+ */
+const sendWithResend = async (type, payload, retries = 1) => {
+  let attempt = 0;
+  while (attempt <= retries) {
+    try {
+      const { data, error } = await resend.emails.send(payload);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      console.log(`\n[EMAIL]
+Type: ${type}
+Recipient: ${payload.to}
+Subject: ${payload.subject}
+Status: SUCCESS
+Resend ID: ${data.id}\n`);
+
+      return { success: true, resendId: data.id };
+    } catch (err) {
+      attempt++;
+      if (attempt > retries) {
+        console.error(`\n[EMAIL]
+Type: ${type}
+Recipient: ${payload.to}
+Subject: ${payload.subject}
+Status: FAILED
+Reason: ${err.message}\n`);
+        return { success: false, error: err.message };
+      }
+      console.warn(`[EMAIL] Temporary failure for ${type}, retrying attempt ${attempt}...`);
+    }
+  }
 };
 
 const generateOrderEmailHTML = (orderId, form, items, totalAmount) => {
@@ -84,121 +120,80 @@ const generateOrderEmailHTML = (orderId, form, items, totalAmount) => {
 };
 
 export const sendOrderConfirmation = async (orderId, form, items, totalAmount) => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn('⚠️  SMTP credentials not set — email skipped');
-    return { success: true, skipped: true };
-  }
-
-  try {
-    const transport = getTransporter();
-    const html = generateOrderEmailHTML(orderId, form, items, totalAmount);
-
-    await transport.sendMail({
-      from: `"Sterling Kart" <${process.env.SMTP_USER}>`,
-      to: form.email,
-      subject: `Order Confirmation — ${orderId}`,
-      html,
-    });
-
-    return { success: true };
-  } catch (error) {
-    console.error('Email send error:', error.message);
-    return { success: false, error: error.message };
-  }
+  const html = generateOrderEmailHTML(orderId, form, items, totalAmount);
+  return await sendWithResend('Order Confirmation', {
+    from: process.env.EMAIL_FROM,
+    to: form.email,
+    subject: `Order Confirmation — ${orderId}`,
+    html,
+  });
 };
 
 export const sendContactNotification = async (contactData) => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return;
+  const html = `<h3>New Contact Form Submission</h3>
+    <p><strong>Name:</strong> ${contactData.name}</p>
+    <p><strong>Email:</strong> ${contactData.email}</p>
+    <p><strong>Phone:</strong> ${contactData.phone || 'N/A'}</p>
+    <p><strong>Order ID:</strong> ${contactData.orderId || 'N/A'}</p>
+    <p><strong>Message:</strong></p>
+    <p>${contactData.message}</p>`;
 
-  try {
-    const transport = getTransporter();
-    await transport.sendMail({
-      from: `"Sterling Kart" <${process.env.SMTP_USER}>`,
-      to: process.env.SMTP_USER,
-      subject: `New Contact Message from ${contactData.name}`,
-      html: `<h3>New Contact Form Submission</h3>
-        <p><strong>Name:</strong> ${contactData.name}</p>
-        <p><strong>Email:</strong> ${contactData.email}</p>
-        <p><strong>Phone:</strong> ${contactData.phone || 'N/A'}</p>
-        <p><strong>Order ID:</strong> ${contactData.orderId || 'N/A'}</p>
-        <p><strong>Message:</strong></p>
-        <p>${contactData.message}</p>`,
-    });
-  } catch (error) {
-    console.error('Contact notification email error:', error.message);
-  }
+  await sendWithResend('Contact Notification', {
+    from: process.env.EMAIL_FROM,
+    to: process.env.ADMIN_EMAIL,
+    reply_to: contactData.email,
+    subject: `New Contact Message from ${contactData.name}`,
+    html,
+  });
 };
 
 export const sendGiftCardEmail = async (email, name, amount, code, expiryDate) => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn('⚠️  SMTP credentials not set — GC email skipped');
-    return { success: true, skipped: true };
-  }
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+  <style>
+    body { font-family: 'Inter', Arial, sans-serif; background-color: #1C1C2E; color: #fff; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #24162A; border: 1px solid rgba(212,82,122,0.2); border-radius: 20px; overflow: hidden; }
+    .header { padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; color: #D4527A; letter-spacing: 2px; }
+    .content { padding: 30px; text-align: center; }
+    .code-box { background: rgba(212,82,122,0.1); border: 1px solid rgba(212,82,122,0.3); padding: 15px; font-size: 24px; font-weight: bold; letter-spacing: 2px; border-radius: 12px; margin: 20px 0; color: #F4A0B0; }
+  </style></head><body>
+  <div class="container">
+    <div class="header">
+      <h1>STERLING KART</h1>
+      <p>A gift for you!</p>
+    </div>
+    <div class="content">
+      <h2>Gift Card worth ₹${amount.toLocaleString('en-IN')}</h2>
+      <p>Hi ${name || 'Customer'},</p>
+      <p>Here is your Sterling Kart digital gift card. Use this code at checkout.</p>
+      <div class="code-box">${code}</div>
+      <p style="color: #aaa; font-size: 12px;">Valid until: ${new Date(expiryDate).toLocaleDateString()}</p>
+    </div>
+  </div></body></html>`;
 
-  try {
-    const transport = getTransporter();
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
-    <style>
-      body { font-family: 'Inter', Arial, sans-serif; background-color: #1C1C2E; color: #fff; padding: 20px; }
-      .container { max-width: 600px; margin: 0 auto; background-color: #24162A; border: 1px solid rgba(212,82,122,0.2); border-radius: 20px; overflow: hidden; }
-      .header { padding: 30px 20px; text-align: center; }
-      .header h1 { margin: 0; color: #D4527A; letter-spacing: 2px; }
-      .content { padding: 30px; text-align: center; }
-      .code-box { background: rgba(212,82,122,0.1); border: 1px solid rgba(212,82,122,0.3); padding: 15px; font-size: 24px; font-weight: bold; letter-spacing: 2px; border-radius: 12px; margin: 20px 0; color: #F4A0B0; }
-    </style></head><body>
-    <div class="container">
-      <div class="header">
-        <h1>STERLING KART</h1>
-        <p>A gift for you!</p>
-      </div>
-      <div class="content">
-        <h2>Gift Card worth ₹${amount.toLocaleString('en-IN')}</h2>
-        <p>Hi ${name || 'Customer'},</p>
-        <p>Here is your Sterling Kart digital gift card. Use this code at checkout.</p>
-        <div class="code-box">${code}</div>
-        <p style="color: #aaa; font-size: 12px;">Valid until: ${new Date(expiryDate).toLocaleDateString()}</p>
-      </div>
-    </div></body></html>`;
-
-    await transport.sendMail({
-      from: `"Sterling Kart" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: `Your Sterling Kart Gift Card — ₹${amount}`,
-      html,
-    });
-    return { success: true };
-  } catch (error) {
-    console.error('GC email error:', error.message);
-    return { success: false, error: error.message };
-  }
+  return await sendWithResend('Gift Card Email', {
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: `Your Sterling Kart Gift Card — ₹${amount}`,
+    html,
+  });
 };
 
 export const sendOTPEmail = async (email, otp) => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.log(`[EMAIL MOCK] OTP to ${email}: ${otp}`);
-    return { success: true };
-  }
-  try {
-    const transport = getTransporter();
-    await transport.sendMail({
-      from: `"Sterling Kart" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: `Your Sterling Kart Security Code`,
-      html: `<p>Your verification code is: <strong>${otp}</strong>. Do not share this code.</p>`,
-    });
-    return { success: true };
-  } catch (err) {
-    console.error('OTP email error:', err.message);
-    return { success: false };
-  }
+  return await sendWithResend('OTP Verification', {
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: `Your Sterling Kart Security Code`,
+    html: `<p>Your verification code is: <strong>${otp}</strong>. Do not share this code.</p>`,
+  });
 };
 
 export const sendInvoiceEmail = async (order, items, pdfBase64) => {
   const { customerEmail: email, customerName: name, orderId, customerPhone: phone } = order;
 
-  if (!email || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    // If no email exists (guest user without email) or no SMTP config, send via WhatsApp mock
-    const contact = phone || email || 'Customer';
+  if (!email) {
+    // If no email exists (guest user without email), send via WhatsApp mock
+    const contact = phone || 'Customer';
     console.log(`\n[WHATSAPP MOCK] To ${contact}: Hi ${name || 'Customer'}, your order ${orderId} has been delivered! Your invoice is attached. Thank you for shopping with Sterling Kart.\n`);
     return { success: true, via: 'whatsapp' };
   }
@@ -266,24 +261,16 @@ export const sendInvoiceEmail = async (order, items, pdfBase64) => {
     </div>
   </div></body></html>`;
 
-  try {
-    const transport = getTransporter();
-    await transport.sendMail({
-      from: `"Sterling Kart" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: `Your Invoice for Order ${orderId}`,
-      html,
-      attachments: [
-        {
-          filename: `SterlingKart_Invoice_${orderId}.pdf`,
-          content: Buffer.from(pdfBase64.split(',')[1] || pdfBase64, 'base64'),
-          contentType: 'application/pdf'
-        }
-      ]
-    });
-    return { success: true, via: 'email' };
-  } catch (err) {
-    console.error('Invoice email error:', err.message);
-    return { success: false, error: err.message };
-  }
+  return await sendWithResend('Invoice Email', {
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: `Your Invoice for Order ${orderId}`,
+    html,
+    attachments: [
+      {
+        filename: `SterlingKart_Invoice_${orderId}.pdf`,
+        content: Buffer.from(pdfBase64.split(',')[1] || pdfBase64, 'base64')
+      }
+    ]
+  });
 };
