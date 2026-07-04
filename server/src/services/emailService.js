@@ -187,131 +187,199 @@ export const sendWelcomeEmail = async (email, name) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', Helvetica, Arial, sans-serif; background-color: #0F0F0F; color: #ffffff; padding: 20px 0; margin: 0; -webkit-font-smoothing: antialiased; }
-    .container { max-width: 600px; margin: 0 auto; background-color: #0F0F0F; }
+    body { font-family: 'Inter', Helvetica, Arial, sans-serif; background-color: #222222; margin: 0; padding: 40px 10px; -webkit-font-smoothing: antialiased; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    table { border-collapse: collapse; border-spacing: 0; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    td, th { padding: 0; font-weight: normal; }
     a { text-decoration: none; }
     
-    /* Header */
-    .header { text-align: center; padding: 40px 20px 30px; }
-    .logo { font-family: 'Playfair Display', serif; font-size: 28px; letter-spacing: 3px; color: #ffffff; margin: 0; text-transform: uppercase; font-weight: 600; }
-    .subtitle { font-size: 11px; letter-spacing: 2px; color: #E85D9E; text-transform: uppercase; margin-top: 8px; font-weight: 600; }
+    /* Hero Section */
+    .hero { background-color: #0d0d0d; background-image: url('https://images.unsplash.com/photo-1599643478514-4a42095ce801?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'); background-size: cover; background-position: center; color: #ffffff; text-align: center; }
+    .hero-content { padding: 40px 20px; background-color: rgba(13,13,13,0.85); }
+    .logo-container { margin-bottom: 40px; }
+    .logo-sk { font-family: 'Playfair Display', serif; font-size: 38px; color: #ffffff; line-height: 1; }
+    .logo-text { font-family: 'Inter', sans-serif; font-size: 14px; letter-spacing: 5px; color: #E85D9E; text-transform: uppercase; margin-top: 8px; }
+    .logo-sub { font-size: 9px; letter-spacing: 3px; color: #aaaaaa; text-transform: uppercase; margin-top: 5px; }
+    .hero-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: normal; margin: 20px 0 15px; letter-spacing: 1px; text-align: left; padding-left: 20px;}
+    .hero-title span { color: #E85D9E; }
+    .hero-divider { text-align: left; padding-left: 20px; margin-bottom: 15px; }
+    .hero-divider span.line { display: inline-block; width: 40px; height: 1px; background-color: #555; vertical-align: middle; }
+    .hero-divider span.star { color: #E85D9E; font-size: 14px; margin: 0 8px; vertical-align: middle; }
+    .hero-subtitle { font-family: 'Playfair Display', serif; font-style: italic; font-size: 16px; color: #cccccc; text-align: left; padding-left: 20px; margin: 0; }
     
-    /* Greeting */
-    .greeting { padding: 30px 40px; text-align: center; }
-    .greeting p { font-size: 15px; color: #D0D0D0; line-height: 1.8; margin-bottom: 15px; font-weight: 300; }
+    /* Content Area */
+    .content-area { padding: 40px 30px; }
+    .greeting-col { padding-right: 20px; }
+    .greeting-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: normal; margin: 0 0 20px 0; color: #333; }
+    .greeting-title span { color: #E85D9E; }
+    .greeting-text { font-size: 13px; color: #555555; line-height: 1.6; margin: 0 0 15px 0; }
+    .greeting-text span { color: #E85D9E; font-weight: 600; }
     
-    /* Gift Card */
-    .gift-card { background: linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%); border: 1px solid #E85D9E; border-radius: 16px; padding: 40px 30px; text-align: center; margin: 20px; box-shadow: 0 10px 30px rgba(232, 93, 158, 0.05); }
-    .gift-title { font-family: 'Playfair Display', serif; color: #E85D9E; font-size: 18px; margin: 0 0 15px 0; font-style: italic; }
-    .gift-amount { font-family: 'Playfair Display', serif; font-size: 32px; color: #ffffff; margin: 0 0 15px 0; letter-spacing: 1px; }
-    .gift-desc { font-size: 13px; color: #A0A0A0; line-height: 1.6; margin: 0; }
-    
+    .gift-col { padding-left: 10px; }
+    .gift-card { border: 1px solid #fae8f0; border-radius: 12px; padding: 25px 20px; text-align: center; background-color: #ffffff; box-shadow: 0 4px 15px rgba(232, 93, 158, 0.04); }
+    .gift-icon { width: 45px; height: 45px; background-color: #fff0f5; border-radius: 50%; display: inline-block; line-height: 45px; margin-bottom: 12px; color: #E85D9E; font-size: 20px; }
+    .gift-title { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #555; margin: 0 0 8px 0; font-weight: 600; }
+    .gift-amount { font-family: 'Playfair Display', serif; font-size: 24px; color: #E85D9E; margin: 0 0 12px 0; }
+    .gift-divider { font-size: 10px; color: #E85D9E; margin: 8px 0; }
+    .gift-desc { font-size: 11px; color: #777; line-height: 1.5; margin: 0; }
+
     /* Features */
-    .features { padding: 30px 20px 40px; text-align: center; }
-    .feature-item { margin-bottom: 12px; font-size: 13px; color: #D0D0D0; letter-spacing: 1px; text-transform: uppercase; font-weight: 400; }
-    .feature-item span { color: #E85D9E; margin-right: 8px; font-size: 14px; }
-    
+    .features-wrapper { border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 30px 0; }
+    .feature-item { text-align: center; padding: 0 5px; border-right: 1px solid #f0f0f0; vertical-align: top; }
+    .feature-item:last-child { border-right: none; }
+    .feature-icon { font-size: 22px; color: #555; margin-bottom: 8px; }
+    .feature-text { font-size: 10px; color: #555; line-height: 1.4; }
+
     /* CTA */
-    .cta-section { text-align: center; padding: 10px 30px 60px; }
-    .cta-heading { font-family: 'Playfair Display', serif; font-size: 24px; color: #ffffff; margin: 0 0 12px 0; font-weight: 400; }
-    .cta-desc { font-size: 14px; color: #A0A0A0; margin: 0 0 30px 0; }
-    .cta-button { display: inline-block; background-color: #E85D9E; color: #ffffff; padding: 16px 36px; border-radius: 30px; font-size: 14px; font-weight: 600; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(232, 93, 158, 0.2); transition: all 0.3s ease; }
-    .cta-button:hover { background-color: #d14988; box-shadow: 0 6px 20px rgba(232, 93, 158, 0.3); }
-    
-    /* Footer */
-    .footer { border-top: 1px solid #222; padding: 40px 30px; text-align: center; }
-    .footer p { font-size: 12px; color: #888; line-height: 1.6; margin: 0 0 8px 0; }
-    .footer-socials { margin: 30px 0; }
-    .footer-socials a { color: #E85D9E; margin: 0 12px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
-    .footer-bottom { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; line-height: 1.8; }
-    
-    /* Mobile Responsive */
+    .cta-section { text-align: center; padding: 50px 20px; }
+    .cta-title { font-family: 'Playfair Display', serif; font-size: 24px; color: #333; margin: 0 0 12px 0; font-weight: normal; }
+    .cta-desc { font-size: 13px; color: #777; margin: 0 0 30px 0; line-height: 1.6; }
+    .cta-button { display: inline-block; background-color: #E85D9E; color: #ffffff; padding: 14px 28px; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; transition: background-color 0.3s; }
+    .cta-button:hover { background-color: #d14988; }
+
+    /* Footer Support */
+    .footer-support { background-color: #fafafa; padding: 30px 40px; border-top: 1px solid #f0f0f0; }
+    .support-icon { font-size: 28px; color: #E85D9E; margin-right: 15px; }
+    .support-text-h { font-size: 13px; font-weight: 600; color: #333; margin: 0 0 4px 0; }
+    .support-text-p { font-size: 11px; color: #777; margin: 0; line-height: 1.5; }
+    .footer-sign { text-align: center; border-left: 1px solid #eaeaea; padding-left: 20px; }
+    .footer-sign-love { font-family: 'Playfair Display', serif; font-style: italic; color: #E85D9E; font-size: 18px; margin: 0 0 8px 0; }
+    .footer-sign-team { font-size: 13px; color: #555; margin: 0; }
+
+    /* Footer Social */
+    .footer-social { padding: 30px 20px; text-align: center; }
+    .social-title { font-size: 12px; color: #333; margin-right: 15px; font-weight: 600; vertical-align: middle; }
+    .social-icon { display: inline-block; width: 30px; height: 30px; border: 1px solid #ddd; border-radius: 50%; line-height: 30px; text-align: center; margin: 0 5px; color: #555; font-size: 14px; vertical-align: middle; }
+    .footer-bottom { font-size: 11px; color: #999; margin-top: 25px; }
+
     @media only screen and (max-width: 480px) {
-      .hero-col { display: block !important; width: 100% !important; text-align: center !important; padding: 30px 20px !important; }
-      .hero-img-col { display: block !important; width: 100% !important; min-height: 200px !important; }
-      .footer-col { display: block !important; width: 100% !important; text-align: center !important; margin-bottom: 25px !important; }
-      .greeting { padding: 30px 20px; }
+      .hero-content { padding: 30px 15px; }
+      .hero-col { display: block; width: 100%; text-align: center !important; padding: 0 !important; }
+      .hero-title, .hero-divider, .hero-subtitle { text-align: center !important; padding-left: 0 !important; }
+      .greeting-col, .gift-col { display: block; width: 100%; padding: 0; }
+      .gift-col { margin-top: 35px; }
+      .feature-item { border-right: none; border-bottom: 1px solid #f0f0f0; padding: 20px 0; display: block; width: 100%; }
+      .feature-item:last-child { border-bottom: none; }
+      .footer-support td.support-col { display: block; width: 100%; text-align: center; }
+      .support-inner { margin: 0 auto; }
+      .footer-sign { border-left: none; border-top: 1px solid #eaeaea; margin-top: 25px; padding-top: 25px; padding-left: 0; display: block; width: 100%; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     
-    <!-- Header -->
-    <div class="header">
-      <h1 class="logo">Sterling Kart</h1>
-      <div class="subtitle">925 Sterling Silver Jewellery</div>
+    <!-- Hero / Header -->
+    <div class="hero">
+      <div class="hero-content">
+        <div class="logo-container">
+          <div class="logo-sk">SK</div>
+          <div class="logo-text">STERLING KART</div>
+          <div class="logo-sub">&mdash; 925 SILVER JEWELLERY &mdash;</div>
+        </div>
+        
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <th class="hero-col" width="60%" style="vertical-align: middle;">
+              <h2 class="hero-title">WELCOME TO<br><span>STERLING KART</span></h2>
+              <div class="hero-divider"><span class="line"></span><span class="star">✦</span><span class="line"></span></div>
+              <p class="hero-subtitle">Timeless Silver. Made for You.</p>
+            </th>
+            <th width="40%"></th>
+          </tr>
+        </table>
+      </div>
     </div>
-    
-    <!-- Hero Banner -->
-    <div style="padding: 0 20px;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #161616; border-radius: 16px; overflow: hidden;">
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <th width="50%" class="hero-col" style="padding: 40px 30px; text-align: left; vertical-align: middle; font-weight: normal;">
-            <h2 style="font-family: 'Playfair Display', serif; font-size: 22px; margin: 0 0 12px 0; font-weight: 400; line-height: 1.3; letter-spacing: 1px; color: #ffffff;">WELCOME TO<br>STERLING KART</h2>
-            <p style="font-size: 14px; color: #A0A0A0; margin: 0; line-height: 1.5; font-family: 'Inter', Helvetica, Arial, sans-serif;">Timeless Silver.<br>Made For You.</p>
+          <th width="55%" class="greeting-col" style="vertical-align: middle; text-align: left;">
+            <h3 class="greeting-title">Hi <span>${name || 'Customer'}</span>,</h3>
+            <p class="greeting-text">Your account has been created successfully.<br>We're thrilled to have you with us.</p>
+            <p class="greeting-text">You are now part of a community that<br>celebrates elegance, quality and<br><span>925 Sterling Silver Jewellery</span>.</p>
           </th>
-          <th width="50%" class="hero-img-col" style="background-color: #222; background-image: url('https://images.unsplash.com/photo-1599643478514-4a42095ce801?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'); background-size: cover; background-position: center; min-height: 240px;">
-            <div style="height: 240px;"></div>
+          <th width="45%" class="gift-col" style="vertical-align: middle;">
+            <div class="gift-card">
+              <div class="gift-icon">🎁</div>
+              <p class="gift-title">WELCOME GIFT</p>
+              <h2 class="gift-amount">50 Loyalty Points</h2>
+              <div class="gift-divider"><span style="display:inline-block;width:30px;height:1px;background:#fae8f0;vertical-align:middle;"></span> ✦ <span style="display:inline-block;width:30px;height:1px;background:#fae8f0;vertical-align:middle;"></span></div>
+              <p class="gift-desc">Added to your account<br>as our welcome gift!</p>
+            </div>
           </th>
         </tr>
       </table>
     </div>
 
-    <!-- Greeting Section -->
-    <div class="greeting">
-      <p style="color: #ffffff; font-size: 16px; font-weight: 400;">Hi ${name || 'Customer'},</p>
-      <p>Your account has been created successfully.</p>
-      <p>We're delighted to welcome you to the Sterling Kart family.</p>
-      <p>Discover handcrafted 925 Sterling Silver Jewellery designed to celebrate every occasion.</p>
-    </div>
-
-    <!-- Welcome Gift Card -->
-    <div class="gift-card">
-      <h3 class="gift-title">🎁 Welcome Gift</h3>
-      <h2 class="gift-amount">50 Loyalty Points</h2>
-      <p class="gift-desc">Already added to your account.<br><br>Use them on your future purchases and start earning even more rewards with every order.</p>
-    </div>
-
-    <!-- Features Row -->
-    <div class="features">
-      <div class="feature-item"><span>✧</span> 925 Sterling Silver</div>
-      <div class="feature-item"><span>✧</span> Hallmarked &amp; Certified</div>
-      <div class="feature-item"><span>✧</span> Secure Shipping</div>
-      <div class="feature-item"><span>✧</span> Member Rewards</div>
-      <div class="feature-item"><span>✧</span> Elegant Packaging</div>
+    <!-- Features -->
+    <div class="features-wrapper">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td class="feature-item" width="20%">
+            <div class="feature-icon">💎</div>
+            <div class="feature-text">925 Sterling<br>Silver</div>
+          </td>
+          <td class="feature-item" width="20%">
+            <div class="feature-icon">🛡️</div>
+            <div class="feature-text">Hallmarked &<br>Certified</div>
+          </td>
+          <td class="feature-item" width="20%">
+            <div class="feature-icon">🚚</div>
+            <div class="feature-text">Secure Shipping<br>Across India</div>
+          </td>
+          <td class="feature-item" width="20%">
+            <div class="feature-icon">🤍</div>
+            <div class="feature-text">Exclusive<br>Member Benefits</div>
+          </td>
+          <td class="feature-item" width="20%">
+            <div class="feature-icon">🎀</div>
+            <div class="feature-text">Elegant<br>Packaging</div>
+          </td>
+        </tr>
+      </table>
     </div>
 
     <!-- CTA Section -->
     <div class="cta-section">
-      <h2 class="cta-heading">Ready to find your perfect piece?</h2>
-      <p class="cta-desc">Explore rings, necklaces, bracelets, earrings and more.</p>
-      <a href="https://sterlingkart.in/shop" class="cta-button">Explore Collection</a>
+      <h2 class="cta-title">Ready to find your perfect piece?</h2>
+      <p class="cta-desc">Explore rings, necklaces, bracelets, earrings and more&mdash;<br>crafted to shine for years to come.</p>
+      <a href="https://sterlingkart.in/shop" class="cta-button">EXPLORE COLLECTION &rarr;</a>
     </div>
 
-    <!-- Footer -->
-    <div class="footer">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+    <!-- Footer Support -->
+    <div class="footer-support">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td width="50%" class="footer-col" style="text-align: left; vertical-align: top;">
-            <p style="color: #ffffff; font-weight: 600; margin-bottom: 8px;">Need help?</p>
-            <p>Reply to this email or<br>contact our support team.</p>
+          <td width="55%" class="support-col" style="vertical-align: middle;">
+            <table class="support-inner" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td style="padding-right: 15px;"><div class="support-icon">🎧</div></td>
+                <td style="text-align: left;">
+                  <p class="support-text-h">Need any help?</p>
+                  <p class="support-text-p">Reply to this email or contact<br>our support team.</p>
+                </td>
+              </tr>
+            </table>
           </td>
-          <td width="50%" class="footer-col" style="text-align: right; vertical-align: top;">
-            <p style="font-family: 'Playfair Display', serif; font-style: italic; color: #ffffff; font-size: 16px; margin-bottom: 8px;">With Love,</p>
-            <p>Team Sterling Kart</p>
+          <td width="45%" class="support-col footer-sign" style="vertical-align: middle;">
+            <p class="footer-sign-love">With Love,</p>
+            <p class="footer-sign-team">Team Sterling Kart <span style="color: #E85D9E;">♡</span></p>
           </td>
         </tr>
       </table>
-      
-      <div class="footer-socials">
-        <a href="#">Instagram</a> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
-        <a href="#">Facebook</a> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
-        <a href="#">Pinterest</a>
-      </div>
+    </div>
+
+    <!-- Footer Social -->
+    <div class="footer-social">
+      <span class="social-title">Follow Us</span>
+      <a href="#" class="social-icon">📷</a>
+      <a href="#" class="social-icon">f</a>
+      <a href="#" class="social-icon">P</a>
       
       <div class="footer-bottom">
-        &copy; 2026 Sterling Kart<br><br>925 Sterling Silver Jewellery
+        &copy; 2026 Sterling Kart &nbsp;|&nbsp; Timeless 925 Silver Jewellery
       </div>
     </div>
 
