@@ -125,8 +125,15 @@ export default function LoginPage() {
   // Full E.164 number: country dial + local digits (strip leading 0)
   const fullPhone = selectedCountry.dial + formData.phone.replace(/^0+/, '');
   
-  const { requestOtp, verifyOtp, isAuthModalOpen, closeAuthModal } = useAuth();
+  const { requestOtp, verifyOtp, isAuthModalOpen, closeAuthModal, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Auto-close if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && isAuthModalOpen) {
+      closeAuthModal();
+    }
+  }, [isAuthenticated, isAuthModalOpen, closeAuthModal]);
 
   useEffect(() => {
     if (!isAuthModalOpen) return;
@@ -181,7 +188,7 @@ export default function LoginPage() {
     }
   };
 
-  if (!isAuthModalOpen) return null;
+  if (!isAuthModalOpen || isAuthenticated) return null;
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 lg:p-8">
