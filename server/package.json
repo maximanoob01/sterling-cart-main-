@@ -28,5 +28,9 @@
     "razorpay": "^2.9.6",
     "sequelize": "^6.37.8",
     "sqlite3": "^6.0.1"
+  },
+  "optionalDependencies": {
+    "@emnapi/core": "^1.11.2",
+    "@emnapi/runtime": "^1.11.2"
   }
 }
