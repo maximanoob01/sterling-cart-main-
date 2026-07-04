@@ -2,15 +2,15 @@
   "heroImageUrl": "",
   "silverPriceCache": {
     "today": 232.21285860515778,
-    "previous": 225.13587296537625,
+    "previous": 232.21285860515778,
     "low": 228.7296657260804,
     "high": 234.99941290841969,
     "price_gram_24k": 232.21285860515778,
-    "change": 7.076985639781526,
-    "changePercent": 3.14342869777572,
+    "change": 0,
+    "changePercent": 0,
     "ask": 7258.745810863652,
     "bid": 7186.519484387398,
-    "updatedAt": "2026-07-04T08:59:40.343Z"
+    "updatedAt": "2026-07-04T17:44:43.566Z"
   },
-  "silverPriceCacheTime": 1783155580343
+  "silverPriceCacheTime": 1783187083566
 }

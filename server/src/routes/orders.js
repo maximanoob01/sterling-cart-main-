@@ -40,7 +40,7 @@ router.post('/', optionalAuth, [
   const t = await sequelize.transaction();
   try {
     const { form, items, paymentMethod, razorpayPaymentId, razorpayOrderId,
-            isGiftWrapped, giftNote, couponCode, loyaltyPointsUsed, giftCardCode } = req.body;
+      isGiftWrapped, giftNote, couponCode, loyaltyPointsUsed, giftCardCode } = req.body;
 
     const orderId = generateOrderId();
     let subtotal = 0;
@@ -175,7 +175,7 @@ router.post('/', optionalAuth, [
         remainingBalance: newBalance,
         status: newBalance <= 0 ? 'exhausted' : 'partially_used'
       }, { transaction: t });
-      
+
       await GiftCardTransaction.create({
         giftCardId: giftCardRecord.id,
         orderId: order.orderId,
@@ -242,7 +242,7 @@ router.post('/', optionalAuth, [
         if (srOrder && srOrder.order_id && srOrder.shipment_id) {
           // Generate AWB immediately
           const awbRes = await shiprocketService.generateAWB(srOrder.shipment_id);
-          
+
           let awbCode = null;
           let courierName = null;
           let routingCode = null;
@@ -282,7 +282,7 @@ router.post('/', optionalAuth, [
 router.get('/', authenticate, async (req, res, next) => {
   try {
     const orders = await Order.findAll({
-      where: { 
+      where: {
         [Op.or]: [
           { userId: req.dbUser.id },
           { customerPhone: { [Op.like]: `%${req.dbUser.phone.slice(-10)}%` } }
@@ -291,13 +291,13 @@ router.get('/', authenticate, async (req, res, next) => {
       order: [['createdAt', 'DESC']],
       include: [{ model: OrderItem, as: 'items' }, { model: OrderTimeline, as: 'timeline' }]
     });
-    
+
     orders.forEach(o => {
       if (o.timeline) {
         o.timeline.sort((a, b) => (TIMELINE_ORDER[a.status] || 99) - (TIMELINE_ORDER[b.status] || 99));
       }
     });
-    
+
     res.json({ success: true, orders });
   } catch (error) { next(error); }
 });
@@ -398,7 +398,7 @@ router.post('/:orderId/email-invoice', authenticate, requireAdmin, async (req, r
     const { pdfBase64 } = req.body;
     if (!pdfBase64) return res.status(400).json({ success: false, error: 'pdfBase64 is required' });
 
-    const order = await Order.findOne({ 
+    const order = await Order.findOne({
       where: { orderId: req.params.orderId },
       include: [{ model: OrderItem, as: 'items' }]
     });
@@ -406,8 +406,8 @@ router.post('/:orderId/email-invoice', authenticate, requireAdmin, async (req, r
 
     const { sendInvoiceEmail } = await import('../services/emailService.js');
     const result = await sendInvoiceEmail(
-      order, 
-      order.items || [], 
+      order,
+      order.items || [],
       pdfBase64
     );
 
@@ -440,7 +440,7 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
     if (courierName) updates.courierName = courierName;
     if (status === 'Cancelled') {
       updates.paymentStatus = 'refunded';
-      
+
       await Notification.create({
         type: 'alert',
         title: 'Order cancelled',
@@ -459,7 +459,7 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
             await redeemedRow.update({ status: 'cancelled' }, { transaction: t });
             await loyaltyAccount.increment('balance', { by: redeemedRow.points, transaction: t });
           }
-          
+
           const pendingPointsRow = await LoyaltyHistory.findOne({
             where: { loyaltyId: loyaltyAccount.id, orderId: order.orderId, type: 'earned', status: 'pending' },
             transaction: t
@@ -473,7 +473,7 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
 
     if (status === 'Delivered' && order.orderStatus !== 'Delivered') {
       updates.paymentStatus = 'paid';
-      
+
       await Notification.create({
         type: 'order',
         title: 'Order delivered',
@@ -494,7 +494,7 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
             expiresAt.setMonth(expiresAt.getMonth() + 12);
             await pendingPointsRow.update({ status: 'confirmed', expiresAt }, { transaction: t });
             await loyaltyAccount.increment('balance', { by: pendingPointsRow.points, transaction: t });
-            
+
             // Mock WhatsApp message
             console.log(`\n[WHATSAPP MOCK] To User ${order.userId}: "You earned ${pendingPointsRow.points} Sterling Coins! Balance: ${loyaltyAccount.balance + pendingPointsRow.points} coins"\n`);
           }
@@ -507,7 +507,7 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
     // Update timelines
     const statusOrder = ['Order Placed', 'Order Confirmed', 'Packed', 'Shipped', 'Out for Delivery', 'Delivered'];
     const currentIdx = statusOrder.indexOf(status === 'Confirmed' ? 'Order Confirmed' : status);
-    
+
     for (const timelineEntry of order.timeline) {
       const entryIdx = statusOrder.indexOf(timelineEntry.status);
       if (entryIdx <= currentIdx && !timelineEntry.completed) {

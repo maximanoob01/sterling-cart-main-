@@ -16,6 +16,10 @@ dist-ssr
 .env
 server/.env
 
+# Local Database
+*.sqlite
+database.sqlite
+
 # Firebase credentials
 server/firebase-service-account.json
 
