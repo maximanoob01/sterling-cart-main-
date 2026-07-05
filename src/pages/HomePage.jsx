@@ -206,12 +206,14 @@ export default function HomePage() {
   const [categorySlideIndex, setCategorySlideIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [heroImageOverride, setHeroImageOverride] = useState('');
+  const [touchStartX, setTouchStartX] = useState(null);
 
   const heroRef = useRef(null);
   const collageRef = useRef(null);
   const categoryScrollRef = useRef(null);
   const favoritesScrollRef = useRef(null);
   const newArrivalsScrollRef = useRef(null);
+  const lastWheelTime = useRef(0);
 
   const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(heroScroll, [0, 1], ["0%", "25%"]);
@@ -307,6 +309,37 @@ export default function HomePage() {
     setEmail('');
   };
 
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    
+    if (diff > 50) {
+      showNextHero();
+    } else if (diff < -50) {
+      showPreviousHero();
+    }
+    setTouchStartX(null);
+  };
+
+  const handleWheel = (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 10) {
+      const now = Date.now();
+      if (now - lastWheelTime.current > 800) {
+        if (e.deltaX > 0) {
+          showNextHero();
+        } else {
+          showPreviousHero();
+        }
+        lastWheelTime.current = now;
+      }
+    }
+  };
+
   return (
     <div className="overflow-x-hidden bg-bg-primary bg-pattern-diamond">
       <section
@@ -320,6 +353,9 @@ export default function HomePage() {
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget)) setIsHeroHovered(false);
         }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onWheel={handleWheel}
       >
         <AnimatePresence initial={false}>
           <motion.img
