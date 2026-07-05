@@ -133,7 +133,7 @@ export default function CircularGallery({
     const onMove = (e) => {
       if (!isDown) return;
       const x = e.touches ? e.touches[0].clientX : e.clientX;
-      const distance = (startX - x) * 0.01;
+      const distance = (startX - x) * 0.02; // Increased from 0.01 for faster sliding
       scroll.target += distance;
       startX = x;
     };
@@ -143,7 +143,7 @@ export default function CircularGallery({
     };
 
     const onWheel = (e) => {
-      scroll.target += e.deltaY * 0.002 + e.deltaX * 0.002;
+      scroll.target += e.deltaY * 0.004 + e.deltaX * 0.004; // Increased from 0.002 for faster scrolling
     };
 
     const container = containerRef.current;
@@ -170,7 +170,7 @@ export default function CircularGallery({
       animationId = requestAnimationFrame(update);
 
       // Inertia
-      scroll.current += (scroll.target - scroll.current) * 0.05;
+      scroll.current += (scroll.target - scroll.current) * 0.08; // Increased from 0.05 for snappier feeling
 
       items.forEach((item, i) => {
         // Update video texture if playing
