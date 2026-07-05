@@ -752,12 +752,12 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="relative z-10 -mt-12 h-[240px] w-full md:-mt-8 md:h-[600px]">
+        <div className="relative z-10 -mt-12 h-[360px] w-full md:-mt-8 md:h-[600px]">
           <CircularGallery 
             videos={galleryVideos}
             bend={0.06}
-            itemWidth={isMobile ? 2.5 : 4}
-            itemHeight={isMobile ? 4.4 : 7}
+            itemWidth={isMobile ? 3.4 : 4}
+            itemHeight={isMobile ? 6.0 : 7}
             gap={isMobile ? 0.3 : 0.4}
           />
         </div>
