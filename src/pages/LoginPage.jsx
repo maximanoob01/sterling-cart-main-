@@ -96,15 +96,113 @@ function CountryCodePicker({ selected, onSelect }) {
               )}
             </div>
           </motion.div>
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, User, X, Search, ChevronDown } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const COUNTRIES = [
+  { code: 'IN', name: 'India', dial: '+91', flag: '\uD83C\uDDEE\uD83C\uDDF3' },
+  { code: 'US', name: 'United States', dial: '+1', flag: '\uD83C\uDDFA\uD83C\uDDF8' },
+  { code: 'GB', name: 'United Kingdom', dial: '+44', flag: '\uD83C\uDDEC\uD83C\uDDE7' },
+  { code: 'AE', name: 'UAE', dial: '+971', flag: '\uD83C\uDDE6\uD83C\uDDEA' },
+  { code: 'CA', name: 'Canada', dial: '+1', flag: '\uD83C\uDDE8\uD83C\uDDE6' },
+  { code: 'AU', name: 'Australia', dial: '+61', flag: '\uD83C\uDDE6\uD83C\uDDFA' },
+  { code: 'SG', name: 'Singapore', dial: '+65', flag: '\uD83C\uDDF8\uD83C\uDDEC' },
+  { code: 'MY', name: 'Malaysia', dial: '+60', flag: '\uD83C\uDDF2\uD83C\uDDFE' },
+  { code: 'NZ', name: 'New Zealand', dial: '+64', flag: '\uD83C\uDDF3\uD83C\uDDFF' },
+  { code: 'ZA', name: 'South Africa', dial: '+27', flag: '\uD83C\uDDFF\uD83C\uDDE6' },
+  { code: 'BD', name: 'Bangladesh', dial: '+880', flag: '\uD83C\uDDE7\uD83C\uDDE9' },
+  { code: 'PK', name: 'Pakistan', dial: '+92', flag: '\uD83C\uDDF5\uD83C\uDDF0' },
+  { code: 'LK', name: 'Sri Lanka', dial: '+94', flag: '\uD83C\uDDF1\uD83C\uDDF0' },
+  { code: 'NP', name: 'Nepal', dial: '+977', flag: '\uD83C\uDDF3\uD83C\uDDF5' },
+  { code: 'DE', name: 'Germany', dial: '+49', flag: '\uD83C\uDDE9\uD83C\uDDEA' },
+  { code: 'FR', name: 'France', dial: '+33', flag: '\uD83C\uDDEB\uD83C\uDDF7' },
+  { code: 'NL', name: 'Netherlands', dial: '+31', flag: '\uD83C\uDDF3\uD83C\uDDF1' },
+  { code: 'JP', name: 'Japan', dial: '+81', flag: '\uD83C\uDDEF\uD83C\uDDF5' },
+  { code: 'KR', name: 'South Korea', dial: '+82', flag: '\uD83C\uDDF0\uD83C\uDDF7' },
+  { code: 'HK', name: 'Hong Kong', dial: '+852', flag: '\uD83C\uDDED\uD83C\uDDF0' },
+  { code: 'QA', name: 'Qatar', dial: '+974', flag: '\uD83C\uDDF6\uD83C\uDDE6' },
+  { code: 'SA', name: 'Saudi Arabia', dial: '+966', flag: '\uD83C\uDDF8\uD83C\uDDE6' },
+  { code: 'KW', name: 'Kuwait', dial: '+965', flag: '\uD83C\uDDF0\uD83C\uDDFC' },
+  { code: 'OM', name: 'Oman', dial: '+968', flag: '\uD83C\uDDF4\uD83C\uDDF2' },
+];
+
+function CountryCodePicker({ selected, onSelect }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClick = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const filtered = COUNTRIES.filter(
+    (c) => c.name.toLowerCase().includes(search.toLowerCase()) || c.dial.includes(search)
+  );
+
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => { setOpen((o) => !o); setSearch(''); }}
+        className="flex h-full items-center gap-1.5 bg-gray-100 px-3 py-2.5 text-[13px] font-medium text-gray-700 hover:bg-gray-200 transition-colors focus:outline-none"
+        aria-label="Select country code"
+      >
+        <span className="text-[15px] leading-none">{selected.flag}</span>
+        <span className="text-[12px] text-gray-500 tabular-nums">{selected.dial}</span>
+        <ChevronDown size={11} className={`text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.97 }}
+            transition={{ duration: 0.15, ease: [0.25, 1, 0.5, 1] }}
+            className="absolute left-0 top-[calc(100%+6px)] z-[200] w-[260px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.14)]"
+          >
+            <div className="flex items-center gap-2 border-b border-gray-100 px-3 py-2">
+              <Search size={13} className="shrink-0 text-gray-400" />
+              <input
+                autoFocus
+                type="text"
+                placeholder="Search country or code..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="min-w-0 flex-1 border-none bg-transparent text-[12px] outline-none placeholder:text-gray-400"
+              />
+            </div>
+            <div className="max-h-[220px] overflow-y-auto">
+              {filtered.length > 0 ? filtered.map((c) => (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => { onSelect(c); setOpen(false); }}
+                  className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] transition-colors hover:bg-[#FFF0F5] ${selected.code === c.code ? 'bg-[#FFF0F5] font-semibold' : ''}`}
+                >
+                  <span className="text-[15px]">{c.flag}</span>
+                  <span className="flex-1 truncate text-gray-800">{c.name}</span>
+                  <span className="shrink-0 text-[11px] tabular-nums text-gray-400">{c.dial}</span>
+                </button>
+              )) : (
+                <p className="px-4 py-4 text-center text-[12px] text-gray-400">No results</p>
+              )}
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
 }
 
-import slide1 from '../assets/images/login1.jpeg';
-import slide2 from '../assets/images/login2.jpeg';
-import slide3 from '../assets/images/login3.jpeg';
+import slide1 from '../assets/images/auth_slide_1.jpeg';
+import slide2 from '../assets/images/auth_slide_2.jpeg';
+import slide3 from '../assets/images/auth_slide_3.jpeg';
 
 const slides = [slide1, slide2, slide3];
 
