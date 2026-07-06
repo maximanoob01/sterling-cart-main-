@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ShoppingCart, Heart, Search, User, Menu, X, ChevronDown, IndianRupee, Sun, Moon, PackageSearch, Gift, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Heart, Search, User, Menu, X, ChevronDown, IndianRupee, Sun, Moon, PackageSearch, Gift, TrendingUp, TrendingDown, ArrowRight, Home } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -576,6 +576,10 @@ export default function Header() {
 
       {/* Floating Bottom Nav for Mobile */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-border-main bg-bg-surface/95 px-2 py-2 pb-[calc(env(safe-area-inset-bottom)+8px)] shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-xl sm:hidden">
+        <Link to="/" className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
+          <Home size={20} />
+          <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Home</span>
+        </Link>
         <Link to="/track-order" className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
           <PackageSearch size={20} />
           <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Track</span>
