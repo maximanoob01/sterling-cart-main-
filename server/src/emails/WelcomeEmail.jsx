@@ -32,33 +32,26 @@ export default function WelcomeEmail({ name = 'Customer' }) {
       <Body style={styles.body}>
         <Container style={styles.container} className="mobile-container">
           
-          {/* Hero Header with Image */}
+          {/* Hero Header with Background Image */}
           <Section style={styles.heroSection}>
-            <Img 
-              src="https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/c5.jpeg" 
-              width="100%" 
-              height="auto" 
-              alt="Sterling Kart" 
-              style={styles.heroImage} 
-            />
             <div style={styles.heroOverlay}>
-              <Text style={styles.heroBrand}>✦</Text>
               <Heading style={styles.heroTitle} className="header-text">STERLING KART</Heading>
               <Text style={styles.heroSubtitle}>925 STERLING SILVER JEWELLERY</Text>
-              <Text style={styles.heroBrandBottom}>✦</Text>
             </div>
           </Section>
 
           {/* Welcome Text */}
           <Section style={styles.welcomeSection}>
-            <Text style={styles.welcomeScript}>Welcome, ✦</Text>
-            <Heading style={styles.greeting} className="greeting">Hi {name}!</Heading>
-            <Text style={styles.text}>
-              We're thrilled to have you with us.<br/>
-              You are now part of a community that<br/>
-              celebrates elegance, quality, and timeless<br/>
-              925 Sterling Silver Jewellery.
-            </Text>
+            <center>
+              <Text style={styles.welcomeScript}>Welcome,</Text>
+              <Heading style={styles.greeting} className="greeting">Hi {name}!</Heading>
+              <Text style={styles.text}>
+                We're thrilled to have you with us.<br/>
+                You are now part of a community that<br/>
+                celebrates elegance, quality, and timeless<br/>
+                925 Sterling Silver Jewellery.
+              </Text>
+            </center>
           </Section>
 
           {/* Loyalty Card */}
@@ -77,7 +70,9 @@ export default function WelcomeEmail({ name = 'Customer' }) {
           </Section>
 
           <Section style={styles.sectionDivider}>
-            <Text style={styles.dividerText}>✦ OUR BESTSELLERS ✦</Text>
+            <center>
+              <Text style={styles.dividerText}>OUR BESTSELLERS</Text>
+            </center>
           </Section>
 
           {/* Bestsellers Grid - ALL 4 ON SINGLE LINE */}
@@ -143,30 +138,34 @@ export default function WelcomeEmail({ name = 'Customer' }) {
 
           {/* CTA */}
           <Section style={styles.ctaSection}>
-            <Button href="https://sterlingkart.in/shop" style={styles.mainBtn}>
-              EXPLORE COLLECTION ➔
-            </Button>
-            <Text style={styles.thankYou}>✦ Thank you for choosing Sterling Kart.</Text>
-            <Text style={styles.journey}>We can't wait to be part of your journey!</Text>
+            <center>
+              <Button href="https://sterlingkart.in/shop" style={styles.mainBtn}>
+                EXPLORE COLLECTION ➔
+              </Button>
+              <Text style={styles.thankYou}>Thank you for choosing Sterling Kart.</Text>
+              <Text style={styles.journey}>We can't wait to be part of your journey!</Text>
+            </center>
           </Section>
 
           {/* Footer */}
           <Section style={styles.footer}>
             <Row>
-              <Column style={styles.footerCol} className="footer-col">
+              <Column style={styles.footerCol} className="footer-col" align="center" valign="top">
                 <Text style={styles.footerTitle}>✉ NEED HELP?</Text>
                 <Text style={styles.footerText}>support@sterlingkart.in<br/>+91 98765 43210</Text>
               </Column>
-              <Column style={{ ...styles.footerCol, borderLeft: '1px solid #222', borderRight: '1px solid #222' }} className="footer-col">
+              <Column style={{ ...styles.footerCol, borderLeft: '1px solid #222', borderRight: '1px solid #222' }} className="footer-col" align="center" valign="top">
                 <Text style={styles.footerTitle}>FOLLOW US</Text>
                 <Text style={styles.footerText}>Instagram | Facebook | Pinterest</Text>
               </Column>
-              <Column style={styles.footerCol} className="footer-col">
+              <Column style={styles.footerCol} className="footer-col" align="center" valign="top">
                 <Text style={styles.footerTitle}>🛡 100% SECURE</Text>
                 <Text style={styles.footerText}>Safe payments.<br/>Shop with confidence.</Text>
               </Column>
             </Row>
-            <Text style={styles.copyright}>© 2026 Sterling Kart. All rights reserved.</Text>
+            <center>
+              <Text style={styles.copyright}>© 2026 Sterling Kart. All rights reserved.</Text>
+            </center>
           </Section>
         </Container>
       </Body>
@@ -177,11 +176,20 @@ export default function WelcomeEmail({ name = 'Customer' }) {
 const styles = {
   body: { backgroundColor: '#050505', fontFamily: 'Helvetica, Arial, sans-serif', padding: '20px 0' },
   container: { margin: '0 auto', backgroundColor: '#0F1014', width: '600px', maxWidth: '100%', color: '#ffffff' },
-  heroSection: { position: 'relative', textAlign: 'center', backgroundColor: '#1a1014' },
-  heroImage: { width: '100%', height: 'auto', opacity: 0.6 },
-  heroOverlay: { position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '100%', textAlign: 'center' },
-  heroBrand: { color: '#ea6c9a', margin: '0 0 5px 0', fontSize: '20px' },
-  heroBrandBottom: { color: '#ea6c9a', margin: '5px 0 0 0', fontSize: '20px' },
+  heroSection: { 
+    textAlign: 'center', 
+    backgroundColor: '#1a1014',
+    backgroundImage: 'url("https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/c5.jpeg")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    padding: '60px 20px',
+  },
+  heroOverlay: { 
+    backgroundColor: 'rgba(0,0,0,0.5)', 
+    padding: '20px', 
+    borderRadius: '8px',
+    display: 'inline-block'
+  },
   heroTitle: { color: '#ea6c9a', fontSize: '36px', letterSpacing: '4px', margin: '0', fontWeight: 'normal', fontFamily: 'Georgia, serif' },
   heroSubtitle: { color: '#ffffff', fontSize: '10px', letterSpacing: '3px', margin: '10px 0 0 0', opacity: 0.8 },
   welcomeSection: { padding: '40px 30px' },
