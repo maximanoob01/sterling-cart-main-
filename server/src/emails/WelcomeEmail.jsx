@@ -190,7 +190,7 @@ const styles = {
   heroSection: { 
     textAlign: 'center', 
     backgroundColor: '#1a1014',
-    backgroundImage: 'url("https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/c5.jpeg")',
+    backgroundImage: 'url("https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/login3.jpeg")',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     padding: '60px 20px',
