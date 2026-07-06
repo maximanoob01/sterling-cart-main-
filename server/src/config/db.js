@@ -18,11 +18,16 @@ if (process.env.DATABASE_URL) {
     }
   });
 } else {
-  sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: './database.sqlite',
-    logging: false, // Set to console.log to see SQL queries
-  });
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ ERROR: DATABASE_URL is not set! You must connect a PostgreSQL database in Railway.');
+    process.exit(1);
+  } else {
+    sequelize = new Sequelize({
+      dialect: 'sqlite',
+      storage: './database.sqlite',
+      logging: false, // Set to console.log to see SQL queries
+    });
+  }
 }
 
 const connectDB = async () => {
