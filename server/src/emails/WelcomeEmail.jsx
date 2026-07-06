@@ -145,7 +145,7 @@ export default function WelcomeEmail({ name = 'Customer' }) {
                 <Text style={styles.footerTitle}>✉ NEED HELP?</Text>
                 <Text style={styles.footerText}>support@sterlingkart.com<br/>+91 98765 43210</Text>
               </Column>
-              <Column style={styles.footerCol} className="perk-item" style={{ borderLeft: '1px solid #222', borderRight: '1px solid #222' }}>
+              <Column className="perk-item" style={{ ...styles.footerCol, borderLeft: '1px solid #222', borderRight: '1px solid #222' }}>
                 <Text style={styles.footerTitle}>FOLLOW US</Text>
                 <Text style={styles.footerText}>Instagram | Facebook | Pinterest</Text>
               </Column>
