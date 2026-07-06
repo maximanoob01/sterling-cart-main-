@@ -208,7 +208,8 @@ const styles = {
   greeting: { color: '#ffffff', fontSize: '42px', margin: '10px 0 20px 0', fontFamily: 'Georgia, serif', fontWeight: 'normal' },
   text: { color: '#b0b0b0', fontSize: '15px', lineHeight: '1.6', margin: '0' },
   loyaltyBox: { 
-    margin: '0 30px 40px 30px', 
+    width: '85%',
+    margin: '0 auto 40px auto', 
     border: '1px solid rgba(234, 108, 154, 0.4)', 
     borderRadius: '16px', 
     padding: '30px 10px', 
