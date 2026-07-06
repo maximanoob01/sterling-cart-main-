@@ -4,7 +4,8 @@ import { Resend } from 'resend';
 const validateEnv = () => {
   const missing = [];
   if (!process.env.RESEND_API_KEY) missing.push('RESEND_API_KEY');
-  if (!process.env.EMAIL_FROM) missing.push('EMAIL_FROM');
+  if (!process.env.ORDER_EMAIL_FROM) missing.push('ORDER_EMAIL_FROM');
+  if (!process.env.NOREPLY_EMAIL_FROM) missing.push('NOREPLY_EMAIL_FROM');
   if (!process.env.ADMIN_EMAIL) missing.push('ADMIN_EMAIL');
 
   if (missing.length > 0) {
@@ -122,7 +123,7 @@ const generateOrderEmailHTML = (orderId, form, items, totalAmount) => {
 export const sendOrderConfirmation = async (orderId, form, items, totalAmount) => {
   const html = generateOrderEmailHTML(orderId, form, items, totalAmount);
   return await sendWithResend('Order Confirmation', {
-    from: process.env.EMAIL_FROM,
+    from: process.env.ORDER_EMAIL_FROM,
     to: form.email,
     subject: `Order Confirmation — ${orderId}`,
     html,
@@ -139,7 +140,7 @@ export const sendContactNotification = async (contactData) => {
     <p>${contactData.message}</p>`;
 
   await sendWithResend('Contact Notification', {
-    from: process.env.EMAIL_FROM,
+    from: process.env.NOREPLY_EMAIL_FROM,
     to: process.env.ADMIN_EMAIL,
     reply_to: contactData.email,
     subject: `New Contact Message from ${contactData.name}`,
@@ -172,7 +173,7 @@ export const sendGiftCardEmail = async (email, name, amount, code, expiryDate) =
   </div></body></html>`;
 
   return await sendWithResend('Gift Card Email', {
-    from: process.env.EMAIL_FROM,
+    from: process.env.ORDER_EMAIL_FROM,
     to: email,
     subject: `Your Sterling Kart Gift Card — ₹${amount}`,
     html,
@@ -349,7 +350,7 @@ export const sendWelcomeEmail = async (email, name) => {
 </html>`;
 
   return await sendWithResend('Welcome Email', {
-    from: process.env.EMAIL_FROM,
+    from: process.env.NOREPLY_EMAIL_FROM,
     to: email,
     subject: `Welcome to Sterling Kart! 🎉`,
     html,
@@ -430,7 +431,7 @@ export const sendInvoiceEmail = async (order, items, pdfBase64) => {
   </div></body></html>`;
 
   return await sendWithResend('Invoice Email', {
-    from: process.env.EMAIL_FROM,
+    from: process.env.ORDER_EMAIL_FROM,
     to: email,
     subject: `Your Invoice for Order ${orderId}`,
     html,
