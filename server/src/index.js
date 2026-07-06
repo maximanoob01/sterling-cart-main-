@@ -94,6 +94,21 @@ app.get('/api/health', (_req, res) => {
   res.json({ success: true, message: 'Sterling Kart API is running (PostgreSQL)', timestamp: new Date().toISOString() });
 });
 
+// ─── Frontend Integration (Serve React SPA) ──────────────────────────────────
+const frontendDistPath = path.join(process.cwd(), "dist");
+app.use(express.static(frontendDistPath));
+
+app.get('*', (req, res, next) => {
+  if (
+    req.originalUrl.startsWith('/api') ||
+    req.originalUrl.startsWith('/uploads')
+  ) {
+    return next();
+  }
+
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
+});
+
 // ─── Error Handler ───────────────────────────────────────────────────────────
 app.use(errorHandler);
 
@@ -110,4 +125,7 @@ const startServer = async () => {
   });
 };
 
-startServer();
+startServer().catch((err) => {
+  console.error("❌ Failed to start Sterling Kart:", err);
+  process.exit(1);
+});

@@ -185,177 +185,165 @@ export const sendWelcomeEmail = async (email, name) => {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', Helvetica, Arial, sans-serif; background-color: #222222; margin: 0; padding: 20px 0; -webkit-font-smoothing: antialiased; width: 100% !important; }
-    .wrapper { width: 100%; table-layout: fixed; background-color: #222222; padding-bottom: 40px; }
-    .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; }
-    table { border-collapse: collapse; border-spacing: 0; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; }
-    td, th { padding: 0; font-weight: normal; }
-    a { text-decoration: none; }
+    body { font-family: 'Inter', Helvetica, Arial, sans-serif; background-color: #fcfcfc; margin: 0; padding: 40px 0; text-align: center; color: #131E33; -webkit-font-smoothing: antialiased; }
+    table { margin: 0 auto; }
+    .container { max-width: 500px; margin: 0 auto; background-color: #ffffff; padding: 40px 20px; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.03); text-align: center; }
     
-    /* Hero Section */
-    .hero { background-color: #0d0d0d; background-image: url('https://images.unsplash.com/photo-1599643478514-4a42095ce801?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'); background-size: cover; background-position: center; color: #ffffff; text-align: center; }
-    .hero-content { padding: 40px 20px; background-color: rgba(13,13,13,0.85); }
-    .logo-container { margin-bottom: 40px; text-align: center; }
-    .logo-sk { font-family: 'Playfair Display', serif; font-size: 38px; color: #ffffff; line-height: 1; margin: 0; }
-    .logo-text { font-family: 'Inter', sans-serif; font-size: 14px; letter-spacing: 5px; color: #E85D9E; text-transform: uppercase; margin: 8px 0 0 0; }
-    .logo-sub { font-size: 9px; letter-spacing: 3px; color: #aaaaaa; text-transform: uppercase; margin: 5px 0 0 0; }
-    .hero-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: normal; margin: 20px 0 15px; letter-spacing: 1px; text-align: left; padding-left: 20px;}
-    .hero-title span { color: #E85D9E; }
-    .hero-divider { text-align: left; padding-left: 20px; margin-bottom: 15px; }
-    .hero-divider span.line { display: inline-block; width: 40px; height: 1px; background-color: #555; vertical-align: middle; }
-    .hero-divider span.star { color: #E85D9E; font-size: 14px; margin: 0 8px; vertical-align: middle; }
-    .hero-subtitle { font-family: 'Playfair Display', serif; font-style: italic; font-size: 16px; color: #cccccc; text-align: left; padding-left: 20px; margin: 0; }
+    .logo-sk { font-family: 'Playfair Display', serif; font-size: 52px; color: #EA6C9A; margin: 0 auto; line-height: 1; display: inline-block; position: relative; }
+    .logo-sk::after { content: "✦"; position: absolute; top: 0; right: -15px; font-size: 14px; color: #EA6C9A; }
+    .logo-text { font-family: 'Inter', sans-serif; font-size: 18px; letter-spacing: 5px; color: #131E33; margin: 15px auto 8px; font-weight: 600; }
+    .logo-sub { font-size: 10px; letter-spacing: 1.5px; color: #999; text-transform: uppercase; margin: 0; }
     
-    /* Content Area */
-    .content-area { padding: 40px 30px; }
-    .greeting-col { padding-right: 20px; }
-    .greeting-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: normal; margin: 0 0 20px 0; color: #333; }
-    .greeting-title span { color: #E85D9E; }
-    .greeting-text { font-size: 13px; color: #555555; line-height: 1.6; margin: 0 0 15px 0; }
-    .greeting-text span { color: #E85D9E; font-weight: 600; }
+    .divider-wrapper { margin: 25px auto; width: 250px; position: relative; height: 20px; }
+    .divider-line { position: absolute; top: 10px; left: 0; right: 0; height: 1px; background-color: #fae8f0; z-index: 1; }
+    .divider-star-icon { position: absolute; top: 0; left: 50%; transform: translateX(-50%); background-color: #ffffff; padding: 0 15px; z-index: 2; color: #EA6C9A; font-size: 14px; }
     
-    .gift-col { padding-left: 10px; }
-    .gift-card { border: 1px solid #fae8f0; border-radius: 12px; padding: 25px 20px; text-align: center; background-color: #ffffff; box-shadow: 0 4px 15px rgba(232, 93, 158, 0.04); }
-    .gift-icon { width: 45px; height: 45px; background-color: #fff0f5; border-radius: 50%; display: inline-block; line-height: 45px; margin-bottom: 12px; color: #E85D9E; font-size: 20px; }
-    .gift-title { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #555; margin: 0 0 8px 0; font-weight: 600; }
-    .gift-amount { font-family: 'Playfair Display', serif; font-size: 24px; color: #E85D9E; margin: 0 0 12px 0; }
-    .gift-divider { font-size: 10px; color: #E85D9E; margin: 8px 0; }
-    .gift-desc { font-size: 11px; color: #777; line-height: 1.5; margin: 0; }
-
-    /* CTA */
-    .cta-section { text-align: center; padding: 50px 20px; }
-    .cta-title { font-family: 'Playfair Display', serif; font-size: 24px; color: #333; margin: 0 0 12px 0; font-weight: normal; }
-    .cta-desc { font-size: 13px; color: #777; margin: 0 0 30px 0; line-height: 1.6; }
-    .cta-button { display: inline-block; background-color: #E85D9E; color: #ffffff; padding: 14px 28px; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; transition: background-color 0.3s; }
-
-    /* Footer Support */
-    .footer-support { background-color: #fafafa; padding: 30px 40px; border-top: 1px solid #f0f0f0; }
-    .support-icon { font-size: 28px; color: #E85D9E; margin-right: 15px; }
-    .support-text-h { font-size: 13px; font-weight: 600; color: #333; margin: 0 0 4px 0; }
-    .support-text-p { font-size: 11px; color: #777; margin: 0; line-height: 1.5; }
-    .footer-sign { text-align: center; border-left: 1px solid #eaeaea; padding-left: 20px; }
-    .footer-sign-love { font-family: 'Playfair Display', serif; font-style: italic; color: #E85D9E; font-size: 18px; margin: 0 0 8px 0; }
-    .footer-sign-team { font-size: 13px; color: #555; margin: 0; }
-
-    /* Footer Social */
-    .footer-social { padding: 30px 20px; text-align: center; }
-    .social-title { font-size: 12px; color: #333; margin-right: 15px; font-weight: 600; vertical-align: middle; }
-    .social-icon { display: inline-block; width: 30px; height: 30px; border: 1px solid #ddd; border-radius: 50%; line-height: 30px; text-align: center; margin: 0 5px; color: #555; font-size: 14px; vertical-align: middle; }
-    .footer-bottom { font-size: 11px; color: #999; margin-top: 25px; }
-
-    /* MOBILE RESPONSIVE MEDIA QUERY */
-    @media screen and (max-width: 600px) {
-      .container { width: 100% !important; max-width: 100% !important; box-shadow: none !important; }
-      body { padding: 0 !important; }
-      .hero-content { padding: 30px 15px !important; }
-      .hero-col { display: block !important; width: 100% !important; text-align: center !important; padding: 0 !important; }
-      .hero-title { text-align: center !important; padding-left: 0 !important; margin: 0 auto 15px auto !important; }
-      .hero-divider { text-align: center !important; padding-left: 0 !important; margin: 0 auto 15px auto !important; }
-      .hero-subtitle { text-align: center !important; padding-left: 0 !important; margin: 0 auto !important; }
-      
-      .content-area { padding: 30px 20px !important; }
-      .greeting-col { display: block !important; width: 100% !important; padding: 0 !important; text-align: center !important; }
-      .gift-col { display: block !important; width: 100% !important; padding: 0 !important; margin-top: 30px !important; }
-      
-      .footer-support { padding: 30px 20px !important; }
-      .support-col { display: block !important; width: 100% !important; text-align: center !important; }
-      .support-inner { margin: 0 auto !important; }
-      .footer-sign { border-left: none !important; border-top: 1px solid #eaeaea !important; margin-top: 20px !important; padding-top: 20px !important; padding-left: 0 !important; display: block !important; width: 100% !important; }
-    }
+    .welcome-to { font-size: 13px; letter-spacing: 2px; font-weight: 600; margin: 0 auto 5px; color: #131E33; text-align: center; }
+    .brand-name { font-family: 'Playfair Display', serif; font-size: 34px; color: #EA6C9A; margin: 0 auto; letter-spacing: 1px; text-align: center; }
+    
+    .tagline { font-family: 'Playfair Display', serif; font-style: italic; font-size: 20px; margin: 25px auto 35px; color: #131E33; text-align: center; }
+    
+    .greeting { font-size: 16px; margin: 0 auto 20px; font-weight: 400; color: #131E33; text-align: center; }
+    .greeting span { color: #EA6C9A; font-weight: 600; }
+    .intro-text { font-size: 14px; line-height: 1.6; margin: 0 auto 15px; max-width: 350px; color: #131E33; text-align: center; }
+    .svg-icon { margin: 15px auto; display: block; }
+    
+    .gift-box { border: 1px solid #fae8f0; border-radius: 12px; padding: 30px 20px; margin: 35px auto; max-width: 360px; background-color: #fffbfe; text-align: center; }
+    
+    .gift-title-wrapper { margin: 0 auto 20px; width: 200px; position: relative; height: 15px; }
+    .gift-title-line { position: absolute; top: 7px; left: 0; right: 0; height: 1px; background-color: #EA6C9A; z-index: 1; }
+    .gift-title-text { position: absolute; top: 0; left: 50%; transform: translateX(-50%); background-color: #fffbfe; padding: 0 10px; z-index: 2; font-size: 11px; letter-spacing: 2px; color: #EA6C9A; font-weight: 600; margin: 0; white-space: nowrap; }
+    
+    .gift-amount-container { display: flex; align-items: baseline; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .gift-amount { font-family: 'Playfair Display', serif; font-size: 64px; color: #EA6C9A; margin: 0; line-height: 1; }
+    .gift-points { font-family: 'Playfair Display', serif; font-size: 22px; color: #131E33; margin: 0; }
+    .gift-desc { font-size: 15px; line-height: 1.5; color: #131E33; margin: 0 auto; text-align: center; }
+    
+    .cta-ready { color: #EA6C9A; font-size: 16px; font-weight: 600; margin: 35px auto 10px; text-align: center; }
+    .cta-desc { font-size: 14px; line-height: 1.6; margin: 0 auto 25px; max-width: 380px; color: #131E33; text-align: center; }
+    
+    .jewelry-icons-container { margin: 0 auto 30px; display: flex; justify-content: center; gap: 20px; align-items: center; }
+    .jewelry-divider { width: 1px; height: 20px; background-color: #fae8f0; }
+    
+    .cta-button { display: inline-block; background-color: #071529; color: #ffffff; padding: 16px 45px; border-radius: 6px; font-size: 14px; letter-spacing: 1px; font-weight: 600; text-decoration: none; margin: 0 auto 40px; text-transform: uppercase; }
+    
+    .help-box { border: 1px solid #fae8f0; border-radius: 8px; padding: 20px; max-width: 320px; margin: 0 auto 30px; display: flex; align-items: center; justify-content: center; gap: 20px; background-color: #fffbfe; text-align: left; }
+    .help-title { color: #EA6C9A; font-size: 14px; font-weight: 600; margin: 0 0 5px; }
+    .help-desc { font-size: 12px; line-height: 1.5; margin: 0; color: #131E33; }
+    
+    .signature { font-family: 'Playfair Display', serif; font-style: italic; color: #EA6C9A; font-size: 18px; margin: 20px auto 5px; text-align: center; }
+    .team { font-size: 14px; font-weight: 400; margin: 0 auto 40px; color: #131E33; text-align: center; }
+    
+    table.footer { width: 100%; background-color: #071529; color: #ffffff; border-radius: 8px; padding: 25px 10px; margin-top: 10px; table-layout: fixed; }
+    table.footer td { text-align: center; width: 25%; font-size: 10px; padding: 0 5px; vertical-align: top; border-right: 1px solid rgba(255,255,255,0.1); }
+    table.footer td:last-child { border-right: none; }
+    .footer-icon-wrap { margin: 0 auto 10px; width: 24px; height: 24px; display: block; }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="container">
-      
-      <!-- Hero / Header -->
-      <div class="hero">
-        <div class="hero-content">
-          <div class="logo-container">
-            <p class="logo-sk">SK</p>
-            <p class="logo-text">STERLING KART</p>
-            <p class="logo-sub">&mdash; 925 SILVER JEWELLERY &mdash;</p>
-          </div>
-          
-          <table width="100%" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-              <th class="hero-col" width="100%" style="vertical-align: middle;">
-                <h2 class="hero-title">WELCOME TO<br><span>STERLING KART</span></h2>
-                <div class="hero-divider"><span class="line"></span><span class="star">✦</span><span class="line"></span></div>
-                <p class="hero-subtitle">Timeless Silver. Made for You.</p>
-              </th>
-            </tr>
-          </table>
-        </div>
-      </div>
-
-      <!-- Content Area -->
-      <div class="content-area">
-        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-          <tr>
-            <th class="greeting-col" width="55%" style="vertical-align: top; text-align: left;">
-              <h3 class="greeting-title">Hi <span>${name || 'Customer'}</span>,</h3>
-              <p class="greeting-text">Your account has been created successfully.<br>We're thrilled to have you with us.</p>
-              <p class="greeting-text">You are now part of a community that<br>celebrates elegance, quality and<br><span>925 Sterling Silver Jewellery</span>.</p>
-            </th>
-            <th class="gift-col" width="45%" style="vertical-align: top;">
-              <div class="gift-card">
-                <div class="gift-icon">🎁</div>
-                <p class="gift-title">WELCOME GIFT</p>
-                <h2 class="gift-amount">50 Loyalty Points</h2>
-                <div class="gift-divider"><span style="display:inline-block;width:30px;height:1px;background:#fae8f0;vertical-align:middle;"></span> ✦ <span style="display:inline-block;width:30px;height:1px;background:#fae8f0;vertical-align:middle;"></span></div>
-                <p class="gift-desc">Added to your account<br>as our welcome gift!</p>
-              </div>
-            </th>
-          </tr>
-        </table>
-      </div>
-
-      <!-- CTA Section -->
-      <div class="cta-section">
-        <h2 class="cta-title">Ready to find your perfect piece?</h2>
-        <p class="cta-desc">Explore rings, necklaces, bracelets, earrings and more&mdash;<br>crafted to shine for years to come.</p>
-        <a href="https://sterlingkart.in/shop" class="cta-button">EXPLORE COLLECTION &rarr;</a>
-      </div>
-
-      <!-- Footer Support -->
-      <div class="footer-support">
-        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-          <tr>
-            <th class="support-col" width="55%" style="vertical-align: middle;">
-              <table class="support-inner" border="0" cellspacing="0" cellpadding="0" style="margin: 0;">
-                <tr>
-                  <td style="padding-right: 15px;"><div class="support-icon">🎧</div></td>
-                  <td style="text-align: left;">
-                    <p class="support-text-h">Need any help?</p>
-                    <p class="support-text-p">Reply to this email or contact<br>our support team.</p>
-                  </td>
-                </tr>
-              </table>
-            </th>
-            <th class="support-col footer-sign" width="45%" style="vertical-align: middle;">
-              <p class="footer-sign-love">With Love,</p>
-              <p class="footer-sign-team">Team Sterling Kart <span style="color: #E85D9E;">♡</span></p>
-            </th>
-          </tr>
-        </table>
-      </div>
-
-      <!-- Footer Social -->
-      <div class="footer-social">
-        <span class="social-title">Follow Us</span>
-        <a href="#" class="social-icon">📷</a>
-        <a href="#" class="social-icon">f</a>
-        <a href="#" class="social-icon">P</a>
-        
-        <div class="footer-bottom">
-          &copy; 2026 Sterling Kart &nbsp;|&nbsp; Timeless 925 Silver Jewellery
-        </div>
-      </div>
-
+  <div class="container">
+    <div class="logo-sk">SK</div>
+    <div class="logo-text">STERLING KART</div>
+    <table border="0" cellpadding="0" cellspacing="0" style="margin: 10px auto 0;">
+      <tr>
+        <td width="40"><div style="height:1px;background-color:#fae8f0;width:100%;"></div></td>
+        <td style="padding: 0 10px;"><div class="logo-sub">925 SILVER JEWELLERY</div></td>
+        <td width="40"><div style="height:1px;background-color:#fae8f0;width:100%;"></div></td>
+      </tr>
+    </table>
+    
+    <div class="divider-wrapper">
+      <div class="divider-line"></div>
+      <div class="divider-star-icon">✦</div>
     </div>
+    
+    <div class="welcome-to">WELCOME TO</div>
+    <h1 class="brand-name">STERLING KART</h1>
+    
+    <div class="divider-wrapper" style="width: 150px; margin: 15px auto;">
+      <div class="divider-line"></div>
+      <div class="divider-star-icon" style="font-size:12px;">✦</div>
+    </div>
+    
+    <div class="tagline">Timeless Silver. Made for You.</div>
+    
+    <div class="greeting">Hi <span>${name || 'Customer'}</span>,</div>
+    <div class="intro-text">Your account has been created successfully.<br>We're thrilled to have you with us.</div>
+    
+    <svg class="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EA6C9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+    
+    <div class="intro-text">You are now part of a community that<br>celebrates elegance, quality and<br>925 Sterling Silver Jewellery.</div>
+    
+    <div class="gift-box">
+      <svg class="svg-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#EA6C9A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top:0;"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+      
+      <div class="gift-title-wrapper">
+        <div class="gift-title-line"></div>
+        <div class="gift-title-text">WELCOME GIFT</div>
+      </div>
+      
+      <div class="gift-amount-container">
+        <span class="gift-amount">50</span>
+        <span class="gift-points">Loyalty Points</span>
+      </div>
+      
+      <div class="divider-wrapper" style="width: 80px; margin: 15px auto; height: 15px;">
+        <div class="divider-line" style="top:7px;"></div>
+        <div class="divider-star-icon" style="font-size:10px; padding:0 8px; background-color:#fffbfe;">✦</div>
+      </div>
+      
+      <p class="gift-desc">Added to your account<br>as our welcome gift!</p>
+    </div>
+    
+    <div class="cta-ready">Ready to find your perfect piece?</div>
+    <div class="cta-desc">Explore rings, necklaces, bracelets, earrings and more&mdash;<br>crafted to shine for years to come.</div>
+    
+    <div class="jewelry-icons-container">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#131E33" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="16" r="6"></circle><path d="M9.5 10l1.5-4 2 0 1.5 4"></path><path d="M7 10h10"></path></svg>
+      <div class="jewelry-divider"></div>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#131E33" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4c0 7 4 12 8 12s8-5 8-12"></path><circle cx="12" cy="18" r="3"></circle><path d="M12 18l1.5-1.5M12 18l-1.5-1.5"></path></svg>
+      <div class="jewelry-divider"></div>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#131E33" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9" ry="5" stroke-dasharray="2 2"></ellipse></svg>
+      <div class="jewelry-divider"></div>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#131E33" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14c0 3 2 5 2 5s2-2 2-5-1-4-2-4-2 1-2 4z"></path><path d="M13 14c0 3 2 5 2 5s2-2 2-5-1-4-2-4-2 1-2 4z"></path><circle cx="9" cy="8" r="1"></circle><circle cx="15" cy="8" r="1"></circle></svg>
+    </div>
+    
+    <a href="https://sterlingkart.in/shop" class="cta-button">EXPLORE COLLECTION &rarr;</a>
+    
+    <div class="help-box">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#EA6C9A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path><path d="M12 12l-1 1a1.5 1.5 0 0 0 2 2l1-1a1.5 1.5 0 0 0-2-2z"></path></svg>
+      <div>
+        <div class="help-title">Need any help?</div>
+        <div class="help-desc">Reply to this email or contact<br>our support team.</div>
+      </div>
+    </div>
+    
+    <svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="#EA6C9A" stroke="#EA6C9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 5px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+    <div class="signature">With Love,</div>
+    <div class="team">Sterling Kart Team</div>
+    
+    <table class="footer" cellspacing="0" cellpadding="0">
+      <tr>
+        <td>
+          <div class="footer-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg></div>
+          925 Pure Silver
+        </td>
+        <td>
+          <div class="footer-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15l-3.5 2 1-4-3-3 4-.5L12 6l1.5 3.5 4 .5-3 3 1 4z"></path><circle cx="12" cy="12" r="10"></circle></svg></div>
+          Premium Quality
+        </td>
+        <td>
+          <div class="footer-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+          Secure Packaging
+        </td>
+        <td>
+          <div class="footer-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg></div>
+          Easy Exchange
+        </td>
+      </tr>
+    </table>
   </div>
 </body>
 </html>`;
