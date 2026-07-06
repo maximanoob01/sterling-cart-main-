@@ -63,9 +63,13 @@ app.use('/uploads', express.static(path.resolve(uploadDir)));
 
 const addColumnIfMissing = async (tableName, columnName, dataType) => {
   try {
-    await sequelize.query(`ALTER TABLE \`${tableName}\` ADD COLUMN \`${columnName}\` ${dataType};`);
+    const dialect = sequelize.getDialect();
+    const query = dialect === 'postgres'
+      ? `ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${dataType};`
+      : `ALTER TABLE \`${tableName}\` ADD COLUMN \`${columnName}\` ${dataType};`;
+    await sequelize.query(query);
   } catch (error) {
-    if (!error.message?.includes('duplicate column name')) throw error;
+    if (!error.message?.includes('duplicate column name') && !error.message?.includes('already exists')) throw error;
   }
 };
 

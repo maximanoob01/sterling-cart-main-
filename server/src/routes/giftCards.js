@@ -142,7 +142,7 @@ router.post('/reveal', authenticate, async (req, res, next) => {
 const applyLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 5,
-  keyGenerator: (req) => req.dbUser?.id || req.ip,
+  keyGenerator: (req) => req.dbUser?.id || `${req.ip}_guest`,
   skipSuccessfulRequests: true, // Only failed attempts consume the limit
   handler: (req, res) => {
     console.warn(`[SECURITY] User ${req.dbUser?.id} locked out of /apply for 1 hour due to brute force attempts.`);
