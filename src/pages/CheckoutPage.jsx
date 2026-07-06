@@ -52,7 +52,7 @@ const CheckoutPage = () => {
   const [selectedPayment, setSelectedPayment] = useState('online');
   const [errors, setErrors] = useState({});
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
-  const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
+  const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(true);
   const [orderSuccessData, setOrderSuccessData] = useState(null);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [isGiftWrapped, setIsGiftWrapped] = useState(false);
@@ -1396,8 +1396,16 @@ const CheckoutPage = () => {
 
                 <div className="border-t border-white mt-[20px] pt-[20px] relative z-10">
                   <div className="flex justify-between items-end">
-                    <span className="font-serif text-[18px] text-text-main">Total</span>
-                    <span className="font-sans text-[22px] font-bold text-text-main">{formatPrice(finalTotalAmount)}</span>
+                    <div className="flex flex-col">
+                      <span className="font-serif text-[18px] text-text-main">Total</span>
+                      <span className="flex items-center gap-1 font-sans text-[10px] text-green-600 mt-1 uppercase tracking-wider font-bold">
+                        <ShieldCheck size={12} /> Secure Checkout
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="font-sans text-[22px] font-bold text-text-main leading-none">{formatPrice(finalTotalAmount)}</span>
+                      <span className="font-sans text-[10px] text-text-muted mt-1 uppercase tracking-wider">Inclusive of all taxes</span>
+                    </div>
                   </div>
                 </div>
 
