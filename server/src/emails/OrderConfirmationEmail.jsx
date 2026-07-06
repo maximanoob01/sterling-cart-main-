@@ -8,8 +8,10 @@ export default function OrderConfirmationEmail({ orderId, form, items, totalAmou
       <Body style={styles.body}>
         <Container style={styles.container}>
           <Section style={styles.header}>
-            <Heading style={styles.brandName}>STERLING KART</Heading>
-            <Text style={styles.headerSub}>Order Confirmed</Text>
+            <div style={styles.heroOverlay}>
+              <Heading style={styles.brandName}>STERLING KART</Heading>
+              <Text style={styles.headerSub}>ORDER CONFIRMED</Text>
+            </div>
           </Section>
 
           <Section style={styles.content}>
@@ -64,6 +66,12 @@ export default function OrderConfirmationEmail({ orderId, form, items, totalAmou
           <Section style={styles.footer}>
             <Text style={styles.footerText}>925 Silver Jewels | Hallmarked and Certified</Text>
             <Text style={styles.footerSmallText}>If you have any questions, reply to this email or contact our support.</Text>
+            <div style={{ marginTop: '15px' }}>
+              <Text style={{ ...styles.footerSmallText, marginBottom: '5px' }}>Follow us on</Text>
+              <a href="https://instagram.com/sterling.kart" style={{ display: 'inline-block' }}>
+                <Img src="https://img.icons8.com/ios-filled/50/ea6c9a/instagram-new.png" width="20" height="20" alt="Instagram" style={{ display: 'block' }} />
+              </a>
+            </div>
           </Section>
         </Container>
       </Body>
@@ -86,9 +94,18 @@ const styles = {
     boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
   },
   header: {
-    backgroundColor: '#1A1A1A',
-    padding: '30px 20px',
-    textAlign: 'center',
+    textAlign: 'center', 
+    backgroundColor: '#1a1014',
+    backgroundImage: 'url("https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/c5.jpeg")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    padding: '40px 20px',
+  },
+  heroOverlay: { 
+    backgroundColor: 'rgba(0,0,0,0.5)', 
+    padding: '20px', 
+    borderRadius: '8px',
+    display: 'inline-block'
   },
   brandName: {
     color: '#D4527A',
@@ -100,9 +117,11 @@ const styles = {
   },
   headerSub: {
     color: '#ffffff',
-    opacity: 0.8,
+    opacity: 0.9,
     marginTop: '10px',
     margin: '0',
+    letterSpacing: '2px',
+    fontSize: '12px'
   },
   content: {
     padding: '30px',
