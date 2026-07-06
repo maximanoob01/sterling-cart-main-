@@ -21,10 +21,12 @@ export default function WelcomeEmail({ name = 'Customer' }) {
               /* Same for perks - stay on one line or two lines max, but user requested proper template without breaking */
               .perk-col { width: 25% !important; padding: 2px !important; }
               .perk-title { font-size: 7px !important; }
-              .perk-desc { font-size: 6px !important; display: none !important; /* Hide desc on mobile to save space */ }
               .perk-icon { width: 20px !important; height: 20px !important; }
               
-              .footer-col { display: block !important; width: 100% !important; border: none !important; margin-bottom: 10px !important; }
+              /* Keep footer columns inline on mobile */
+              .footer-col { width: 33.33% !important; padding: 0 2px !important; border: none !important; }
+              .footer-title { font-size: 8px !important; }
+              .footer-text { font-size: 7px !important; }
             }
           `}
         </style>
@@ -150,17 +152,24 @@ export default function WelcomeEmail({ name = 'Customer' }) {
           {/* Footer */}
           <Section style={styles.footer}>
             <Row>
-              <Column style={styles.footerCol} className="footer-col" align="center" valign="top">
-                <Text style={styles.footerTitle}>✉ NEED HELP?</Text>
-                <Text style={styles.footerText}>support@sterlingkart.in<br/>+91 98765 43210</Text>
+              <Column width="33.33%" style={styles.footerCol} className="footer-col" align="center" valign="top">
+                <Text style={styles.footerTitle} className="footer-title">✉ NEED HELP?</Text>
+                <Text style={styles.footerText} className="footer-text">support@sterlingkart.in<br/>+91 98765 43210</Text>
               </Column>
-              <Column style={{ ...styles.footerCol, borderLeft: '1px solid #222', borderRight: '1px solid #222' }} className="footer-col" align="center" valign="top">
-                <Text style={styles.footerTitle}>FOLLOW US</Text>
-                <Text style={styles.footerText}>Instagram | Facebook | Pinterest</Text>
+              <Column width="33.33%" style={{ ...styles.footerCol, borderLeft: '1px solid #222', borderRight: '1px solid #222' }} className="footer-col" align="center" valign="top">
+                <Text style={styles.footerTitle} className="footer-title">FOLLOW US</Text>
+                <div style={{ marginTop: '5px' }}>
+                  <a href="https://instagram.com/sterling.kart" style={{ display: 'inline-block', margin: '0 4px' }}>
+                    <Img src="https://img.icons8.com/ios-filled/50/ea6c9a/instagram-new.png" width="16" height="16" alt="Instagram" />
+                  </a>
+                  <a href="https://facebook.com/sterling.kart" style={{ display: 'inline-block', margin: '0 4px' }}>
+                    <Img src="https://img.icons8.com/ios-filled/50/ea6c9a/facebook-new.png" width="16" height="16" alt="Facebook" />
+                  </a>
+                </div>
               </Column>
-              <Column style={styles.footerCol} className="footer-col" align="center" valign="top">
-                <Text style={styles.footerTitle}>🛡 100% SECURE</Text>
-                <Text style={styles.footerText}>Safe payments.<br/>Shop with confidence.</Text>
+              <Column width="33.33%" style={styles.footerCol} className="footer-col" align="center" valign="top">
+                <Text style={styles.footerTitle} className="footer-title">🛡 100% SECURE</Text>
+                <Text style={styles.footerText} className="footer-text">Safe payments.<br/>Shop with confidence.</Text>
               </Column>
             </Row>
             <center>
