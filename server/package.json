@@ -10,6 +10,8 @@
     "seed": "node src/seed.js"
   },
   "dependencies": {
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.10",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -25,8 +27,11 @@
     "pg-hstore": "^2.3.4",
     "rate-limit-redis": "^5.0.0",
     "razorpay": "^2.9.6",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "resend": "^6.17.1",
-    "sequelize": "^6.37.8"
+    "sequelize": "^6.37.8",
+    "tsx": "^4.23.0"
   },
   "devDependencies": {
     "sqlite3": "^6.0.1"
