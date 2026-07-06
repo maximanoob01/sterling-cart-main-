@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck, Gift } from 'lucide-react';
 import MagneticButton from '../components/ui/MagneticButton';
 import CircularGallery from '../components/ui/CircularGallery';
+import GiftCardPromo from '../components/home/GiftCardPromo';
 import { categories } from '../data/products';
 import { useProducts } from '../context/ProductContext';
 import { testimonials } from '../data/orders';
@@ -655,6 +656,8 @@ export default function HomePage() {
         </div>
       </section>
 
+      <GiftCardPromo />
+
       <section className="border-y border-[#EEE8E5] bg-[#F7E1E8] px-4 pt-6 pb-8 md:px-8 md:pt-10 md:pb-20 bg-pattern-diamond">
         <SectionHeading eyebrow="Just dropped" title="New arrivals" />
         
@@ -692,47 +695,89 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1320px] relative z-10">
           <SectionHeading eyebrow="The Edit" title="Curated for you" align="center" />
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6 mt-6 md:mt-12 auto-rows-[92px] sm:auto-rows-[120px] md:auto-rows-[300px]">
+          <div className="flex flex-col gap-3 md:gap-6 mt-6 md:mt-10">
             
-            <div className="col-span-2 row-span-2 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
-              <motion.img style={{ y: ySlow, scale: 1.2 }} src={c1} alt="Curated style 1" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-80" />
-              <div className="absolute bottom-2 left-2 right-2 glass-dark rounded-lg p-2 text-white transition-all duration-500 md:bottom-6 md:left-6 md:right-6 md:translate-y-4 md:rounded-2xl md:p-6 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 border-white/20">
-                <span className="text-[7px] font-semibold uppercase tracking-[1px] text-white/80 md:text-[11px] md:tracking-[3px]">Signature Series</span>
-                <h3 className="text-[13px] font-serif mt-0.5 md:mt-2 md:mb-1 md:text-[28px]">Elegance Defined</h3>
-                <p className="hidden text-[13px] text-white/70 max-w-[80%] md:block">Discover pieces that elevate your everyday presence.</p>
+            {/* Card 1: Signature Collection (Top Large Card) */}
+            <Link to="/shop" className="relative group overflow-hidden rounded-[16px] md:rounded-[32px] aspect-[16/11] sm:aspect-[16/9] md:aspect-[21/9] shadow-sm block">
+              <motion.img style={{ y: ySlow, scale: 1.1 }} src={c5} alt="Signature Collection" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[1200ms] group-hover:scale-[1.15]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent z-10" />
+              <div className="absolute top-1/2 -translate-y-1/2 left-5 sm:left-8 md:left-12 max-w-[260px] md:max-w-[400px] z-20 text-white">
+                <span className="text-[#D4A373] text-[9px] sm:text-[10px] md:text-[12px] font-bold uppercase tracking-[2px]">Signature Collection</span>
+                <h2 className="font-serif text-[32px] sm:text-[40px] md:text-[56px] leading-[1.1] mt-2 mb-3">Elegance<br />Defined</h2>
+                <p className="text-[12px] sm:text-[14px] md:text-[16px] text-white/90 mb-5 md:mb-6 leading-relaxed max-w-[200px] md:max-w-none">Timeless designs, crafted to celebrate every you.</p>
+                <div className="inline-flex items-center gap-2 md:gap-3 bg-white text-black px-4 sm:px-5 py-2.5 sm:py-3 rounded-[12px] text-[10px] sm:text-[11px] md:text-[13px] font-bold tracking-[1px] hover:bg-white/90 transition-colors shadow-lg">
+                  EXPLORE COLLECTION <ChevronRight size={14} className="sm:w-[16px] sm:h-[16px]" />
+                </div>
               </div>
-            </div>
-
-            <div className="col-span-1 row-span-1 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
-              <motion.img style={{ y: yFast, scale: 1.2 }} src={c2} alt="Curated style 2" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
-              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-500" />
-            </div>
-
-            <div className="col-span-1 row-span-2 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
-              <motion.img style={{ y: ySlow, scale: 1.2 }} src={c3} alt="Curated style 3" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
-            </div>
-
-            <div className="col-span-1 row-span-1 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
-              <motion.img style={{ y: yFast, scale: 1.2 }} src={c4} alt="Curated style 4" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
-              <div className="absolute inset-0 glass-dark opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center border-none">
-                <span className="text-white font-serif text-[12px] md:text-[20px] tracking-wide drop-shadow-md">Details</span>
+              {/* Fake carousel dots for aesthetic match */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+                <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-white/40 border border-white/40"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-white/40 border border-white/40"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-white/40 border border-white/40"></div>
               </div>
+            </Link>
+
+            {/* The 3 Small Cards Row */}
+            <div className="grid grid-cols-3 gap-2 md:gap-6">
+              
+              {/* Card 2: New Arrivals */}
+              <Link to="/shop" className="relative group overflow-hidden rounded-[12px] md:rounded-[24px] aspect-[3/4] md:aspect-[4/5] shadow-sm block">
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500 z-10" />
+                <motion.img style={{ y: ySlow, scale: 1.2 }} src={c1} alt="New Arrivals" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1000ms] group-hover:scale-[1.25]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" />
+                <div className="absolute bottom-3 left-3 right-3 md:bottom-8 md:left-8 md:right-8 z-20 text-white">
+                  <span className="text-[7px] md:text-[11px] font-bold uppercase tracking-[1px] md:tracking-[2px] text-white/90">New Arrivals</span>
+                  <h3 className="font-serif text-[14px] sm:text-[18px] md:text-[28px] leading-[1.2] mt-1 mb-2 md:mt-2 md:mb-4 text-white">Fresh Designs<br />Just For You</h3>
+                  <span className="inline-flex items-center gap-1 md:gap-2 text-[8px] md:text-[12px] font-bold uppercase tracking-[1px] md:tracking-[1.5px] group-hover:gap-2 md:group-hover:gap-3 transition-all">
+                    Shop Now <ChevronRight size={12} className="md:w-[14px] md:h-[14px]" />
+                  </span>
+                </div>
+              </Link>
+
+              {/* Card 3: Bestsellers */}
+              <Link to="/shop" className="relative group overflow-hidden rounded-[12px] md:rounded-[24px] aspect-[3/4] md:aspect-[4/5] shadow-sm block">
+                <div className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-colors duration-500 z-10" />
+                <motion.img style={{ y: yFast, scale: 1.2 }} src={c2} alt="Bestsellers" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1000ms] group-hover:scale-[1.25]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#E2CDC2]/90 via-transparent to-transparent z-10" />
+                <div className="absolute bottom-3 left-3 right-3 md:bottom-8 md:left-8 md:right-8 z-20 text-[#2C2420]">
+                  <span className="text-[7px] md:text-[11px] font-bold uppercase tracking-[1px] md:tracking-[2px] text-[#5A4A42]">Bestsellers</span>
+                  <h3 className="font-serif text-[14px] sm:text-[18px] md:text-[28px] leading-[1.2] mt-1 mb-2 md:mt-2 md:mb-4 text-[#2C2420]">Loved by<br />Thousands</h3>
+                  <span className="inline-flex items-center gap-1 md:gap-2 text-[8px] md:text-[12px] font-bold uppercase tracking-[1px] md:tracking-[1.5px] group-hover:gap-2 md:group-hover:gap-3 transition-all">
+                    Shop Now <ChevronRight size={12} className="md:w-[14px] md:h-[14px]" />
+                  </span>
+                </div>
+              </Link>
+
+              {/* Card 4: Rings */}
+              <Link to="/shop" className="relative group overflow-hidden rounded-[12px] md:rounded-[24px] aspect-[3/4] md:aspect-[4/5] shadow-sm block">
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500 z-10" />
+                <motion.img style={{ y: ySlow, scale: 1.2 }} src={c3} alt="Rings" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1000ms] group-hover:scale-[1.25]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" />
+                <div className="absolute bottom-3 left-3 right-3 md:bottom-8 md:left-8 md:right-8 z-20 text-white">
+                  <span className="text-[7px] md:text-[11px] font-bold uppercase tracking-[1px] md:tracking-[2px] text-white/90">Rings</span>
+                  <h3 className="font-serif text-[14px] sm:text-[18px] md:text-[28px] leading-[1.2] mt-1 mb-2 md:mt-2 md:mb-4 text-white">Grace in Every<br />Detail</h3>
+                  <span className="inline-flex items-center gap-1 md:gap-2 text-[8px] md:text-[12px] font-bold uppercase tracking-[1px] md:tracking-[1.5px] group-hover:gap-2 md:group-hover:gap-3 transition-all">
+                    Shop Now <ChevronRight size={12} className="md:w-[14px] md:h-[14px]" />
+                  </span>
+                </div>
+              </Link>
+
             </div>
 
-            <div className="col-span-2 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
-              <motion.img style={{ y: ySlow, scale: 1.2 }} src={c5} alt="Curated style 5" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
-            </div>
-
-            <div className="col-span-2 relative group overflow-hidden rounded-[12px] md:rounded-[24px] bg-bg-alt shadow-sm">
-              <motion.img style={{ y: yFast, scale: 1.2 }} src={c6} alt="Curated style 6" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[1200ms] group-hover:scale-[1.25]" />
-              <div className="absolute inset-0 flex flex-col items-center justify-center glass-dark opacity-0 group-hover:opacity-100 transition-all duration-500 border-none">
-                <span className="text-white font-serif text-[13px] md:text-[26px]">Modern Classics</span>
-                <MagneticButton className="mt-2 md:mt-4">
-                  <Link to="/shop" className="inline-block text-[9px] font-semibold uppercase tracking-[1px] text-white border-b border-white/50 pb-0.5 hover:text-white hover:border-white transition-all md:text-[11px] md:tracking-[2px] md:pb-1">Shop The Look</Link>
-                </MagneticButton>
+            {/* Card 5: Men's Collection (Bottom Large Card) */}
+            <Link to="/shop" className="relative group overflow-hidden rounded-[16px] md:rounded-[32px] aspect-[21/9] sm:aspect-[4/1] shadow-sm block mt-1 md:mt-2">
+              <motion.img style={{ y: yFast, scale: 1.1 }} src={c6} alt="Men's Collection" className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[1200ms] group-hover:scale-[1.15]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-black/10 z-10" />
+              <div className="absolute top-1/2 -translate-y-1/2 left-5 sm:left-8 md:left-12 max-w-[200px] sm:max-w-[280px] md:max-w-[400px] z-20 text-white">
+                <span className="text-[#D4A373] text-[8px] sm:text-[10px] md:text-[11px] font-bold uppercase tracking-[1px] md:tracking-[2px]">Men's Collection</span>
+                <h2 className="font-serif text-[18px] sm:text-[24px] md:text-[36px] leading-[1.2] mt-1 mb-1 md:mt-2 md:mb-2">Bold. Minimal. Timeless.</h2>
+                <p className="text-[10px] sm:text-[12px] md:text-[14px] text-white/80 mb-3 md:mb-4">Crafted for the modern man.</p>
+                <span className="inline-flex items-center gap-1.5 md:gap-2 text-[9px] md:text-[12px] font-bold uppercase tracking-[1px] md:tracking-[1.5px] group-hover:gap-2 md:group-hover:gap-3 transition-all">
+                  Explore Now <ChevronRight size={12} className="md:w-[14px] md:h-[14px]" />
+                </span>
               </div>
-            </div>
+            </Link>
 
           </div>
         </div>
