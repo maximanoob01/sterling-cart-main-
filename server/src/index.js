@@ -99,7 +99,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 // ─── Frontend Integration (Serve React SPA) ──────────────────────────────────
-const frontendDistPath = path.join(process.cwd(), "dist");
+const frontendDistPath = path.join(process.cwd(), "../dist");
 app.use(express.static(frontendDistPath));
 
 app.get('*', (req, res, next) => {
