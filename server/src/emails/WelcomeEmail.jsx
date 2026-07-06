@@ -59,14 +59,16 @@ export default function WelcomeEmail({ name = 'Customer' }) {
           {/* Loyalty Card */}
           <Section style={styles.loyaltyBox}>
             <Row>
-              <Column style={styles.loyaltyLeft}>
-                <Img src="https://img.icons8.com/ios-filled/50/ea6c9a/gift--v1.png" width="40" height="40" alt="Gift" />
+              <Column align="right" valign="middle" style={{ width: '40%', paddingRight: '25px' }}>
+                <div style={styles.iconCircle}>
+                  <Img src="https://img.icons8.com/ios-filled/50/ea6c9a/gift--v1.png" width="45" height="45" alt="Gift" style={{ display: 'block', margin: '0 auto' }} />
+                </div>
               </Column>
-              <Column style={styles.loyaltyRight}>
+              <Column align="left" valign="middle" style={{ width: '60%' }}>
                 <Text style={styles.loyaltyTitle}>WELCOME GIFT</Text>
                 <Heading style={styles.loyaltyAmount}>50</Heading>
                 <Text style={styles.loyaltySubtitle}>LOYALTY POINTS</Text>
-                <Text style={styles.loyaltyDesc}>Added to your account<br/>as our welcome gift!</Text>
+                <Text style={styles.loyaltyDesc}>Successfully added to your<br/>account as our welcome gift!</Text>
               </Column>
             </Row>
           </Section>
@@ -205,13 +207,28 @@ const styles = {
   welcomeScript: { color: '#ea6c9a', fontSize: '24px', fontStyle: 'italic', margin: '0', fontFamily: 'Georgia, serif' },
   greeting: { color: '#ffffff', fontSize: '42px', margin: '10px 0 20px 0', fontFamily: 'Georgia, serif', fontWeight: 'normal' },
   text: { color: '#b0b0b0', fontSize: '15px', lineHeight: '1.6', margin: '0' },
-  loyaltyBox: { margin: '0 30px 40px 30px', border: '1px solid #ea6c9a', borderRadius: '12px', padding: '30px', backgroundColor: 'rgba(234, 108, 154, 0.05)' },
-  loyaltyLeft: { width: '80px', textAlign: 'center', verticalAlign: 'middle' },
-  loyaltyRight: { verticalAlign: 'middle' },
-  loyaltyTitle: { color: '#ea6c9a', fontSize: '12px', letterSpacing: '2px', margin: '0' },
-  loyaltyAmount: { color: '#ea6c9a', fontSize: '48px', margin: '5px 0', lineHeight: '1' },
-  loyaltySubtitle: { color: '#ffffff', fontSize: '14px', letterSpacing: '1px', fontWeight: 'bold', margin: '0 0 10px 0' },
-  loyaltyDesc: { color: '#a0a0a0', fontSize: '13px', margin: '0' },
+  loyaltyBox: { 
+    margin: '0 30px 40px 30px', 
+    border: '1px solid rgba(234, 108, 154, 0.4)', 
+    borderRadius: '16px', 
+    padding: '30px 10px', 
+    backgroundColor: 'rgba(234, 108, 154, 0.03)',
+    boxShadow: '0px 0px 20px rgba(234, 108, 154, 0.1)'
+  },
+  iconCircle: {
+    border: '1px dashed #ea6c9a',
+    borderRadius: '50%',
+    width: '80px',
+    height: '80px',
+    display: 'inline-block',
+    lineHeight: '80px',
+    textAlign: 'center',
+    backgroundColor: 'rgba(234, 108, 154, 0.08)',
+  },
+  loyaltyTitle: { color: '#ea6c9a', fontSize: '11px', letterSpacing: '2px', margin: '0', fontWeight: 'bold' },
+  loyaltyAmount: { color: '#ffffff', fontSize: '56px', margin: '5px 0', lineHeight: '1', textShadow: '0 0 15px rgba(234,108,154,0.3)' },
+  loyaltySubtitle: { color: '#ffffff', fontSize: '14px', letterSpacing: '1px', fontWeight: 'bold', margin: '0 0 8px 0' },
+  loyaltyDesc: { color: '#a0a0a0', fontSize: '12px', margin: '0', lineHeight: '1.4' },
   sectionDivider: { textAlign: 'center', margin: '20px 0 20px 0' },
   dividerText: { color: '#ea6c9a', fontSize: '14px', letterSpacing: '2px', margin: '0' },
   bestsellers: { padding: '0 10px' },
