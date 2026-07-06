@@ -1,5 +1,5 @@
 import React from 'react';
-import { Html, Head, Body, Container, Section, Text, Heading, Hr } from '@react-email/components';
+import { Html, Head, Body, Container, Section, Text, Heading, Hr, Img } from '@react-email/components';
 
 export default function OrderConfirmationEmail({ orderId, form, items, totalAmount }) {
   return (
