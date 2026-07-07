@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User, X, Search, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 const COUNTRIES = [
   { code: 'IN', name: 'India', dial: '+91', flag: '\uD83C\uDDEE\uD83C\uDDF3' },
@@ -181,7 +182,12 @@ export default function LoginPage() {
       setIsSubmitting(false);
 
       if (res.success) {
-        navigate(res.user?.role === 'admin' ? '/admin' : '/dashboard');
+        if (!isLogin) {
+          toast.success('Account created successfully');
+          navigate('/');
+        } else {
+          navigate(res.user?.role === 'admin' ? '/admin' : '/dashboard');
+        }
       } else {
         setError(res.error);
       }

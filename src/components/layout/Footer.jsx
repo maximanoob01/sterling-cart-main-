@@ -128,8 +128,8 @@ export default function Footer() {
           {/* Privacy + Terms + Designed by — right on desktop, stacked center on mobile */}
           <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-4 order-1 sm:order-2">
             <div className="flex items-center gap-4">
-              <Link to="#" className="hover:text-white hover:underline transition-colors">Privacy</Link>
-              <Link to="#" className="hover:text-white hover:underline transition-colors">Terms</Link>
+              <Link to="/legal" className="hover:text-white hover:underline transition-colors">Privacy</Link>
+              <Link to="/legal" className="hover:text-white hover:underline transition-colors">Terms</Link>
             </div>
             <span className="flex items-center gap-1 sm:ml-4 sm:border-l sm:border-[#D4527A]/30 sm:pl-8 order-3">
               Designed by <a href="#" className="text-[#F4A0B0] hover:text-white transition-colors ml-1">hypenbloom</a>

@@ -323,12 +323,12 @@ const WishlistTab = () => {
         </h2>
       </div>
 
-      <motion.div variants={staggerContainer} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <motion.div variants={staggerContainer} initial="hidden" animate="show" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {wishlistItems.map((product) => (
           <motion.div
             key={product.id}
             variants={fadeUpItem}
-            className="group bg-white/60 backdrop-blur-md border border-white/60 rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_40px_rgba(212,82,122,0.12)] hover:-translate-y-1 transition-all duration-300"
+            className="group bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_40px_rgba(212,82,122,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col"
           >
             <div className="relative aspect-square overflow-hidden bg-pink-50/50">
               <img
@@ -339,31 +339,31 @@ const WishlistTab = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <button
                 onClick={() => removeItem(product.id)}
-                className="absolute top-4 right-4 w-9 h-9 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-red-500 hover:bg-red-50 hover:scale-110 transition-all shadow-sm"
+                className="absolute top-2.5 right-2.5 w-8 h-8 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-red-500 hover:bg-red-50 hover:scale-110 transition-all shadow-sm"
                 title="Remove from wishlist"
               >
-                <Trash2 size={16} />
+                <Trash2 size={14} />
               </button>
             </div>
-            <div className="p-5">
-              <div className="flex items-center gap-1 mb-2">
-                <Star size={12} className="fill-yellow-400 text-yellow-400" />
-                <span className="text-xs text-silver-500 font-bold">{product.rating}</span>
+            <div className="p-3.5 flex flex-col flex-1">
+              <div className="flex items-center gap-1 mb-1.5">
+                <Star size={10} className="fill-yellow-400 text-yellow-400" />
+                <span className="text-[11px] text-silver-500 font-bold">{product.rating}</span>
               </div>
-              <h3 className="font-serif text-charcoal text-base mb-3 line-clamp-1 group-hover:text-[#D4527A] transition-colors">{product.name}</h3>
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span className="font-bold text-charcoal text-lg leading-none">{formatPrice(product.price)}</span>
+              <h3 className="font-serif text-charcoal text-[13px] mb-2 line-clamp-2 group-hover:text-[#D4527A] transition-colors leading-snug flex-1">{product.name}</h3>
+              <div className="flex items-center justify-between mt-auto pt-1">
+                <div className="flex flex-col min-w-0 pr-1">
+                  <span className="font-bold text-charcoal text-[15px] leading-none truncate">{formatPrice(product.price)}</span>
                   {product.mrp > product.price && (
-                    <span className="text-xs text-silver-400 line-through mt-1">{formatPrice(product.mrp)}</span>
+                    <span className="text-[10px] text-silver-400 line-through mt-0.5 truncate">{formatPrice(product.mrp)}</span>
                   )}
                 </div>
                 <button
                   onClick={() => { addItem(product); removeItem(product.id); toast.success('Moved to Cart!'); }}
-                  className="w-10 h-10 bg-charcoal hover:bg-[#D4527A] text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                  className="w-8 h-8 shrink-0 bg-charcoal hover:bg-[#D4527A] text-white rounded-full flex items-center justify-center transition-colors shadow-md"
                   title="Move to Cart"
                 >
-                  <ShoppingCart size={16} />
+                  <ShoppingCart size={14} />
                 </button>
               </div>
             </div>
@@ -470,6 +470,32 @@ const ProfileTab = () => {
           </button>
         </div>
       </motion.form>
+
+      <motion.div variants={fadeUpItem} className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-3xl p-6 md:p-8 mt-6 shadow-[0_8px_32px_rgba(212,82,122,0.05)]">
+        <h3 className="text-xl font-serif text-charcoal mb-4">Support & Policies</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Link to="/contact" className="flex items-center justify-between p-3 rounded-2xl hover:bg-pink-50 transition-colors border border-transparent hover:border-pink-100/50 group">
+            <span className="font-sans text-sm font-semibold text-charcoal group-hover:text-[#D4527A] transition-colors">Contact Support</span>
+            <ChevronRight size={16} className="text-silver-400 group-hover:text-[#D4527A] transition-colors" />
+          </Link>
+          <Link to="/faq" className="flex items-center justify-between p-3 rounded-2xl hover:bg-pink-50 transition-colors border border-transparent hover:border-pink-100/50 group">
+            <span className="font-sans text-sm font-semibold text-charcoal group-hover:text-[#D4527A] transition-colors">FAQs</span>
+            <ChevronRight size={16} className="text-silver-400 group-hover:text-[#D4527A] transition-colors" />
+          </Link>
+          <Link to="/return-exchange" className="flex items-center justify-between p-3 rounded-2xl hover:bg-pink-50 transition-colors border border-transparent hover:border-pink-100/50 group">
+            <span className="font-sans text-sm font-semibold text-charcoal group-hover:text-[#D4527A] transition-colors">Return Policy</span>
+            <ChevronRight size={16} className="text-silver-400 group-hover:text-[#D4527A] transition-colors" />
+          </Link>
+          <Link to="/legal" className="flex items-center justify-between p-3 rounded-2xl hover:bg-pink-50 transition-colors border border-transparent hover:border-pink-100/50 group">
+            <span className="font-sans text-sm font-semibold text-charcoal group-hover:text-[#D4527A] transition-colors">Privacy Policy</span>
+            <ChevronRight size={16} className="text-silver-400 group-hover:text-[#D4527A] transition-colors" />
+          </Link>
+          <Link to="/legal" className="flex items-center justify-between p-3 rounded-2xl hover:bg-pink-50 transition-colors border border-transparent hover:border-pink-100/50 group sm:col-span-2">
+            <span className="font-sans text-sm font-semibold text-charcoal group-hover:text-[#D4527A] transition-colors">Terms & Conditions</span>
+            <ChevronRight size={16} className="text-silver-400 group-hover:text-[#D4527A] transition-colors" />
+          </Link>
+        </div>
+      </motion.div>
 
       {/* Danger Zone */}
       <motion.div variants={fadeUpItem} className="bg-red-50/50 backdrop-blur-xl border border-red-100 rounded-3xl p-6 md:p-8 mt-6 shadow-[0_8px_32px_rgba(220,38,38,0.05)]">
@@ -1146,75 +1172,9 @@ const UserDashboardPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        {/* Mobile Header */}
-        <div className="lg:hidden mb-6">
-          <div className="bg-[#FEF9F9] rounded-[32px] p-4 shadow-sm border border-pink-50">
-            <div 
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <div className="flex items-center gap-4 flex-1 min-w-0 pr-4">
-                <div className="w-14 h-14 rounded-full bg-[#B94B68] flex items-center justify-center shadow-sm shrink-0">
-                  <span className="text-white font-sans font-bold text-[22px]">
-                    {user?.name?.split(' ').map(n => n[0]).join('').slice(0, 1) || 'S'}
-                  </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-sans font-bold text-[#2D1F24] text-[18px] leading-tight mb-0.5 truncate">{user?.name || 'My Profile'}</h3>
-                  <p className="text-[12px] text-gray-500 font-medium truncate">View and manage your account</p>
-                </div>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-[#FFEBF0] flex items-center justify-center text-[#D4527A] shrink-0">
-                <ChevronRight size={20} className={`transform transition-transform ${mobileMenuOpen ? '-rotate-90' : 'rotate-90'}`} />
-              </div>
-            </div>
-
-            {mobileMenuOpen && (
-              <div className="pt-6 mt-6 border-t border-pink-100">
-                <div className="px-2 mb-3">
-                  <span className="text-[11px] font-bold text-[#D4527A] tracking-wider uppercase">Account</span>
-                </div>
-                  
-                  <nav className="flex flex-col gap-3">
-                    {sidebarTabs.map((tab) => {
-                      const Icon = tab.icon;
-                      const isActive = activeTab === tab.id;
-                      return (
-                        <button
-                          key={tab.id}
-                          onClick={() => handleTabClick(tab)}
-                          className={`w-full flex items-center justify-between px-4 py-3.5 rounded-[16px] transition-all ${
-                            isActive ? 'bg-[#FFEBF0] text-[#D4527A] shadow-sm' : 'bg-white text-[#2D1F24] shadow-sm border border-pink-50/50'
-                          }`}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center transition-colors ${isActive ? 'bg-[#D4527A] text-white' : 'bg-[#FFEBF0] text-[#D4527A]'}`}>
-                              <Icon size={18} />
-                            </div>
-                            <span className={`font-sans text-[15px] ${isActive ? 'font-bold' : 'font-medium'}`}>{tab.label}</span>
-                          </div>
-                          <ChevronRight size={16} className={isActive ? 'text-[#D4527A]' : 'text-silver-400'} />
-                        </button>
-                      );
-                    })}
-                  </nav>
-
-                  <div className="mt-4 pt-2">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-4 text-[15px] font-sans font-semibold text-[#D4527A] bg-transparent border border-pink-100 hover:bg-pink-50 rounded-[16px] transition-all"
-                    >
-                      <LogOut size={18} /> Logout
-                    </button>
-                  </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex gap-8 lg:gap-12 relative">
-          {/* Desktop Sidebar */}
-          <aside className="hidden lg:block w-[260px] shrink-0 z-10">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 relative">
+          {/* Sidebar */}
+          <aside className="w-full lg:w-[260px] shrink-0 z-10">
             <div className="bg-[#FEF9F9] rounded-[24px] overflow-hidden shadow-[0_4px_20px_rgba(212,82,122,0.03)] sticky top-32 p-3 pb-4 border border-pink-50">
               {/* User Info */}
               <div className="px-3 pt-4 pb-3 flex flex-col items-center text-center">
