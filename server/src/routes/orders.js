@@ -484,6 +484,10 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
         link: `/admin/orders?search=${order.orderId}`,
       }, { transaction: t });
 
+      // Automatically send invoice email (without PDF since it's backend-generated)
+      const { sendInvoiceEmail } = await import('../services/emailService.js');
+      sendInvoiceEmail(order, order.items || []).catch(console.error);
+
       // Confirm pending Royal Points
       if (order.userId) {
         const loyaltyAccount = await Loyalty.findOne({ where: { userId: order.userId }, transaction: t });

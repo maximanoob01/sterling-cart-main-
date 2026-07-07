@@ -115,16 +115,18 @@ export const sendInvoiceEmail = async (order, items, pdfBase64) => {
   }
 
   const html = await render(React.createElement(InvoiceEmail, { order, items }));
+  const attachments = pdfBase64 ? [
+    {
+      filename: `SterlingKart_Invoice_${orderId}.pdf`,
+      content: Buffer.from(pdfBase64.split(',')[1] || pdfBase64, 'base64')
+    }
+  ] : [];
+
   return await sendWithResend('Invoice Email', {
     from: process.env.ORDER_EMAIL_FROM,
     to: email,
     subject: `Your Invoice for Order ${orderId}`,
     html,
-    attachments: [
-      {
-        filename: `SterlingKart_Invoice_${orderId}.pdf`,
-        content: Buffer.from(pdfBase64.split(',')[1] || pdfBase64, 'base64')
-      }
-    ]
+    attachments
   });
 };
