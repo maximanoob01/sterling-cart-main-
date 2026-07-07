@@ -174,6 +174,7 @@ export default function GiftingPage() {
   // Gift Card Purchase State
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [generatedGiftCard, setGeneratedGiftCard] = useState(null);
+  const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
   
   // Gift Finder State
   const [finderPrice, setFinderPrice] = useState('');
@@ -573,6 +574,13 @@ export default function GiftingPage() {
                >
                  {isPurchasing ? 'Processing...' : 'Purchase Gift Card'}
                </button>
+               
+               <button
+                 onClick={() => setIsHowItWorksOpen(true)}
+                 className="mt-4 text-[12px] font-semibold text-[#8B5A65] underline hover:text-[#D4527A] transition-colors text-center w-full"
+               >
+                 How does it work? & FAQs
+               </button>
             </div>
           </div>
         </div>
@@ -712,6 +720,75 @@ export default function GiftingPage() {
                 </div>
               </div>
 
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ── HOW IT WORKS & FAQ MODAL ────────────────────────────────────────── */}
+      {isHowItWorksOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onMouseDown={() => setIsHowItWorksOpen(false)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="w-full max-w-[500px] max-h-[90vh] overflow-y-auto bg-white rounded-[24px] shadow-2xl relative flex flex-col scrollbar-hide"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#F0E8EA] bg-[#FAF8F7] px-6 py-5 shrink-0 rounded-t-[24px]">
+              <h3 className="font-serif text-[22px] text-text-main flex items-center gap-2">
+                <Gift size={20} className="text-[#D4527A]" /> Gift Card Guide
+              </h3>
+              <button
+                onClick={() => setIsHowItWorksOpen(false)}
+                className="p-1.5 text-text-muted hover:bg-black/5 rounded-full transition-all"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 md:p-8">
+              <h4 className="text-[14px] font-bold text-text-main mb-4 uppercase tracking-[1px]">How it works</h4>
+              <div className="space-y-4 mb-8">
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-[#FFF0F5] text-[#D4527A] font-bold flex items-center justify-center shrink-0">1</div>
+                  <div>
+                    <p className="font-bold text-[13px] text-text-main">Choose an Amount</p>
+                    <p className="text-[12px] text-text-muted mt-1">Select the value you want to gift. They can spend it on anything they love.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-[#FFF0F5] text-[#D4527A] font-bold flex items-center justify-center shrink-0">2</div>
+                  <div>
+                    <p className="font-bold text-[13px] text-text-main">Get Your Secure Code</p>
+                    <p className="text-[12px] text-text-muted mt-1">After payment, you will instantly receive a unique 16-character code.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-[#FFF0F5] text-[#D4527A] font-bold flex items-center justify-center shrink-0">3</div>
+                  <div>
+                    <p className="font-bold text-[13px] text-text-main">Share & Redeem</p>
+                    <p className="text-[12px] text-text-muted mt-1">Share the code with your loved one via WhatsApp. They can apply it at checkout!</p>
+                  </div>
+                </div>
+              </div>
+
+              <h4 className="text-[14px] font-bold text-text-main mb-4 uppercase tracking-[1px] pt-6 border-t border-[#F0E8EA]">Frequently Asked Questions</h4>
+              <div className="space-y-5">
+                <div>
+                  <p className="font-bold text-[13px] text-text-main flex gap-2"><Sparkles size={14} className="text-[#D4527A] mt-0.5" /> Does the Gift Card expire?</p>
+                  <p className="text-[12px] text-text-muted mt-1">Yes, Sterling Kart gift cards are valid for exactly 1 year from the date of purchase.</p>
+                </div>
+                <div>
+                  <p className="font-bold text-[13px] text-text-main flex gap-2"><Sparkles size={14} className="text-[#D4527A] mt-0.5" /> Can it be used multiple times?</p>
+                  <p className="text-[12px] text-text-muted mt-1">Yes! If the order total is less than the gift card value, the remaining balance stays on the card for future purchases.</p>
+                </div>
+                <div>
+                  <p className="font-bold text-[13px] text-text-main flex gap-2"><Sparkles size={14} className="text-[#D4527A] mt-0.5" /> Can I use multiple cards on one order?</p>
+                  <p className="text-[12px] text-text-muted mt-1">Currently, only one gift card can be applied per checkout.</p>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>

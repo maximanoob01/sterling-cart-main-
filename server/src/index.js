@@ -10,7 +10,8 @@ import path from 'path';
 import connectDB from './config/db.js';
 import { connectRedis } from './services/redisService.js';
 import errorHandler from './middleware/errorHandler.js';
-import { sequelize } from './models/index.js';
+import fs from 'fs/promises';
+import { sequelize, Product } from './models/index.js';
 import { createHybridStore } from './utils/rateLimitStore.js';
 
 // Route imports
@@ -31,6 +32,7 @@ import notificationRoutes from './routes/notifications.js';
 import webhooksRoutes from './routes/webhooks.js';
 import callRequestRoutes from './routes/callRequests.js';
 import cartRoutes from './routes/cart.js';
+import seoRoutes from './routes/seo.js';
 
 // Init Cron Jobs
 import './jobs/cronJobs.js';
@@ -92,6 +94,7 @@ app.use('/api/admin/call-requests', callRequestRoutes); // Using same router, it
 app.use('/api/call-requests', callRequestRoutes); // Public POST
 app.use('/api/webhooks', webhooksRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/', seoRoutes); // Root level for sitemap.xml and robots.txt
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -102,7 +105,7 @@ app.get('/api/health', (_req, res) => {
 const frontendDistPath = path.join(process.cwd(), "../dist");
 app.use(express.static(frontendDistPath));
 
-app.get('*', (req, res, next) => {
+app.get('*', async (req, res, next) => {
   if (
     req.originalUrl.startsWith('/api') ||
     req.originalUrl.startsWith('/uploads')
@@ -110,7 +113,40 @@ app.get('*', (req, res, next) => {
     return next();
   }
 
-  res.sendFile(path.join(frontendDistPath, 'index.html'));
+  const indexPath = path.join(frontendDistPath, 'index.html');
+
+  // Dynamic Open Graph tag injection for products (AEO & Social Sharing)
+  if (req.originalUrl.startsWith('/product/')) {
+    const idOrSlug = req.originalUrl.split('/')[2];
+    if (idOrSlug) {
+      try {
+        let product = await Product.findOne({ where: { slug: idOrSlug } });
+        if (!product && !isNaN(idOrSlug)) {
+          product = await Product.findByPk(idOrSlug);
+        }
+
+        if (product) {
+          let html = await fs.readFile(indexPath, 'utf-8');
+          const title = `925 Sterling Silver ${product.name} | Sterling Kart`;
+          const description = product.shortDescription || `Shop authentic ${product.name}. Crafted from premium 925 Sterling Silver.`;
+          const image = product.images?.[0] || 'https://sterlingkart.in/giftcard.png';
+          const url = `https://sterlingkart.in${req.originalUrl}`;
+          
+          html = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
+          html = html.replace(/<meta property="og:title" content="[^"]*" \/>/i, `<meta property="og:title" content="${title}" />`);
+          html = html.replace(/<meta property="og:description" content="[^"]*" \/>/i, `<meta property="og:description" content="${description}" />`);
+          html = html.replace(/<meta property="og:image" content="[^"]*" \/>/i, `<meta property="og:image" content="${image}" />`);
+          html = html.replace(/<meta property="og:url" content="[^"]*" \/>/i, `<meta property="og:url" content="${url}" />`);
+          
+          return res.send(html);
+        }
+      } catch (err) {
+        console.error('Error injecting OG tags:', err);
+      }
+    }
+  }
+
+  res.sendFile(indexPath);
 });
 
 // ─── Error Handler ───────────────────────────────────────────────────────────

@@ -7,12 +7,13 @@ import {
   Sparkles, ShoppingBag, Scale, Wrench, IndianRupee, Coins, PenTool
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useCart, getItemPrice } from '../context/CartContext';
+import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useAuth } from '../context/AuthContext';
 import { useLoyalty } from '../context/LoyaltyContext';
 import { useProducts } from '../context/ProductContext';
+import SEO from '../components/seo/SEO';
 import { calculateDiscount } from '../utils/formatPrice';
 import { computeWeightBasedPrice } from '../utils/silverRate';
 import personaliseCoinImg from '../assets/images/personalise_coin.png';
@@ -213,7 +214,7 @@ export default function ProductDetailPage() {
   const { toggleItem, isWishlisted } = useWishlist();
   const { formatPrice } = useCurrency();
   const { isAuthenticated } = useAuth();
-  const { balance, pointsEarned } = useLoyalty();
+  const { pointsEarned } = useLoyalty();
   const { products, isLoaded } = useProducts();
   const decodedId = decodeURIComponent(id);
   
@@ -222,6 +223,77 @@ export default function ProductDetailPage() {
   
   // Get related products from context instead of mock data
   const relatedProducts = product ? products.filter(p => p.category === product.category && String(p.id) !== String(product.id)).slice(0, 4) : [];
+
+  // SEO & AEO Data
+  const entityTitle = product ? `925 Sterling Silver ${product.name} | Women Jewellery | Sterling Kart` : 'Sterling Kart Product';
+  const entityDescription = product ? `Shop authentic ${product.name}. Crafted from premium 925 Sterling Silver, hypoallergenic, nickel-free, and BIS hallmarked. Perfect gift for wife or everyday wear. Worldwide shipping available.` : '';
+  
+  // Dynamic FAQ for AEO (Generative Engine Optimization)
+  const productFaqs = product ? [
+    { question: "Is this real 925 silver?", answer: "Yes, this piece is made from authentic 925 Sterling Silver and is BIS hallmarked for purity." },
+    { question: "Does it tarnish or fade?", answer: "Over time, all sterling silver naturally oxidizes. However, our premium rhodium/e-coating helps delay tarnishing. Regular cleaning will keep it shining." },
+    { question: "Is it suitable for gifting?", answer: "Absolutely. It comes carefully packed in our premium gift-ready packaging, making it a perfect gift for anniversaries, birthdays, or weddings." },
+    { question: "Can it be worn daily?", answer: "Yes, this hypoallergenic and nickel-free jewellery is designed for everyday wear. We recommend removing it during heavy physical activities." },
+    { question: "Is it waterproof?", answer: "While occasional water exposure is fine, we recommend keeping it away from harsh chemicals, perfumes, and pools to maintain its shine." },
+    { question: "How should I clean it?", answer: "Gently wipe it with a soft polishing cloth. Avoid using harsh chemical cleaners or abrasive materials." }
+  ] : [];
+
+  const getItemPrice = (prod) => {
+    if (prod.pricingType === 'weight' && prod.weightGrams != null && prod.makingCharges != null) {
+      return computeWeightBasedPrice(prod.weightGrams, prod.makingCharges, silverRate);
+    }
+    return prod.price;
+  };
+
+  const schemas = product ? [
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": product.name,
+      "image": product.images,
+      "description": entityDescription,
+      "sku": product.sku || product.id,
+      "brand": {
+        "@type": "Brand",
+        "name": "Sterling Kart"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": `https://sterlingkart.in/product/${product.slug || product.id}`,
+        "priceCurrency": "INR",
+        "price": getItemPrice(product),
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition"
+      },
+      "aggregateRating": product.reviewCount > 0 ? {
+        "@type": "AggregateRating",
+        "ratingValue": product.rating,
+        "reviewCount": product.reviewCount
+      } : undefined
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://sterlingkart.in/" },
+        { "@type": "ListItem", "position": 2, "name": "Shop", "item": "https://sterlingkart.in/shop" },
+        { "@type": "ListItem", "position": 3, "name": product.category, "item": `https://sterlingkart.in/shop?category=${product.category}` },
+        { "@type": "ListItem", "position": 4, "name": product.name }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": productFaqs.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    }
+  ].filter(Boolean) : [];
 
   const [mainImage, setMainImage] = useState(product?.images?.[0] || '');
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || null);
@@ -236,12 +308,7 @@ export default function ProductDetailPage() {
   const [engravingType, setEngravingType] = useState('text');
   const [isRoyalPointsGuideOpen, setIsRoyalPointsGuideOpen] = useState(false);
 
-  const getItemPrice = (prod) => {
-    if (prod.pricingType === 'weight' && prod.weightGrams != null && prod.makingCharges != null) {
-      return computeWeightBasedPrice(prod.weightGrams, prod.makingCharges, silverRate);
-    }
-    return prod.price;
-  };
+
 
   if (!product) {
     if (!isLoaded) {
@@ -293,6 +360,14 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-bg-primary pb-24 sm:pb-10">
+      {product && (
+        <SEO 
+          title={entityTitle} 
+          description={entityDescription} 
+          image={product.images?.[0]} 
+          schemas={schemas} 
+        />
+      )}
 
       {/* ── Breadcrumb ── */}
       <div className="overflow-hidden border-b border-[#F1E7E9] bg-gradient-to-r from-[#FFF0F5] to-[#FDF8FA] px-4 py-3 md:px-8">
@@ -827,6 +902,34 @@ export default function ProductDetailPage() {
             </div>
           </section>
         )}
+
+        {/* ── AI Search Optimized FAQ (AEO) ── */}
+        <section className="mt-10 md:mt-14 rounded-2xl border border-[#F0E8EA] bg-bg-surface p-4 md:rounded-3xl md:p-7">
+          <SectionLabel>Expert Answers</SectionLabel>
+          <h2 className="font-serif text-[20px] md:text-[26px] text-text-main mb-4 md:mb-6">Frequently Asked Questions</h2>
+          <div className="grid gap-3 md:gap-4 md:grid-cols-2 lg:gap-6">
+            {productFaqs.map((faq, idx) => (
+              <div key={idx} className="border-b border-[#F0E8EA] pb-3 last:border-0 md:border-0 md:pb-0">
+                <h3 className="text-[12px] md:text-[13px] font-bold text-text-main mb-1.5 flex items-start gap-2">
+                  <Sparkles size={13} className="text-[#D4527A] mt-0.5 shrink-0 md:w-3.5 md:h-3.5 w-3 h-3" /> {faq.question}
+                </h3>
+                <p className="text-[11px] md:text-[12px] leading-relaxed text-text-muted">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Aggressive Internal Linking Architecture ── */}
+        <section className="mt-10 md:mt-14 border-t border-[#F0E8EA] pt-8 pb-4">
+          <SectionLabel>Explore Sterling Kart</SectionLabel>
+          <div className="flex flex-wrap gap-3 mt-4">
+            <Link to={`/shop?category=${product.category}`} className="rounded-full bg-[#FAF8F7] border border-[#F0E8EA] px-4 py-2 text-[11px] font-medium text-text-main hover:border-[#F4A0B0] transition-colors">Related {product.category}</Link>
+            <Link to="/shop?category=earrings" className="rounded-full bg-[#FAF8F7] border border-[#F0E8EA] px-4 py-2 text-[11px] font-medium text-text-main hover:border-[#F4A0B0] transition-colors">Matching Earrings</Link>
+            <Link to="/shop?category=necklaces" className="rounded-full bg-[#FAF8F7] border border-[#F0E8EA] px-4 py-2 text-[11px] font-medium text-text-main hover:border-[#F4A0B0] transition-colors">Matching Necklaces</Link>
+            <Link to="/gifting" className="rounded-full bg-[#FAF8F7] border border-[#F0E8EA] px-4 py-2 text-[11px] font-medium text-text-main hover:border-[#F4A0B0] transition-colors">Gift Cards</Link>
+            <Link to="/about" className="rounded-full bg-[#FAF8F7] border border-[#F0E8EA] px-4 py-2 text-[11px] font-medium text-text-main hover:border-[#F4A0B0] transition-colors">Silver Authenticity Guide</Link>
+          </div>
+        </section>
       </main>
 
       <AnimatePresence>

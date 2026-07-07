@@ -5,6 +5,7 @@ import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, S
 import MagneticButton from '../components/ui/MagneticButton';
 import CircularGallery from '../components/ui/CircularGallery';
 import GiftCardPromo from '../components/home/GiftCardPromo';
+import SEO from '../components/seo/SEO';
 import { categories } from '../data/products';
 import { useProducts } from '../context/ProductContext';
 import { testimonials } from '../data/orders';
@@ -341,8 +342,73 @@ export default function HomePage() {
     }
   };
 
+  const schemas = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Sterling Kart",
+      "url": "https://sterlingkart.in",
+      "logo": "https://sterlingkart.in/giftcard.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+91-9999999999",
+        "contactType": "customer service"
+      },
+      "sameAs": [
+        "https://www.instagram.com/sterlingkart",
+        "https://www.facebook.com/sterlingkart"
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Sterling Kart",
+      "url": "https://sterlingkart.in",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://sterlingkart.in/shop?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is 925 Sterling Silver?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "925 Sterling Silver is an alloy made of 92.5% pure silver and 7.5% other metals (usually copper) for strength. It is the international standard for high-quality silver jewellery."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Sterling Kart genuine?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Sterling Kart provides authentic, BIS hallmarked 925 Sterling Silver jewellery. Every piece is certified for purity and craftsmanship."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does silver jewellery last?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "With proper care, high-quality 925 Sterling Silver jewellery can last a lifetime. It is highly durable and designed for long-term wear."
+          }
+        }
+      ]
+    }
+  ];
+
   return (
     <div className="overflow-x-hidden bg-bg-primary bg-pattern-diamond">
+      <SEO 
+        title="Sterling Kart — Premium 925 Sterling Silver Jewellery Store"
+        description="Shop authentic, BIS hallmarked 925 Sterling Silver Jewellery. Rings, earrings, necklaces, and more. Free shipping & 15-day exchange."
+        schemas={schemas}
+      />
       <section
         ref={heroRef}
         className="relative isolate flex h-[345px] min-h-0 items-end overflow-hidden bg-bg-alt sm:h-[420px] md:h-auto md:min-h-[100vh] md:items-center"
@@ -891,6 +957,27 @@ export default function HomePage() {
         </div>
       </section>
       
+      {/* ── AI Search Optimized FAQ (AEO) ── */}
+      <section className="relative px-4 pb-12 md:px-8 md:pb-24 text-text-main overflow-hidden bg-bg-surface bg-pattern-diamond">
+        <div className="mx-auto max-w-[1040px] glass-panel p-6 md:p-14 rounded-[24px] md:rounded-[40px] border-white/60 shadow-xl">
+          <SectionHeading eyebrow="Expert Answers" title="Frequently Asked Questions" align="left" />
+          <div className="grid gap-4 md:gap-6 md:grid-cols-3 mt-6 md:mt-8">
+            <div className="bg-white/60 p-4 md:p-6 rounded-xl md:rounded-2xl border border-white shadow-sm hover:shadow-md transition-shadow duration-300">
+              <h3 className="font-bold text-[13px] md:text-[14px] text-text-main mb-1.5 md:mb-2">What is 925 Sterling Silver?</h3>
+              <p className="text-[12px] md:text-[13px] leading-relaxed text-text-muted">925 Sterling Silver is an alloy made of 92.5% pure silver and 7.5% other metals for strength. It is the international standard for high-quality silver jewellery.</p>
+            </div>
+            <div className="bg-white/60 p-4 md:p-6 rounded-xl md:rounded-2xl border border-white shadow-sm hover:shadow-md transition-shadow duration-300">
+              <h3 className="font-bold text-[13px] md:text-[14px] text-text-main mb-1.5 md:mb-2">Is Sterling Kart genuine?</h3>
+              <p className="text-[12px] md:text-[13px] leading-relaxed text-text-muted">Yes, Sterling Kart provides authentic, BIS hallmarked 925 Sterling Silver jewellery. Every piece is certified for purity and craftsmanship.</p>
+            </div>
+            <div className="bg-white/60 p-4 md:p-6 rounded-xl md:rounded-2xl border border-white shadow-sm hover:shadow-md transition-shadow duration-300">
+              <h3 className="font-bold text-[13px] md:text-[14px] text-text-main mb-1.5 md:mb-2">How long does silver jewellery last?</h3>
+              <p className="text-[12px] md:text-[13px] leading-relaxed text-text-muted">With proper care, high-quality 925 Sterling Silver jewellery can last a lifetime. It is highly durable and designed for long-term wear.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <MobileFloatingGift />
     </div>
   );

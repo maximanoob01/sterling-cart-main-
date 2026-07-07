@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Shield, Gem, Heart, Home, ChevronRight, Send } from 'lucide-react';
 import aboutHero from '../assets/images/about_hero.png';
 import toast from 'react-hot-toast';
+import SEO from '../components/seo/SEO';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -63,8 +64,38 @@ const AboutPage = () => {
     setEmail('');
   };
 
+  const schemas = [
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How can I verify the authenticity of Sterling Kart silver?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Every piece of jewellery from Sterling Kart is BIS hallmarked and comes with a certificate of authenticity guaranteeing it is 92.5% pure silver."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is your jewellery hypoallergenic?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, our 925 sterling silver is hypoallergenic and 100% nickel-free, making it completely safe for sensitive skin."
+          }
+        }
+      ]
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-bg-surface pb-20 sm:pb-0">
+      <SEO 
+        title="About Us | Sterling Kart - Authentic 925 Silver"
+        description="Learn about Sterling Kart's legacy, our exquisite craftsmanship, and our dedication to providing authentic, hallmarked 925 sterling silver jewellery."
+        schemas={schemas}
+      />
       {/* Breadcrumb */}
       <div className="bg-pink-50 border-b border-pink-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">

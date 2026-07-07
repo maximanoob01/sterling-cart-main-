@@ -8,6 +8,7 @@ import { categories, stoneTypes, occasions, styles, colors, designs, collections
 import { useProducts } from '../context/ProductContext';
 import { calculateDiscount } from '../utils/formatPrice';
 import { useCurrency } from '../context/CurrencyContext';
+import SEO from '../components/seo/SEO';
 
 /* ─────────────────────────  STAR RATING  ─────────────────────────────── */
 const StarRating = ({ rating, size = 12 }) => (
@@ -417,8 +418,23 @@ export default function ShopPage() {
     </div>
   );
 
+  const schemas = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Shop Sterling Silver Jewellery | Sterling Kart",
+      "description": "Explore our complete collection of premium 925 sterling silver rings, earrings, necklaces, and bracelets.",
+      "url": "https://sterlingkart.in/shop"
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-bg-primary">
+      <SEO 
+        title="Shop 925 Sterling Silver Jewellery — Rings, Necklaces, Earrings"
+        description="Discover Sterling Kart's premium collection of 925 sterling silver jewellery. Authentic, BIS hallmarked, hypoallergenic, and crafted for everyday elegance."
+        schemas={schemas}
+      />
 
       {/* ── Luxury Page Header ── */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#FFF0F5] via-[#FDF5F8] to-[#FAF8F7] border-b border-[#F0E8EA]">
