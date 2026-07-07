@@ -13,9 +13,9 @@ import { createHybridStore } from '../utils/rateLimitStore.js';
 const router = Router();
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 OTP requests per window
-  message: { success: false, error: 'Too many requests, please try again after 15 minutes' },
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 20, // Limit each IP to 20 OTP requests per window
+  message: { success: false, error: 'Too many requests, please try again after 5 minutes' },
   store: createHybridStore(),
 });
 
