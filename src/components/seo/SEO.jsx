@@ -16,7 +16,7 @@ const SEO = ({
   const siteUrl = 'https://sterlingkart.in';
   
   const currentUrl = url || `${siteUrl}${location.pathname}`;
-  const defaultImage = `${siteUrl}/giftcard.png`; // Fallback Open Graph image
+  const defaultImage = `${siteUrl}/giftcard.webp`; // Fallback Open Graph image
   const defaultDescription = 'Premium 925 Sterling Silver Jewellery Store. Crafted in Silver. Worn with Love. Shop rings, earrings, necklaces, bracelets and more.';
   
   // Construct the final title (unless it already ends with the site name)

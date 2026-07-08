@@ -191,7 +191,7 @@ export default function ResubmitDesignPage() {
               type="file"
               ref={fileInputRef}
               onChange={(e) => handleFileChange(e.target.files[0])}
-              accept=".png,.svg,.pdf"
+              accept=".webp,.svg,.pdf"
               className="hidden"
               disabled={isExpired}
             />

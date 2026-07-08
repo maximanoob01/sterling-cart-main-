@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Gift, Mail, ShieldCheck, Heart, ArrowRight, Diamond } from 'lucide-react';
-import giftCardImg from '../../assets/images/gift_card_promo.png';
+import giftCardImg from '../../assets/images/gift_card_promo.webp';
 import { motion } from 'framer-motion';
 
 const benefits = [

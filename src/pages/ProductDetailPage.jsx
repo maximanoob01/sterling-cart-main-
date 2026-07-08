@@ -16,8 +16,8 @@ import { useProducts } from '../context/ProductContext';
 import SEO from '../components/seo/SEO';
 import { calculateDiscount } from '../utils/formatPrice';
 import { computeWeightBasedPrice } from '../utils/silverRate';
-import personaliseCoinImg from '../assets/images/personalise_coin.png';
-import royalPointsCoinImg from '../assets/images/royal_points_coin.png';
+import personaliseCoinImg from '../assets/images/personalise_coin.webp';
+import royalPointsCoinImg from '../assets/images/royal_points_coin.webp';
 
 /* ── data ────────────────────────────────────────────────────────────── */
 const loveMetrics = [

@@ -4,37 +4,38 @@ import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck, Gift, Crown, Heart } from 'lucide-react';
 import MagneticButton from '../components/ui/MagneticButton';
 import CircularGallery from '../components/ui/CircularGallery';
+import LazyLoad from '../components/ui/LazyLoad';
 import GiftCardPromo from '../components/home/GiftCardPromo';
 import SEO from '../components/seo/SEO';
 import { categories } from '../data/products';
 import { useProducts } from '../context/ProductContext';
 import { testimonials } from '../data/orders';
 import api from '../services/api';
-import image1 from '../assets/images/image.png';
-import image2 from '../assets/images/image copy.png';
-import image3 from '../assets/images/image copy 2.png';
-import image4 from '../assets/images/image copy 3.png';
-import image5 from '../assets/images/image copy 4.png';
+import image1 from '../assets/images/image.webp';
+import image2 from '../assets/images/image copy.webp';
+import image3 from '../assets/images/image copy 2.webp';
+import image4 from '../assets/images/image copy 3.webp';
+import image5 from '../assets/images/image copy 4.webp';
 import storeVideo from '../assets/images/v1.mp4';
 import v2 from '../assets/images/v2.mp4';
 import v3 from '../assets/images/v3.mp4';
 import v4 from '../assets/images/v4.mp4';
-import c1 from '../assets/images/c1.jpeg';
-import c2 from '../assets/images/c2.jpeg';
-import c3 from '../assets/images/c3.jpeg';
-import c4 from '../assets/images/c4.jpeg';
-import c5 from '../assets/images/c5.jpeg';
-import c6 from '../assets/images/c6.jpeg';
-import promise1 from '../assets/images/promise_1.png';
-import promise2 from '../assets/images/promise_2.png';
-import promise3 from '../assets/images/promise_3.png';
-import promise4 from '../assets/images/promise_4.png';
-import weddingCampaign1 from '../assets/images/wedding_campaign_1.png';
-import weddingCampaign2 from '../assets/images/wedding_campaign_2.png';
-import productRing1 from '../assets/images/product_ring_1.png';
-import productNecklace1 from '../assets/images/product_necklace_1.png';
-import productEarring1 from '../assets/images/product_earring_1.png';
-import productBangle1 from '../assets/images/product_bangle_1.png';
+import c1 from '../assets/images/c1.webp';
+import c2 from '../assets/images/c2.webp';
+import c3 from '../assets/images/c3.webp';
+import c4 from '../assets/images/c4.webp';
+import c5 from '../assets/images/c5.webp';
+import c6 from '../assets/images/c6.webp';
+import promise1 from '../assets/images/promise_1.webp';
+import promise2 from '../assets/images/promise_2.webp';
+import promise3 from '../assets/images/promise_3.webp';
+import promise4 from '../assets/images/promise_4.webp';
+import weddingCampaign1 from '../assets/images/wedding_campaign_1.webp';
+import weddingCampaign2 from '../assets/images/wedding_campaign_2.webp';
+import productRing1 from '../assets/images/product_ring_1.webp';
+import productNecklace1 from '../assets/images/product_necklace_1.webp';
+import productEarring1 from '../assets/images/product_earring_1.webp';
+import productBangle1 from '../assets/images/product_bangle_1.webp';
 
 const occasions = [
   ['Everyday', 'everyday'],
@@ -436,7 +437,7 @@ export default function HomePage() {
       "@type": "Organization",
       "name": "Sterling Kart",
       "url": "https://sterlingkart.in",
-      "logo": "https://sterlingkart.in/giftcard.png",
+      "logo": "https://sterlingkart.in/giftcard.webp",
       "contactPoint": {
         "@type": "ContactPoint",
         "telephone": "+91-9999999999",
@@ -1063,13 +1064,15 @@ export default function HomePage() {
         </div>
 
         <div className="relative z-10 -mt-12 h-[360px] w-full md:-mt-8 md:h-[600px]">
-          <CircularGallery 
-            videos={galleryVideos}
-            bend={0.06}
-            itemWidth={isMobile ? 3.4 : 4}
-            itemHeight={isMobile ? 6.0 : 7}
-            gap={isMobile ? 0.3 : 0.4}
-          />
+          <LazyLoad fallback={<div className="w-full h-full flex items-center justify-center text-white/50">Loading videos...</div>}>
+            <CircularGallery 
+              videos={galleryVideos}
+              bend={0.06}
+              itemWidth={isMobile ? 3.4 : 4}
+              itemHeight={isMobile ? 6.0 : 7}
+              gap={isMobile ? 0.3 : 0.4}
+            />
+          </LazyLoad>
         </div>
       </section>
 

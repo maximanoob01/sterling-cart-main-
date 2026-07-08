@@ -13,18 +13,18 @@ import toast from 'react-hot-toast';
 import { Copy, X, Share2, Calendar, Lock, ShieldCheck, Award, ShoppingBag, Headphones, MessageCircle } from 'lucide-react';
 import { shareGiftCardToWhatsApp } from '../utils/shareUtils';
 
-import giftingHero from '../assets/images/gifting_hero.png';
-import forHerImg from '../assets/images/gifting_for_her.png';
-import forHimImg from '../assets/images/gifting_for_him.png';
-import forSisterImg from '../assets/images/gifting_for_sister.png';
-import forMotherImg from '../assets/images/gifting_for_mother.png';
-import forFriendsImg from '../assets/images/gifting_for_friends.png';
-import birthdayImg from '../assets/images/gifting_birthday.png';
-import valentineImg from '../assets/images/gifting_valentine.png';
-import diwaliImg from '../assets/images/gifting_diwali.png';
-import anniversaryImg from '../assets/images/gifting_anniversary.png';
-import weddingImg from '../assets/images/gifting_wedding.png';
-import luxuryBg from '../assets/luxury_rose_gold_bg.png';
+import giftingHero from '../assets/images/gifting_hero.webp';
+import forHerImg from '../assets/images/gifting_for_her.webp';
+import forHimImg from '../assets/images/gifting_for_him.webp';
+import forSisterImg from '../assets/images/gifting_for_sister.webp';
+import forMotherImg from '../assets/images/gifting_for_mother.webp';
+import forFriendsImg from '../assets/images/gifting_for_friends.webp';
+import birthdayImg from '../assets/images/gifting_birthday.webp';
+import valentineImg from '../assets/images/gifting_valentine.webp';
+import diwaliImg from '../assets/images/gifting_diwali.webp';
+import anniversaryImg from '../assets/images/gifting_anniversary.webp';
+import weddingImg from '../assets/images/gifting_wedding.webp';
+import luxuryBg from '../assets/luxury_rose_gold_bg.webp';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },

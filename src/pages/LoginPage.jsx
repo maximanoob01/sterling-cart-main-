@@ -103,9 +103,9 @@ function CountryCodePicker({ selected, onSelect }) {
   );
 }
 
-import slide1 from '../assets/images/auth_slide_1.jpeg';
-import slide2 from '../assets/images/auth_slide_2.jpeg';
-import slide3 from '../assets/images/auth_slide_3.jpeg';
+import slide1 from '../assets/images/auth_slide_1.webp';
+import slide2 from '../assets/images/auth_slide_2.webp';
+import slide3 from '../assets/images/auth_slide_3.webp';
 
 const slides = [slide1, slide2, slide3];
 

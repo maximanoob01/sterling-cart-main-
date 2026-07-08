@@ -9,7 +9,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useProducts } from '../../context/ProductContext';
 import { formatPrice } from '../../utils/formatPrice';
 import api from '../../services/api';
-import engravedCoinImg from '../../assets/images/engraved_coin.png';
+import engravedCoinImg from '../../assets/images/engraved_coin.webp';
 
 const announcements = [
   "Free shipping above Rs. 1,999 | Exchange within 15 days",

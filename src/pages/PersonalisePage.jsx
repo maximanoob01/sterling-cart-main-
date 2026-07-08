@@ -10,10 +10,10 @@ import CallRequestModal from '../components/CallRequestModal';
 import engraveProcessVid from '../assets/images/engrave_process.mp4';
 import engraveResultVid from '../assets/images/engrave_result.mp4';
 import heroBgVid from '../assets/images/hero_bg_video.mp4';
-import engravedCoinImg from '../assets/images/engraved_coin.png';
-import plainCoinImg from '../assets/images/plain_coin.png';
-import lakshmiCoinImg from '../assets/images/lakshmi_coin.png';
-import ganeshCoinImg from '../assets/images/ganesh_coin.png';
+import engravedCoinImg from '../assets/images/engraved_coin.webp';
+import plainCoinImg from '../assets/images/plain_coin.webp';
+import lakshmiCoinImg from '../assets/images/lakshmi_coin.webp';
+import ganeshCoinImg from '../assets/images/ganesh_coin.webp';
 
 const COIN_BASE_PRICE = 2499;
 const ENGRAVING_FEE = 250;
@@ -304,7 +304,7 @@ export default function PersonalisePage() {
                   type="file"
                   ref={fileInputRef}
                   onChange={(e) => handleFileChange(e.target.files[0])}
-                  accept=".png,.svg,.pdf"
+                  accept=".webp,.svg,.pdf"
                   className="hidden"
                 />
 

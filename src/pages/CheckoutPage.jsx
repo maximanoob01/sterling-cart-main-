@@ -13,7 +13,7 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 import FreeDeliveryBar from '../components/cart/FreeDeliveryBar';
 import { VisaLogo, MastercardLogo, AmexLogo, RazorpayLogo, ShiprocketLogo, GPayLogo, PhonePeLogo, PaytmLogo, RupayLogo, AmazonPayLogo, MobikwikLogo, BankLogo, CashLogo } from '../components/ui/PaymentLogos';
-import royalPointsCoinImg from '../assets/images/royal_points_coin.png';
+import royalPointsCoinImg from '../assets/images/royal_points_coin.webp';
 
 const indianStates = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',

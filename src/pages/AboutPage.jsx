@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Shield, Gem, Heart, Home, ChevronRight, Send } from 'lucide-react';
-import aboutHero from '../assets/images/about_hero.png';
+import aboutHero from '../assets/images/about_hero.webp';
 import toast from 'react-hot-toast';
 import SEO from '../components/seo/SEO';
 

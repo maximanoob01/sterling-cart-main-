@@ -16,7 +16,7 @@ import { generateInvoice } from '../utils/generateInvoice';
 import { shareGiftCardToWhatsApp } from '../utils/shareUtils';
 import toast from 'react-hot-toast';
 import api from '../services/api';
-import royalPointsCoinImg from '../assets/images/royal_points_coin.png';
+import royalPointsCoinImg from '../assets/images/royal_points_coin.webp';
 
 const statusColors = {
   Pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',

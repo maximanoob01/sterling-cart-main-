@@ -37,7 +37,7 @@ export default function Footer() {
           WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 70%)'
         }}
       >
-        <img src="/footer-ring.png" alt="" className="w-full h-full object-cover" />
+        <img src="/footer-ring.webp" alt="" className="w-full h-full object-cover" />
       </div>
 
       {/* Decorative Blur */}
