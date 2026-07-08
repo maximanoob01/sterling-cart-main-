@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck, Gift } from 'lucide-react';
+import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck, Gift, Crown, Heart } from 'lucide-react';
 import MagneticButton from '../components/ui/MagneticButton';
 import CircularGallery from '../components/ui/CircularGallery';
 import GiftCardPromo from '../components/home/GiftCardPromo';
@@ -149,6 +149,94 @@ function MinimalProductCard({ product }) {
     </Link>
   );
 }
+
+function CustomerFavoriteCard({ product }) {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  // Decide badge color based on text
+  const badgeColor = product.badge === 'Bestseller' ? 'bg-gradient-to-r from-[#E68A9A] to-[#F4A0B0]' : 'bg-gradient-to-r from-[#D4AF37] to-[#E6C25B]';
+  
+  return (
+    <div 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`group block overflow-hidden rounded-[16px] bg-[#FFFDFB] transition-all duration-300 border ${isHovered ? 'border-[#D9909F] shadow-xl' : 'border-[#F4EBE8] shadow-sm'}`}
+    >
+       <div className="relative aspect-[4/5] overflow-hidden bg-[#FDF8F9]">
+         {product.badge && (
+           <div className={`absolute top-0 left-0 z-10 px-3 py-1.5 flex items-center gap-1.5 text-white text-[9px] font-bold tracking-[1.5px] uppercase rounded-br-xl shadow-sm ${badgeColor}`}>
+             <Crown size={11} className="text-white" /> {product.badge}
+           </div>
+         )}
+         <Link to={`/product/${product.slug}`}>
+           <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+         </Link>
+       </div>
+       
+       <div className="relative p-2.5 md:p-5 text-center flex flex-col items-center bg-[#FFFDFB]">
+         <Link to={`/product/${product.slug}`} className="w-full">
+           <h3 className="font-serif text-[12px] md:text-[17px] text-[#1A202C] leading-tight mb-1 truncate">{product.name}</h3>
+           <p className="text-[8px] md:text-[10px] text-[#A0AEC0] uppercase tracking-wide mb-2 md:mb-3">925 Sterling Silver</p>
+           
+           <div className="flex items-center justify-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+             <div className="h-[1px] w-4 md:w-6 bg-[#E2D8D5]" />
+             <Star className="text-[#D4AF37] w-2.5 h-2.5 md:w-3 md:h-3" fill="currentColor" />
+             <div className="h-[1px] w-4 md:w-6 bg-[#E2D8D5]" />
+           </div>
+           
+           <p className="text-[12px] md:text-[15px] font-bold text-[#D9909F] mb-3 md:mb-4">₹{product.price.toLocaleString()}</p>
+         </Link>
+         
+         <div className="w-full flex items-center justify-between gap-1.5 md:gap-2 mt-auto">
+            <button className="w-7 h-7 md:w-9 md:h-9 shrink-0 rounded-full border border-[#D9909F]/40 flex items-center justify-center text-[#D9909F] hover:bg-[#D9909F] hover:text-white transition-colors">
+              <Heart className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            </button>
+            <Link 
+              to={`/product/${product.slug}`} 
+              className="flex-1 h-7 md:h-9 rounded-full bg-[#FFF0F5] flex items-center justify-center gap-1 md:gap-1.5 text-[8px] md:text-[10px] font-bold text-[#D9909F] uppercase tracking-wider hover:bg-[#D9909F] hover:text-white transition-colors whitespace-nowrap px-1"
+            >
+              QUICK VIEW <ArrowRight className="w-2.5 h-2.5 md:w-3 md:h-3" />
+            </Link>
+         </div>
+       </div>
+    </div>
+  );
+}
+
+function NewArrivalsCard({ product }) {
+  const [isHovered, setIsHovered] = useState(false);
+  return (
+    <Link 
+      to={`/product/${product.slug}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`group block overflow-hidden rounded-[16px] bg-[#FFFDFB] transition-all duration-300 border ${isHovered ? 'border-[#D4AF37] shadow-lg' : 'border-white shadow-sm'}`}
+    >
+       <div className="relative aspect-square sm:aspect-[4/5] overflow-hidden bg-[#FDF8F9]">
+         <span className="absolute top-3 left-3 bg-[#F48FB1] text-white text-[9px] font-bold px-2 py-1 tracking-wider uppercase rounded-sm z-10">NEW</span>
+         <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+       </div>
+       <div className="relative p-2.5 md:p-5 text-center flex flex-col items-center bg-[#FFFDFB] pt-5 md:pt-8">
+         <div className={`absolute -top-3 md:-top-4 w-6 h-6 md:w-8 md:h-8 rounded-full bg-[#FFFDFB] flex items-center justify-center border shadow-sm transition-colors duration-300 ${isHovered ? 'border-[#D4AF37]' : 'border-[#F4EBE8]'}`}>
+            <Star className={`${isHovered ? "text-[#D4AF37]" : "text-[#D9909F]"} w-3 h-3 md:w-3.5 md:h-3.5`} fill="currentColor" />
+         </div>
+         <h3 className="font-serif text-[12px] md:text-[17px] text-[#1A202C] leading-tight mb-1.5 md:mb-2">{product.name}</h3>
+         <p className="text-[12px] md:text-[14px] text-[#4A5568] mb-3 md:mb-4">₹{product.price.toLocaleString()}</p>
+         
+         <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full border flex items-center justify-center transition-colors duration-300 ${isHovered ? 'border-[#D4AF37] text-[#D4AF37]' : 'border-[#E2D8D5] text-[#8B5A65]'}`}>
+            <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5" />
+         </div>
+       </div>
+    </Link>
+  );
+}
+
+const newArrivalPromises = [
+  { icon: Award, title: '925 PURE SILVER', description: 'Authentic & Hallmarked' },
+  { icon: Gift, title: 'PREMIUM PACKAGING', description: 'Made with Love' },
+  { icon: Shield, title: 'SECURE PAYMENTS', description: '100% Safe & Encrypted' },
+  { icon: Truck, title: 'FREE SHIPPING', description: 'On All Orders' },
+];
 
 function MobileFloatingGift() {
   return (
@@ -665,33 +753,64 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-[#EEE8E5] bg-[#F7E1E8] px-4 py-8 md:px-8 md:py-20 bg-pattern-diamond">
-        <SectionHeading eyebrow="Most loved" title="Customer favourites" />
+      {/* ── CUSTOMER FAVOURITES REDESIGN ────────────────────────────────────────── */}
+      <section className="bg-gradient-to-b from-[#FFF5F5] to-[#FDF8F8] px-4 pt-12 pb-12 md:px-8 md:pt-16 md:pb-16 relative overflow-hidden border-t border-[#F4EBE8]">
+        {/* Diamond pattern fading out */}
+        <div className="absolute inset-0 bg-pattern-diamond opacity-60 pointer-events-none [mask-image:linear-gradient(to_bottom,white_0%,transparent_60%)] [-webkit-mask-image:linear-gradient(to_bottom,white_0%,transparent_60%)]" />
         
-        <div className="relative max-w-[1320px] mx-auto group">
+        {/* Soft decorative background circles (mimicking floral corners) */}
+        <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#F4A0B0]/20 rounded-full blur-[80px] -translate-y-1/2 -translate-x-1/4 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#F4A0B0]/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+        
+        {/* Custom Header for Customer Favourites */}
+        <div className="text-center mb-10 relative z-10">
+          <p className="text-[10px] md:text-[11px] font-bold text-[#D4AF37] uppercase tracking-[3px] mb-3 flex items-center justify-center gap-2">
+            <div className="h-[1px] w-8 bg-[#D4AF37]/40" />
+            MOST LOVED
+            <div className="h-[1px] w-8 bg-[#D4AF37]/40" />
+          </p>
+          <h2 className="font-serif text-[32px] md:text-[46px] text-[#1A202C] leading-tight mb-3">Customer favourites</h2>
+          <p className="text-[13px] md:text-[15px] text-[#4A5568] max-w-lg mx-auto">Handpicked pieces our customers can't get enough of.</p>
+          <div className="flex items-center justify-center gap-3 mt-5">
+            <div className="h-[1px] w-12 bg-[#D9909F]/40" />
+            <Star className="text-[#D9909F]" size={14} fill="currentColor" />
+            <div className="h-[1px] w-12 bg-[#D9909F]/40" />
+          </div>
+        </div>
+
+        <div className="relative max-w-[1320px] mx-auto group z-10">
           <button 
             onClick={scrollFavoritesLeft} 
-            className="absolute left-0 top-[40%] md:top-[45%] -translate-y-1/2 -ml-2 md:-ml-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/80 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+            className="absolute left-0 top-[45%] md:top-[50%] -translate-y-1/2 -ml-2 md:-ml-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/90 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
           >
             <ChevronLeft size={22} strokeWidth={1.5} />
           </button>
           
-          <div ref={favoritesScrollRef} className="flex gap-3 md:gap-5 overflow-x-auto snap-x snap-mandatory pb-5 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div ref={favoritesScrollRef} className="flex gap-4 md:gap-5 overflow-x-auto snap-x snap-mandatory pb-5 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {bestsellers.map((product) => (
-              <div key={product.id} className="w-[42vw] max-w-[150px] sm:w-[170px] sm:max-w-none md:w-[calc(33.333%-14px)] lg:w-[calc(20%-16px)] snap-start shrink-0">
-                <MinimalProductCard product={product} />
+              <div key={product.id} className="w-[36vw] max-w-[145px] sm:w-[170px] sm:max-w-none md:w-[calc(25%-15px)] lg:w-[calc(20%-16px)] snap-start shrink-0">
+                <CustomerFavoriteCard product={product} />
               </div>
             ))}
           </div>
 
           <button 
             onClick={scrollFavoritesRight} 
-            className="absolute right-0 top-[40%] md:top-[45%] -translate-y-1/2 -mr-2 md:-mr-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/80 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+            className="absolute right-0 top-[45%] md:top-[50%] -translate-y-1/2 -mr-2 md:-mr-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/90 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
           >
             <ChevronRight size={22} strokeWidth={1.5} />
           </button>
         </div>
-        <div className="mt-5 text-center md:mt-9"><Link to="/shop" className="btn-secondary">View all jewellery</Link></div>
+        
+        {/* View All Jewellery Button */}
+        <div className="mt-6 md:mt-10 text-center relative z-10">
+          <Link 
+            to="/shop" 
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F4A0B0] to-[#E68A9A] px-8 py-3.5 text-[11px] md:text-[12px] font-bold uppercase tracking-[2px] text-white hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-sm"
+          >
+            <Star size={14} fill="currentColor" className="opacity-70" /> VIEW ALL JEWELLERY <ArrowRight size={16} />
+          </Link>
+        </div>
       </section>
 
       <section className="bg-bg-surface px-3 py-6 md:px-8 md:py-8 bg-pattern-diamond">
@@ -724,33 +843,83 @@ export default function HomePage() {
 
       <GiftCardPromo />
 
-      <section className="border-y border-[#EEE8E5] bg-[#F7E1E8] px-4 pt-6 pb-8 md:px-8 md:pt-10 md:pb-20 bg-pattern-diamond">
-        <SectionHeading eyebrow="Just dropped" title="New arrivals" />
+      {/* ── NEW ARRIVALS REDESIGN ────────────────────────────────────────── */}
+      <section className="bg-gradient-to-b from-[#FAF5F5] to-[#FDF8F8] px-4 pt-12 pb-12 md:px-8 md:pt-16 md:pb-16 relative overflow-hidden">
+        {/* Soft decorative background circles */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/40 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#FFF0F5]/50 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/3 pointer-events-none" />
         
-        <div className="relative max-w-[1320px] mx-auto group">
+        {/* Custom Header for New Arrivals */}
+        <div className="text-center mb-10 relative z-10">
+          <p className="text-[10px] md:text-[11px] font-bold text-[#D4AF37] uppercase tracking-[3px] mb-3 flex items-center justify-center gap-2">
+            <Star size={12} fill="currentColor" /> JUST DROPPED <Star size={12} fill="currentColor" />
+          </p>
+          <h2 className="font-serif text-[32px] md:text-[46px] text-[#1A202C] leading-tight mb-3">New Arrivals</h2>
+          <p className="text-[13px] md:text-[15px] text-[#4A5568] max-w-lg mx-auto">Handpicked 925 Silver jewellery to elevate every moment.</p>
+          <div className="flex items-center justify-center gap-3 mt-5">
+            <div className="h-[1px] w-12 bg-[#D9909F]/40" />
+            <Star className="text-[#D9909F]" size={14} fill="currentColor" />
+            <div className="h-[1px] w-12 bg-[#D9909F]/40" />
+          </div>
+        </div>
+
+        <div className="relative max-w-[1320px] mx-auto group z-10">
           <button 
             onClick={scrollNewArrivalsLeft} 
-            className="absolute left-0 top-[40%] md:top-[45%] -translate-y-1/2 -ml-2 md:-ml-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/80 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+            className="absolute left-0 top-[40%] md:top-[45%] -translate-y-1/2 -ml-2 md:-ml-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/90 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
           >
             <ChevronLeft size={22} strokeWidth={1.5} />
           </button>
           
-          <div ref={newArrivalsScrollRef} className="flex gap-3 md:gap-5 overflow-x-auto snap-x snap-mandatory pb-5 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div ref={newArrivalsScrollRef} className="flex gap-4 md:gap-5 overflow-x-auto snap-x snap-mandatory pb-5 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {newArrivals.map((product) => (
-              <div key={product.id} className="w-[42vw] max-w-[150px] sm:w-[170px] sm:max-w-none md:w-[calc(33.333%-14px)] lg:w-[calc(20%-16px)] snap-start shrink-0">
-                <MinimalProductCard product={product} />
+              <div key={product.id} className="w-[36vw] max-w-[145px] sm:w-[170px] sm:max-w-none md:w-[calc(25%-15px)] lg:w-[calc(20%-16px)] snap-start shrink-0">
+                <NewArrivalsCard product={product} />
               </div>
             ))}
           </div>
 
           <button 
             onClick={scrollNewArrivalsRight} 
-            className="absolute right-0 top-[40%] md:top-[45%] -translate-y-1/2 -mr-2 md:-mr-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/80 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+            className="absolute right-0 top-[40%] md:top-[45%] -translate-y-1/2 -mr-2 md:-mr-5 z-10 w-9 h-9 md:w-11 md:h-11 bg-white/90 backdrop-blur-sm border border-[#EEE8E5] rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] flex items-center justify-center text-[#D4527A] hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
           >
             <ChevronRight size={22} strokeWidth={1.5} />
           </button>
         </div>
-        <div className="mt-5 text-center md:mt-9"><Link to="/shop?badge=New" className="btn-secondary">View all new arrivals</Link></div>
+        
+        {/* View All Collections Button */}
+        <div className="mt-6 md:mt-10 text-center relative z-10">
+          <Link 
+            to="/shop?badge=New" 
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-[#D9909F] bg-transparent px-6 py-2.5 md:px-8 md:py-3 text-[11px] md:text-[12px] font-bold uppercase tracking-[2px] text-[#8B5A65] hover:bg-[#D9909F] hover:text-white transition-all shadow-sm"
+          >
+            VIEW ALL COLLECTIONS <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        {/* 4 Feature Highlights - Integrated as per reference image */}
+        <div className="relative z-10 max-w-[1100px] mx-auto mt-12 md:mt-16 pt-8 border-t border-[#E8D4BB]/50">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4">
+            {newArrivalPromises.map((promise, idx) => {
+              const Icon = promise.icon;
+              return (
+                <div key={idx} className={`flex items-center gap-3 md:gap-4 px-2 md:px-4 ${idx !== 0 && idx !== 2 ? 'md:border-l md:border-[#E8D4BB]/50' : ''} ${idx % 2 !== 0 ? 'border-l border-[#E8D4BB]/50' : ''}`}>
+                  <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full border border-[#D4AF37]/40 bg-transparent shrink-0 text-[#D4AF37]">
+                    <Icon size={20} strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-[10px] md:text-[12px] font-bold text-[#1A202C] leading-tight uppercase tracking-wide">
+                      {promise.title}
+                    </h3>
+                    <p className="text-[10px] md:text-[11px] text-[#718096] mt-0.5">
+                      {promise.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </section>
 
       {/* Curated Collage Section */}
