@@ -23,11 +23,13 @@ const vertex = `
 const fragment = `
   precision highp float;
   uniform sampler2D tMap;
+  uniform sampler2D tOverlay;
   varying vec2 vUv;
 
   void main() {
     vec4 color = texture2D(tMap, vUv);
-    gl_FragColor = color;
+    vec4 overlay = texture2D(tOverlay, vUv);
+    gl_FragColor = vec4(mix(color.rgb, overlay.rgb, overlay.a), color.a);
   }
 `;
 
@@ -84,7 +86,7 @@ export default function CircularGallery({
       
       videoElements.push(video);
 
-      // Create an empty texture first to avoid WebGL "no video" error
+      // Create WebGL texture for the video
       const texture = new Texture(gl, {
         generateMipmaps: false,
         wrapS: gl.CLAMP_TO_EDGE,
@@ -92,11 +94,83 @@ export default function CircularGallery({
         minFilter: gl.LINEAR,
       });
 
+      // Create an offscreen canvas for the stats overlay
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      // Match the canvas aspect ratio precisely to the WebGL plane aspect ratio
+      // to prevent the text and icons from getting squished/distorted when mapped!
+      canvas.height = Math.round(1024 * (itemHeight / itemWidth));
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Bottom shadow gradient for readability
+      const gradient = ctx.createLinearGradient(0, canvas.height - 350, 0, canvas.height);
+      gradient.addColorStop(0, 'rgba(0,0,0,0)');
+      gradient.addColorStop(1, 'rgba(0,0,0,0.85)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, canvas.height - 350, canvas.width, 350);
+
+      // Text settings
+      ctx.fillStyle = 'white';
+      ctx.font = '600 36px sans-serif'; // slightly larger font
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 2;
+
+      const views = (Math.random() * 200 + 50).toFixed(0) + 'K';
+      const likes = (Math.random() * 40 + 10).toFixed(1) + 'K';
+      
+      const bottomY = canvas.height - 90;
+      const rightX = canvas.width - 60;
+      
+      // Draw Likes
+      ctx.fillText(likes, rightX, bottomY);
+      const likesWidth = ctx.measureText(likes).width;
+      
+      // Draw Heart
+      const heartPath = new Path2D("M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z");
+      ctx.save();
+      const heartX = rightX - likesWidth - 42;
+      const heartY = bottomY - 18; 
+      ctx.translate(heartX, heartY);
+      ctx.scale(1.5, 1.5);
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = 'white';
+      ctx.stroke(heartPath);
+      ctx.fillStyle = 'white';
+      ctx.fill(heartPath);
+      ctx.restore();
+      
+      // Draw Views
+      const viewsRightX = heartX - 30;
+      ctx.fillText(views, viewsRightX, bottomY);
+      const viewsWidth = ctx.measureText(views).width;
+      
+      // Draw Play Icon (Triangle)
+      const playPath = new Path2D("M5 3 L19 12 L5 21 Z");
+      ctx.save();
+      const playX = viewsRightX - viewsWidth - 42;
+      const playY = bottomY - 18;
+      ctx.translate(playX, playY);
+      ctx.scale(1.5, 1.5);
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2.5;
+      ctx.stroke(playPath);
+      ctx.restore();
+
+      const overlayTexture = new Texture(gl, {
+        image: canvas,
+        generateMipmaps: true,
+      });
+
       const program = new Program(gl, {
         vertex,
         fragment,
         uniforms: {
           tMap: { value: texture },
+          tOverlay: { value: overlayTexture },
           bend: { value: bend },
         },
       });
@@ -109,7 +183,7 @@ export default function CircularGallery({
         texture,
         video,
         index: i,
-        imageSet: false, // track if image is attached
+        imageSet: false,
       });
     });
 
@@ -231,7 +305,7 @@ export default function CircularGallery({
   return (
     <div 
       ref={containerRef} 
-      className="w-full h-full cursor-grab active:cursor-grabbing"
+      className="w-full h-full cursor-grab active:cursor-grabbing relative"
       style={{ touchAction: 'none' }}
     />
   );

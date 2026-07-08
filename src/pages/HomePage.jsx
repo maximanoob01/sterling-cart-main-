@@ -1022,14 +1022,44 @@ export default function HomePage() {
       <section className="bg-black px-0 py-10 md:py-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,82,122,0.15)_0%,transparent_70%)]" />
         
-        <div className="mx-auto max-w-[1320px] px-5 md:px-8 relative z-10 mb-0 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-[#F4A0B0] mb-2">Influencer Spotlight</p>
-          <h2 className="font-serif text-[28px] leading-tight text-white md:text-[40px] mb-4">
-            Trusted by Creators, Loved by Customers
+        <div className="mx-auto max-w-[1320px] px-5 md:px-8 relative z-10 mb-10 text-center flex flex-col items-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="h-[1px] w-10 md:w-16 bg-[#F4A0B0]/30" />
+            <div className="text-[9px] md:text-[10px] font-bold uppercase tracking-[3px] text-[#F4A0B0] flex flex-col items-center gap-1.5">
+              <span>Influencer Spotlight</span>
+              <Star className="text-[#F4A0B0] w-2.5 h-2.5 opacity-70" fill="currentColor" />
+            </div>
+            <div className="h-[1px] w-10 md:w-16 bg-[#F4A0B0]/30" />
+          </div>
+          
+          <h2 className="font-serif text-[28px] md:text-[46px] leading-[1.15] text-white mb-4 max-w-3xl">
+            Trusted by <span className="text-[#F4A0B0] italic font-medium">Creators</span>, Loved by <span className="text-[#F4A0B0] italic font-medium">Customers</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-[14px] text-white/60 leading-relaxed">
-            See how influencers and jewellery enthusiasts style Sterling Kart's handcrafted sterling silver collections in real life. Swipe to explore.
+          
+          <p className="mx-auto max-w-[600px] text-[13px] md:text-[15px] text-[#A0AEC0] leading-relaxed mb-8">
+            Real stories, real style. See how influencers and jewellery lovers shine with Sterling Kart's handcrafted 925 silver collections.
           </p>
+          
+          {/* Avatars Row */}
+          <div className="flex items-center justify-center gap-3 md:gap-5">
+            <div className="flex -space-x-3 md:-space-x-4">
+              {[c1, c2, c3, c4, c5].map((img, i) => (
+                <div key={i} className="w-8 h-8 md:w-12 md:h-12 rounded-full border-[2px] border-black overflow-hidden relative" style={{ zIndex: 10 - i }}>
+                  <img src={img} alt="Creator" className="w-full h-full object-cover" />
+                </div>
+              ))}
+              <div className="w-8 h-8 md:w-12 md:h-12 rounded-full border-[2px] border-black bg-[#F4A0B0]/10 flex items-center justify-center text-[#F4A0B0] text-[8px] md:text-[10px] font-bold z-0 relative">
+                +12K
+              </div>
+            </div>
+            
+            <div className="text-left flex flex-col justify-center border-l border-white/20 pl-3 md:pl-5">
+              <span className="text-[10px] md:text-[12px] text-[#A0AEC0] mb-0.5">Loved by</span>
+              <div className="text-[11px] md:text-[13px] text-white">
+                <span className="text-[#F4A0B0] font-bold text-[13px] md:text-[16px] mr-1">12K+</span> creators & customers
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="relative z-10 -mt-12 h-[360px] w-full md:-mt-8 md:h-[600px]">
