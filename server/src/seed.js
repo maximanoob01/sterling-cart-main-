@@ -70,6 +70,17 @@ const seed = async () => {
     });
     console.log('✅ Created admin user');
 
+    // Flush Redis Cache so new products appear immediately
+    try {
+      const { default: redisClient } = await import('./services/redisService.js');
+      if (redisClient.status === 'ready') {
+        await redisClient.flushall();
+        console.log('✅ Cleared Redis cache');
+      }
+    } catch (e) {
+      console.log('⚠️ Could not clear Redis cache, it might be disabled');
+    }
+
     console.log('\n🎉 Seeding complete!');
     process.exit(0);
   } catch (err) {
