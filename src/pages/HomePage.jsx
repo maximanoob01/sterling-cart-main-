@@ -931,7 +931,7 @@ export default function HomePage() {
         <div className="absolute top-1/2 left-0 w-96 h-96 bg-pink-100/40 rounded-full blur-[120px] -translate-y-1/2 -translate-x-1/2 pointer-events-none" />
         <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-slate-100/60 rounded-full blur-[100px] translate-x-1/3 pointer-events-none" />
         
-        <div className="mx-auto max-w-[1320px] relative z-10">
+        <div className="mx-auto max-w-[1050px] relative z-10">
           <SectionHeading eyebrow="The Edit" title="Curated for you" align="center" />
           
           <div className="flex flex-col gap-3 md:gap-6 mt-6 md:mt-10">
