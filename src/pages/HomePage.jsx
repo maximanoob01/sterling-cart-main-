@@ -236,7 +236,7 @@ const newArrivalPromises = [
   { icon: Award, title: '925 PURE SILVER', description: 'Authentic & Hallmarked' },
   { icon: Gift, title: 'PREMIUM PACKAGING', description: 'Made with Love' },
   { icon: Shield, title: 'SECURE PAYMENTS', description: '100% Safe & Encrypted' },
-  { icon: Truck, title: 'FREE SHIPPING', description: 'On All Orders' },
+  { icon: Truck, title: 'FREE SHIPPING', description: 'On orders above ₹2499' },
 ];
 
 function MobileFloatingGift() {
