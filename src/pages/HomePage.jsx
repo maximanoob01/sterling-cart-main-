@@ -1270,52 +1270,52 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid gap-6 md:gap-8 md:grid-cols-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8">
             {/* Card 1 */}
-            <div className="bg-[#FAF7F6] rounded-[24px] p-6 md:p-8 text-center border border-white hover:border-[#F4A0B0]/40 transition-colors">
-              <div className="w-14 h-14 mx-auto bg-white rounded-full flex items-center justify-center border border-[#F4EBE8] mb-6 shadow-sm">
-                <ShieldCheck size={24} className="text-[#D4527A] stroke-[1.5]" />
+            <div className="bg-[#FAF7F6] rounded-[16px] md:rounded-[24px] p-3 sm:p-4 md:p-8 text-center border border-white hover:border-[#F4A0B0]/40 transition-colors flex flex-col items-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 mx-auto bg-white rounded-full flex items-center justify-center border border-[#F4EBE8] mb-2 sm:mb-4 md:mb-6 shadow-sm shrink-0">
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#D4527A] stroke-[1.5]" />
               </div>
-              <h3 className="font-bold text-[15px] md:text-[16px] text-[#1A202C] mb-3">
+              <h3 className="font-bold text-[9px] sm:text-[12px] md:text-[16px] text-[#1A202C] mb-1.5 md:mb-3 leading-tight">
                 What is 925 Sterling Silver?
               </h3>
-              <p className="text-[13px] leading-[1.7] text-[#4A5568] mb-6">
-                925 Sterling Silver contains 92.5% pure silver and 7.5% other metals for strength and durability. It is the international standard for high-quality silver jewellery.
+              <p className="text-[8px] sm:text-[10px] md:text-[13px] leading-[1.3] md:leading-[1.7] text-[#4A5568] mb-2 md:mb-6 line-clamp-4 md:line-clamp-none">
+                925 Sterling Silver contains 92.5% pure silver and 7.5% other metals for strength. It is the international standard for high-quality silver jewellery.
               </p>
-              <Link to="/faq" className="inline-flex items-center gap-1 text-[13px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors">
-                Learn more <ArrowRight size={14} />
+              <Link to="/faq" className="mt-auto inline-flex items-center gap-0.5 md:gap-1 text-[8px] sm:text-[11px] md:text-[13px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors">
+                Learn more <ArrowRight className="w-2 h-2 md:w-3.5 md:h-3.5" />
               </Link>
             </div>
 
             {/* Card 2 */}
-            <div className="bg-[#FAF7F6] rounded-[24px] p-6 md:p-8 text-center border border-white hover:border-[#F4A0B0]/40 transition-colors">
-              <div className="w-14 h-14 mx-auto bg-white rounded-full flex items-center justify-center border border-[#F4EBE8] mb-6 shadow-sm">
-                <Sparkles size={24} className="text-[#D4527A] stroke-[1.5]" />
+            <div className="bg-[#FAF7F6] rounded-[16px] md:rounded-[24px] p-3 sm:p-4 md:p-8 text-center border border-white hover:border-[#F4A0B0]/40 transition-colors flex flex-col items-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 mx-auto bg-white rounded-full flex items-center justify-center border border-[#F4EBE8] mb-2 sm:mb-4 md:mb-6 shadow-sm shrink-0">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#D4527A] stroke-[1.5]" />
               </div>
-              <h3 className="font-bold text-[15px] md:text-[16px] text-[#1A202C] mb-3">
+              <h3 className="font-bold text-[9px] sm:text-[12px] md:text-[16px] text-[#1A202C] mb-1.5 md:mb-3 leading-tight">
                 Is Sterling Kart genuine?
               </h3>
-              <p className="text-[13px] leading-[1.7] text-[#4A5568] mb-6">
+              <p className="text-[8px] sm:text-[10px] md:text-[13px] leading-[1.3] md:leading-[1.7] text-[#4A5568] mb-2 md:mb-6 line-clamp-4 md:line-clamp-none">
                 Yes, Sterling Kart promises authentic 925 Sterling Silver jewellery. Every piece is crafted with care and comes with a purity and authenticity certificate.
               </p>
-              <Link to="/faq" className="inline-flex items-center gap-1 text-[13px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors">
-                Learn more <ArrowRight size={14} />
+              <Link to="/faq" className="mt-auto inline-flex items-center gap-0.5 md:gap-1 text-[8px] sm:text-[11px] md:text-[13px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors">
+                Learn more <ArrowRight className="w-2 h-2 md:w-3.5 md:h-3.5" />
               </Link>
             </div>
 
             {/* Card 3 */}
-            <div className="bg-[#FAF7F6] rounded-[24px] p-6 md:p-8 text-center border border-white hover:border-[#F4A0B0]/40 transition-colors">
-              <div className="w-14 h-14 mx-auto bg-white rounded-full flex items-center justify-center border border-[#F4EBE8] mb-6 shadow-sm">
-                <Box size={24} className="text-[#D4527A] stroke-[1.5]" />
+            <div className="bg-[#FAF7F6] rounded-[16px] md:rounded-[24px] p-3 sm:p-4 md:p-8 text-center border border-white hover:border-[#F4A0B0]/40 transition-colors flex flex-col items-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 mx-auto bg-white rounded-full flex items-center justify-center border border-[#F4EBE8] mb-2 sm:mb-4 md:mb-6 shadow-sm shrink-0">
+                <Box className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#D4527A] stroke-[1.5]" />
               </div>
-              <h3 className="font-bold text-[15px] md:text-[16px] text-[#1A202C] mb-3">
+              <h3 className="font-bold text-[9px] sm:text-[12px] md:text-[16px] text-[#1A202C] mb-1.5 md:mb-3 leading-tight">
                 How long does delivery take?
               </h3>
-              <p className="text-[13px] leading-[1.7] text-[#4A5568] mb-6">
+              <p className="text-[8px] sm:text-[10px] md:text-[13px] leading-[1.3] md:leading-[1.7] text-[#4A5568] mb-2 md:mb-6 line-clamp-4 md:line-clamp-none">
                 We process orders within 24-48 hours. Standard delivery takes 3-5 days across India. Express delivery options are also available at checkout.
               </p>
-              <Link to="/faq" className="inline-flex items-center gap-1 text-[13px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors">
-                Learn more <ArrowRight size={14} />
+              <Link to="/faq" className="mt-auto inline-flex items-center gap-0.5 md:gap-1 text-[8px] sm:text-[11px] md:text-[13px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors">
+                Learn more <ArrowRight className="w-2 h-2 md:w-3.5 md:h-3.5" />
               </Link>
             </div>
           </div>
