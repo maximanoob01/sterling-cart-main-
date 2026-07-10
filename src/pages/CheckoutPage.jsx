@@ -305,7 +305,18 @@ const CheckoutPage = () => {
       }
 
       if (!window.Razorpay) {
-        throw new Error('Razorpay SDK failed to load. Please disable adblockers and check your connection.');
+        // Try to load dynamically if it failed initially
+        const scriptLoaded = await new Promise((resolve) => {
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.body.appendChild(script);
+        });
+        
+        if (!scriptLoaded || !window.Razorpay) {
+          throw new Error('Razorpay SDK failed to load. Please disable your adblocker (or Brave Shields) and check your connection.');
+        }
       }
 
       // Open Razorpay checkout modal
