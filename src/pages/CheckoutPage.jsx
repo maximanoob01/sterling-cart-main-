@@ -1235,18 +1235,18 @@ const CheckoutPage = () => {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          <div>
+                        <div className="flex items-center justify-between gap-[8px]">
+                          <div className="flex-1 min-w-0">
                             <p className="font-sans text-[11px] text-[#A38BA6] mb-0.5">Redeem up to</p>
-                            <p className="font-sans text-[14px] text-white font-bold">{orderMaxRedeemable} pts <span className="font-normal text-[#A38BA6]">= {formatPrice(orderMaxRedeemable)} off</span></p>
+                            <p className="font-sans text-[13px] sm:text-[14px] text-white font-bold truncate">{orderMaxRedeemable} pts <span className="font-normal text-[#A38BA6]">= {formatPrice(orderMaxRedeemable)} off</span></p>
                           </div>
                           {loyaltyApplied ? (
-                            <button onClick={handleRemoveLoyalty} className="bg-white/10 text-white border border-white/20 px-[20px] py-[10px] rounded-full font-sans text-[12px] font-bold transition-colors hover:bg-white/20">
+                            <button onClick={handleRemoveLoyalty} className="bg-white/10 text-white border border-white/20 px-[16px] sm:px-[20px] py-[8px] sm:py-[10px] rounded-full font-sans text-[11px] sm:text-[12px] font-bold transition-colors hover:bg-white/20 shrink-0">
                               Remove
                             </button>
                           ) : (
-                            <button onClick={handleApplyLoyalty} disabled={orderMaxRedeemable === 0} className="bg-[#D4527A] text-white px-[20px] py-[10px] rounded-full font-sans text-[12px] font-bold flex items-center gap-[6px] shadow-sm disabled:opacity-50 transition-colors hover:bg-[#B94B68]">
-                              <Sparkles size={14} className="fill-white" /> Apply Points
+                            <button onClick={handleApplyLoyalty} disabled={orderMaxRedeemable === 0} className="bg-[#D4527A] text-white px-[12px] sm:px-[20px] py-[8px] sm:py-[10px] rounded-full font-sans text-[11px] sm:text-[12px] font-bold flex items-center gap-[4px] sm:gap-[6px] shadow-sm disabled:opacity-50 transition-colors hover:bg-[#B94B68] shrink-0">
+                              <Sparkles size={14} className="fill-white shrink-0" /> Apply
                             </button>
                           )}
                         </div>
@@ -1322,19 +1322,19 @@ const CheckoutPage = () => {
                         <button onClick={handleRemoveGiftCard} className="font-sans text-[12px] font-medium text-[#D4527A] hover:underline">Remove</button>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-[12px]">
-                        <Tag size={20} className="text-[#D4527A] shrink-0" />
+                      <div className="flex items-center gap-[8px] sm:gap-[12px]">
+                        <Tag size={20} className="text-[#D4527A] shrink-0 hidden sm:block" />
                         <input
                           type="text"
                           value={giftCardCode}
                           onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
-                          placeholder="Gift Card / Coupon Code"
-                          className="flex-1 bg-transparent font-sans text-[14px] text-text-main outline-none placeholder:text-[#A8A8A8]"
+                          placeholder="Gift Card / Coupon"
+                          className="flex-1 min-w-0 bg-transparent font-sans text-[13px] sm:text-[14px] text-text-main outline-none placeholder:text-[#A8A8A8]"
                         />
                         <button
                           onClick={handleApplyGiftCard}
                           disabled={isApplyingGC || !giftCardCode.trim()}
-                          className="px-[24px] py-[8px] rounded-[8px] border border-[#D4527A] text-[#D4527A] font-sans text-[12px] font-bold transition-colors hover:bg-[#FFF0F5] disabled:opacity-50 disabled:hover:bg-transparent"
+                          className="px-[16px] sm:px-[24px] py-[8px] rounded-[8px] border border-[#D4527A] text-[#D4527A] font-sans text-[12px] font-bold transition-colors hover:bg-[#FFF0F5] disabled:opacity-50 disabled:hover:bg-transparent shrink-0"
                         >
                           {isApplyingGC ? '...' : 'Apply'}
                         </button>
