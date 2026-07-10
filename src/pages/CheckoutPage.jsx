@@ -55,6 +55,7 @@ const CheckoutPage = () => {
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(true);
   const [orderSuccessData, setOrderSuccessData] = useState(null);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [successCountdown, setSuccessCountdown] = useState(4);
   const [isGiftWrapped, setIsGiftWrapped] = useState(false);
   const [giftNote, setGiftNote] = useState('');
   const [isGiftDetailsOpen, setIsGiftDetailsOpen] = useState(false);
@@ -166,19 +167,36 @@ const CheckoutPage = () => {
     }
   }, [items, navigate, isPlacingOrder, orderSuccessData]);
 
-  // Sequence: success screen (3 s) → exit animation (0.8 s) → loyalty dialog → redirect
+  // Sequence: success screen (4 s) → exit animation (0.8 s) → loyalty dialog → redirect
   useEffect(() => {
     if (orderSuccessData) {
       setShowSuccessScreen(true);
-      // Hide success card after 3 s (exit animation takes ~0.8 s)
-      const hideSuccessTimer = setTimeout(() => setShowSuccessScreen(false), 3000);
+      setSuccessCountdown(4);
+
+      // Timer countdown
+      const countdownInterval = setInterval(() => {
+        setSuccessCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      // Hide success card after 4 s (exit animation takes ~0.8 s)
+      const hideSuccessTimer = setTimeout(() => setShowSuccessScreen(false), 4000);
+      
       // Show loyalty dialog after success card is fully gone
-      const dialogTimer = setTimeout(() => setShowLoyaltyEarnedDialog(true), 3900);
+      const dialogTimer = setTimeout(() => setShowLoyaltyEarnedDialog(true), 4900);
+      
       // Auto-redirect if user doesn't interact with dialog
       const redirectTimer = setTimeout(() => {
         navigate('/shop', { state: { showTrackOrderPointer: true } });
-      }, 9000);
+      }, 15000);
+
       return () => {
+        clearInterval(countdownInterval);
         clearTimeout(hideSuccessTimer);
         clearTimeout(dialogTimer);
         clearTimeout(redirectTimer);
@@ -528,19 +546,19 @@ const CheckoutPage = () => {
                 <p className="text-[11px] text-gray-700 font-medium">Your order is safe with us. We'll notify you at every step.</p>
               </motion.div>
 
-              {/* Button */}
-              <motion.button
+              {/* Countdown Timer Button */}
+              <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
                 transition={{ delay: 0.8 }}
-                onClick={() => navigate('/shop', { state: { showTrackOrderPointer: true } })}
-                className="w-full h-[46px] bg-gradient-to-r from-[#FF7A8F] to-[#D4527A] text-white rounded-full font-bold text-[12px] tracking-[1px] uppercase flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(212,82,122,0.4)] hover:shadow-[0_6px_20px_rgba(212,82,122,0.5)] transition-all duration-300"
+                className="w-full h-[46px] bg-[#F4A0B0]/10 text-[#D4527A] border border-[#D4527A]/20 rounded-full font-bold text-[12px] tracking-[1px] uppercase flex items-center justify-center gap-2"
               >
-                Continue Shopping
-                <ArrowRight size={16} strokeWidth={2.5} />
-              </motion.button>
+                <span>Loading Royal Points in</span>
+                <span className="w-4 tabular-nums text-center">{successCountdown}s</span>
+                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}>
+                  <Star size={14} className="text-[#D4527A]" />
+                </motion.div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
