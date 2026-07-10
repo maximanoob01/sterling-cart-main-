@@ -1323,12 +1323,12 @@ const CheckoutPage = () => {
                       </div>
                     ) : (
                       <div className="flex items-center gap-[8px] sm:gap-[12px]">
-                        <Tag size={20} className="text-[#D4527A] shrink-0 hidden sm:block" />
+                        <Tag size={20} className="text-[#D4527A] shrink-0" />
                         <input
                           type="text"
                           value={giftCardCode}
                           onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
-                          placeholder="Gift Card / Coupon"
+                          placeholder="Gift Card / Coupon Code"
                           className="flex-1 min-w-0 bg-transparent font-sans text-[13px] sm:text-[14px] text-text-main outline-none placeholder:text-[#A8A8A8]"
                         />
                         <button
