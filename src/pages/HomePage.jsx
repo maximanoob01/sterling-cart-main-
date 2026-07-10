@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck, Gift, Crown, Heart } from 'lucide-react';
+import { ArrowRight, Award, ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Shield, Star, Truck, Gift, Crown, Heart, Quote, Sparkles, Box, Mail, ShieldCheck } from 'lucide-react';
 import MagneticButton from '../components/ui/MagneticButton';
 import CircularGallery from '../components/ui/CircularGallery';
 import LazyLoad from '../components/ui/LazyLoad';
@@ -28,6 +28,7 @@ import c5 from '../assets/images/c5.webp';
 import c6 from '../assets/images/c6.webp';
 import promise1 from '../assets/images/promise_1.webp';
 import promise2 from '../assets/images/promise_2.webp';
+import newsletterBg from '../assets/images/newsletter-bg.png';
 import promise3 from '../assets/images/promise_3.webp';
 import promise4 from '../assets/images/promise_4.webp';
 import weddingCampaign1 from '../assets/images/wedding_campaign_1.webp';
@@ -1036,7 +1037,7 @@ export default function HomePage() {
             <div className="h-[1px] w-10 md:w-16 bg-[#F4A0B0]/30" />
           </div>
           
-          <h2 className="font-serif text-[28px] md:text-[38px] leading-[1.15] text-white mb-4 max-w-3xl">
+          <h2 className="font-serif text-[28px] md:text-[46px] leading-[1.15] text-white mb-4 max-w-3xl">
             Trusted by <span className="text-[#F4A0B0] italic font-medium">Creators</span>, Loved by <span className="text-[#F4A0B0] italic font-medium">Customers</span>
           </h2>
           
@@ -1066,14 +1067,14 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="relative z-10 -mt-12 h-[360px] w-full md:-mt-8 md:h-[480px]">
+        <div className="relative z-10 -mt-12 h-[360px] w-full md:-mt-8 md:h-[600px]">
           <LazyLoad fallback={<div className="w-full h-full flex items-center justify-center text-white/50">Loading videos...</div>}>
             <CircularGallery 
               videos={galleryVideos}
               bend={0.06}
-              itemWidth={isMobile ? 3.4 : 3.4}
-              itemHeight={isMobile ? 6.0 : 6.0}
-              gap={isMobile ? 0.3 : 0.3}
+              itemWidth={isMobile ? 3.4 : 4}
+              itemHeight={isMobile ? 6.0 : 7}
+              gap={isMobile ? 0.3 : 0.4}
             />
           </LazyLoad>
         </div>
@@ -1118,67 +1119,212 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-bg-alt px-4 pt-10 pb-6 md:px-8 md:pt-20 md:pb-8 relative overflow-hidden bg-pattern-diamond">
-        <div className="mx-auto max-w-[1320px] relative z-10">
-          <div className="mb-10 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
-            <SectionHeading eyebrow="Kind words" title="Loved by our customers" align="left" />
-            <div className="flex gap-3 mb-2">
-              <button onClick={() => setTestimonialIndex(Math.max(0, testimonialIndex - 1))} disabled={testimonialIndex === 0} className="flex h-12 w-12 items-center justify-center rounded-full glass text-text-main shadow-sm disabled:opacity-40 transition-all hover:scale-105 hover:bg-white"><ChevronLeft size={20} strokeWidth={1.5} /></button>
-              <button onClick={() => setTestimonialIndex(Math.min(maxIndex, testimonialIndex + 1))} disabled={testimonialIndex === maxIndex} className="flex h-12 w-12 items-center justify-center rounded-full glass text-text-main shadow-sm disabled:opacity-40 transition-all hover:scale-105 hover:bg-white"><ChevronRight size={20} strokeWidth={1.5} /></button>
+      {/* ── TESTIMONIALS (Loved by our customers) ── */}
+      <section className="bg-[#FAF7F6] px-4 pt-16 pb-12 md:px-8 md:pt-24 md:pb-20 relative overflow-hidden bg-pattern-diamond">
+        {/* Soft background glow */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-pink-100/30 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-pink-100/20 rounded-full blur-[80px] pointer-events-none" />
+
+        <div className="mx-auto max-w-[1200px] relative z-10">
+          <div className="text-center mb-10 md:mb-14">
+            <p className="text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[3px] mb-3">
+              Kind words
+            </p>
+            <h2 className="font-serif text-[32px] md:text-[46px] text-[#1A202C] leading-tight mb-4">
+              Loved by our customers
+            </h2>
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-[1px] w-12 bg-[#D4527A]/30" />
+              <Heart className="text-[#D4527A]" size={14} fill="currentColor" />
+              <div className="h-[1px] w-12 bg-[#D4527A]/30" />
             </div>
+            <p className="mt-4 text-[#4A5568] text-[13px] md:text-[15px]">Real stories. Real love. Real Sterling Kart.</p>
           </div>
-          <div className="grid gap-5 md:grid-cols-3">
-            {visibleTestimonials.map((testimonial) => (
-              <article key={testimonial.id} className="rounded-[18px] glass-card p-5 transition-transform duration-500 hover:-translate-y-1 md:rounded-[24px] md:p-8">
-                <StarRating rating={testimonial.rating} size={14} />
-                <p className="mt-4 text-[13px] leading-relaxed text-text-main font-serif italic tracking-wide md:mt-6 md:text-[15px]">"{testimonial.text}"</p>
-                <div className="mt-6 flex items-center gap-3 md:mt-8 md:gap-4">
-                  <div className="h-11 w-11 rounded-full bg-[#E8DDD5] flex items-center justify-center text-[13px] font-serif text-text-main">{testimonial.name.charAt(0)}</div>
-                  <div>
-                    <p className="text-[13px] font-semibold text-text-main uppercase tracking-widest">{testimonial.name}</p>
-                    <p className="text-[11px] text-text-muted tracking-wide mt-0.5">{testimonial.city}</p>
+
+          <div className="relative">
+            {/* Nav Left */}
+            <button 
+              onClick={() => setTestimonialIndex(Math.max(0, testimonialIndex - 1))} 
+              disabled={testimonialIndex === 0} 
+              className="absolute left-0 top-1/2 -translate-y-1/2 -ml-3 md:-ml-6 z-10 w-10 h-10 md:w-12 md:h-12 bg-white border border-[#EEE8E5] rounded-full shadow-sm flex items-center justify-center text-[#D4527A] disabled:opacity-40 hover:scale-105 transition-transform"
+            >
+              <ChevronLeft size={20} strokeWidth={1.5} />
+            </button>
+
+            <div className="grid gap-6 md:gap-8 md:grid-cols-3 mx-4 md:mx-10">
+              {visibleTestimonials.map((testimonial) => (
+                <article key={testimonial.id} className="relative rounded-[24px] bg-white p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-white transition-transform duration-500 hover:-translate-y-1">
+                  <div className="flex justify-between items-start mb-4">
+                    <Quote size={24} className="text-[#F4A0B0] fill-[#F4A0B0]/20" />
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={12} className="text-[#D4527A]" fill="currentColor" />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                  <p className="text-[13px] md:text-[14px] leading-[1.8] text-[#2D3748] font-serif italic mb-8">
+                    "{testimonial.text}"
+                  </p>
+                  <div className="flex items-center justify-between border-t border-[#F4EBE8] pt-4 mt-auto">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-[#E8DDD5] flex items-center justify-center text-[12px] font-bold text-[#4A5568]">
+                        {testimonial.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-bold text-[#1A202C] uppercase tracking-[1px]">{testimonial.name}</p>
+                        <p className="text-[11px] text-[#718096]">{testimonial.city}</p>
+                      </div>
+                    </div>
+                    <Heart size={18} className="text-[#F4A0B0]" />
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Nav Right */}
+            <button 
+              onClick={() => setTestimonialIndex(Math.min(maxIndex, testimonialIndex + 1))} 
+              disabled={testimonialIndex === maxIndex} 
+              className="absolute right-0 top-1/2 -translate-y-1/2 -mr-3 md:-mr-6 z-10 w-10 h-10 md:w-12 md:h-12 bg-white border border-[#EEE8E5] rounded-full shadow-sm flex items-center justify-center text-[#D4527A] disabled:opacity-40 hover:scale-105 transition-transform"
+            >
+              <ChevronRight size={20} strokeWidth={1.5} />
+            </button>
+          </div>
+
+          {/* Dots */}
+          <div className="flex justify-center gap-2 mt-8 md:mt-10">
+            <div className="w-2 h-2 rounded-full bg-[#D4527A]" />
+            <div className="w-2 h-2 rounded-full bg-[#E2E8F0]" />
+            <div className="w-2 h-2 rounded-full bg-[#E2E8F0]" />
           </div>
         </div>
       </section>
 
-      <section className="relative px-4 pt-6 pb-12 md:px-8 md:pt-10 md:pb-24 text-text-main overflow-hidden bg-bg-surface bg-pattern-diamond">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,160,176,0.1)_0%,transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(232,221,213,0.3)_0%,transparent_50%)]" />
-        
-        <div className="relative z-10 mx-auto flex max-w-[1040px] flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left glass-panel p-6 md:p-14 rounded-[24px] md:rounded-[40px] border-white/60 shadow-xl">
-          <div className="max-w-[420px]">
-            <p className="text-[11px] font-semibold uppercase tracking-[3px] text-[#B94B68]">A little something extra</p>
-            <h2 className="mt-3 font-serif text-[28px] leading-[1.1] md:text-[38px]">Get 10% off your first order.</h2>
-            <p className="mt-3 text-[13px] text-text-muted leading-relaxed md:mt-4 md:text-[15px]">Join our inner circle for new launches, thoughtful offers, and exclusive early access.</p>
+      {/* ── NEWSLETTER (A little something extra) ── */}
+      <section className="px-4 py-8 md:px-8 md:py-16 bg-[#FAF7F6]">
+        <div className="mx-auto max-w-[1200px] relative rounded-[24px] md:rounded-[32px] overflow-hidden shadow-[0_8px_30px_rgba(212,82,122,0.1)] border border-[#F4EBE8]">
+          <img src={newsletterBg} alt="Background" className="absolute inset-0 w-full h-full object-cover object-center" />
+          
+          {/* Gradient overlay to ensure text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent md:from-white/80 md:via-white/60 md:to-white/10" />
+
+          <div className="relative z-10 p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16">
+            <div className="w-full md:w-1/2 text-center md:text-left">
+              <p className="text-[10px] font-bold uppercase tracking-[3px] text-[#D4527A] mb-3">
+                A little something extra
+              </p>
+              <h2 className="font-serif text-[32px] md:text-[48px] leading-[1.1] text-[#1A202C] mb-4">
+                Get <span className="text-[#D4527A] italic">10%</span> off<br />your first order.
+              </h2>
+              <p className="text-[13px] md:text-[15px] text-[#4A5568] leading-relaxed max-w-md mx-auto md:mx-0">
+                Join our inner circle for new launches, thoughtful offers, and exclusive early access.
+              </p>
+            </div>
+
+            <div className="w-full md:w-1/2 max-w-[420px]">
+              <form onSubmit={handleSubscribe} className="flex bg-white rounded-full p-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-[#F4EBE8]">
+                <div className="flex-1 flex items-center px-4">
+                  <Mail size={18} className="text-[#A0AEC0] shrink-0" />
+                  <input 
+                    value={email} 
+                    onChange={(event) => setEmail(event.target.value)} 
+                    type="email" 
+                    required 
+                    placeholder="Your email address" 
+                    className="w-full bg-transparent border-0 px-3 py-2 text-[13px] text-[#1A202C] outline-none placeholder:text-[#A0AEC0]" 
+                  />
+                </div>
+                <button className="rounded-full bg-[#D4527A] px-6 py-3 text-[11px] font-bold uppercase tracking-[1px] text-white hover:bg-[#B94B68] transition-colors shrink-0 shadow-md">
+                  Subscribe
+                </button>
+              </form>
+              <div className="flex items-center justify-center md:justify-start gap-2 mt-4 text-[#718096]">
+                <ShieldCheck size={14} className="text-[#D4527A]" />
+                <p className="text-[11px] md:text-[12px]">No spam, ever. Unsubscribe anytime.</p>
+              </div>
+            </div>
           </div>
-          <form onSubmit={handleSubscribe} className="flex w-full max-w-[420px] flex-col gap-2 rounded-[20px] glass bg-white/70 p-2 shadow-sm border border-white sm:flex-row sm:rounded-full sm:gap-0">
-            <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" required placeholder="Your email address" className="min-w-0 flex-1 bg-transparent border-0 px-4 py-3 text-[13px] text-text-main outline-none placeholder:text-text-muted/60 sm:px-6 sm:py-0 md:text-[14px]" />
-            <button className="rounded-full bg-[#1A1A1A] px-6 py-3 text-[10px] font-bold uppercase tracking-[1px] text-white hover:bg-[#2A2A2A] transition-all hover:scale-[1.02] md:px-7 md:py-4 md:text-[11px]">Subscribe</button>
-          </form>
         </div>
       </section>
       
-      {/* ── AI Search Optimized FAQ (AEO) ── */}
-      <section className="relative px-4 pb-12 md:px-8 md:pb-24 text-text-main overflow-hidden bg-bg-surface bg-pattern-diamond">
-        <div className="mx-auto max-w-[1040px] glass-panel p-6 md:p-14 rounded-[24px] md:rounded-[40px] border-white/60 shadow-xl">
-          <SectionHeading eyebrow="Expert Answers" title="Frequently Asked Questions" align="left" />
-          <div className="grid gap-4 md:gap-6 md:grid-cols-3 mt-6 md:mt-8">
-            <div className="bg-white/60 p-4 md:p-6 rounded-xl md:rounded-2xl border border-white shadow-sm hover:shadow-md transition-shadow duration-300">
-              <h3 className="font-bold text-[13px] md:text-[14px] text-text-main mb-1.5 md:mb-2">What is 925 Sterling Silver?</h3>
-              <p className="text-[12px] md:text-[13px] leading-relaxed text-text-muted">925 Sterling Silver is an alloy made of 92.5% pure silver and 7.5% other metals for strength. It is the international standard for high-quality silver jewellery.</p>
+      {/* ── FAQ (Expert Answers) ── */}
+      <section className="bg-[#FAF7F6] px-4 pb-12 md:px-8 md:pb-24">
+        <div className="mx-auto max-w-[1200px] bg-white rounded-[32px] p-8 md:p-16 shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-[#F4EBE8]">
+          
+          <div className="flex flex-col md:flex-row items-center justify-between mb-10 md:mb-12">
+            <div className="text-center md:text-center w-full relative">
+              <p className="text-[10px] md:text-[11px] font-bold text-[#D4527A] uppercase tracking-[3px] mb-3">
+                Expert Answers
+              </p>
+              <h2 className="font-serif text-[32px] md:text-[42px] text-[#1A202C] leading-tight mb-4">
+                Frequently Asked Questions
+              </h2>
+              <div className="flex items-center justify-center gap-3">
+                <div className="h-[1px] w-12 bg-[#D4527A]/30" />
+                <div className="w-2 h-2 rotate-45 bg-[#D4527A]" />
+                <div className="h-[1px] w-12 bg-[#D4527A]/30" />
+              </div>
+              <Link to="/faq" className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:inline-flex items-center gap-1 text-[13px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors">
+                Browse all FAQs <ArrowRight size={14} />
+              </Link>
             </div>
-            <div className="bg-white/60 p-4 md:p-6 rounded-xl md:rounded-2xl border border-white shadow-sm hover:shadow-md transition-shadow duration-300">
-              <h3 className="font-bold text-[13px] md:text-[14px] text-text-main mb-1.5 md:mb-2">Is Sterling Kart genuine?</h3>
-              <p className="text-[12px] md:text-[13px] leading-relaxed text-text-muted">Yes, Sterling Kart provides authentic, BIS hallmarked 925 Sterling Silver jewellery. Every piece is certified for purity and craftsmanship.</p>
+          </div>
+
+          <div className="grid gap-6 md:gap-8 md:grid-cols-3">
+            {/* Card 1 */}
+            <div className="bg-[#FAF7F6] rounded-[24px] p-6 md:p-8 text-center border border-white hover:border-[#F4A0B0]/40 transition-colors">
+              <div className="w-14 h-14 mx-auto bg-white rounded-full flex items-center justify-center border border-[#F4EBE8] mb-6 shadow-sm">
+                <ShieldCheck size={24} className="text-[#D4527A] stroke-[1.5]" />
+              </div>
+              <h3 className="font-bold text-[15px] md:text-[16px] text-[#1A202C] mb-3">
+                What is 925 Sterling Silver?
+              </h3>
+              <p className="text-[13px] leading-[1.7] text-[#4A5568] mb-6">
+                925 Sterling Silver contains 92.5% pure silver and 7.5% other metals for strength and durability. It is the international standard for high-quality silver jewellery.
+              </p>
+              <Link to="/faq" className="inline-flex items-center gap-1 text-[13px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors">
+                Learn more <ArrowRight size={14} />
+              </Link>
             </div>
-            <div className="bg-white/60 p-4 md:p-6 rounded-xl md:rounded-2xl border border-white shadow-sm hover:shadow-md transition-shadow duration-300">
-              <h3 className="font-bold text-[13px] md:text-[14px] text-text-main mb-1.5 md:mb-2">How long does silver jewellery last?</h3>
-              <p className="text-[12px] md:text-[13px] leading-relaxed text-text-muted">With proper care, high-quality 925 Sterling Silver jewellery can last a lifetime. It is highly durable and designed for long-term wear.</p>
+
+            {/* Card 2 */}
+            <div className="bg-[#FAF7F6] rounded-[24px] p-6 md:p-8 text-center border border-white hover:border-[#F4A0B0]/40 transition-colors">
+              <div className="w-14 h-14 mx-auto bg-white rounded-full flex items-center justify-center border border-[#F4EBE8] mb-6 shadow-sm">
+                <Sparkles size={24} className="text-[#D4527A] stroke-[1.5]" />
+              </div>
+              <h3 className="font-bold text-[15px] md:text-[16px] text-[#1A202C] mb-3">
+                Is Sterling Kart genuine?
+              </h3>
+              <p className="text-[13px] leading-[1.7] text-[#4A5568] mb-6">
+                Yes, Sterling Kart promises authentic 925 Sterling Silver jewellery. Every piece is crafted with care and comes with a purity and authenticity certificate.
+              </p>
+              <Link to="/faq" className="inline-flex items-center gap-1 text-[13px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors">
+                Learn more <ArrowRight size={14} />
+              </Link>
             </div>
+
+            {/* Card 3 */}
+            <div className="bg-[#FAF7F6] rounded-[24px] p-6 md:p-8 text-center border border-white hover:border-[#F4A0B0]/40 transition-colors">
+              <div className="w-14 h-14 mx-auto bg-white rounded-full flex items-center justify-center border border-[#F4EBE8] mb-6 shadow-sm">
+                <Box size={24} className="text-[#D4527A] stroke-[1.5]" />
+              </div>
+              <h3 className="font-bold text-[15px] md:text-[16px] text-[#1A202C] mb-3">
+                How long does delivery take?
+              </h3>
+              <p className="text-[13px] leading-[1.7] text-[#4A5568] mb-6">
+                We process orders within 24-48 hours. Standard delivery takes 3-5 days across India. Express delivery options are also available at checkout.
+              </p>
+              <Link to="/faq" className="inline-flex items-center gap-1 text-[13px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors">
+                Learn more <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+          
+          {/* Mobile "Browse all" link */}
+          <div className="mt-6 text-center md:hidden">
+            <Link to="/faq" className="inline-flex items-center gap-1 text-[13px] font-bold text-[#D4527A]">
+              Browse all FAQs <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
       </section>
