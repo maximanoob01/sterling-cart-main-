@@ -1146,36 +1146,36 @@ export default function HomePage() {
             <button 
               onClick={() => setTestimonialIndex(Math.max(0, testimonialIndex - 1))} 
               disabled={testimonialIndex === 0} 
-              className="absolute left-0 top-1/2 -translate-y-1/2 -ml-3 md:-ml-6 z-10 w-10 h-10 md:w-12 md:h-12 bg-white border border-[#EEE8E5] rounded-full shadow-sm flex items-center justify-center text-[#D4527A] disabled:opacity-40 hover:scale-105 transition-transform"
+              className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -ml-3 md:-ml-6 z-10 w-10 h-10 md:w-12 md:h-12 bg-white border border-[#EEE8E5] rounded-full shadow-sm items-center justify-center text-[#D4527A] disabled:opacity-40 hover:scale-105 transition-transform"
             >
               <ChevronLeft size={20} strokeWidth={1.5} />
             </button>
 
-            <div className="grid gap-6 md:gap-8 md:grid-cols-3 mx-4 md:mx-10">
-              {visibleTestimonials.map((testimonial) => (
-                <article key={testimonial.id} className="relative rounded-[24px] bg-white p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-white transition-transform duration-500 hover:-translate-y-1">
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 md:grid md:gap-8 md:grid-cols-3 mx-0 px-4 md:mx-10 md:px-0 pb-4 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {(isMobile ? testimonials : visibleTestimonials).map((testimonial) => (
+                <article key={testimonial.id} className="relative rounded-[24px] bg-white p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-white transition-transform duration-500 hover:-translate-y-1 shrink-0 w-[65vw] sm:w-[50vw] md:w-auto snap-start flex flex-col">
                   <div className="flex justify-between items-start mb-4">
-                    <Quote size={24} className="text-[#F4A0B0] fill-[#F4A0B0]/20" />
-                    <div className="flex gap-0.5">
+                    <Quote size={24} className="text-[#F4A0B0] fill-[#F4A0B0]/20 shrink-0" />
+                    <div className="flex gap-0.5 shrink-0">
                       {[...Array(5)].map((_, i) => (
                         <Star key={i} size={12} className="text-[#D4527A]" fill="currentColor" />
                       ))}
                     </div>
                   </div>
-                  <p className="text-[13px] md:text-[14px] leading-[1.8] text-[#2D3748] font-serif italic mb-8">
+                  <p className="text-[13px] md:text-[14px] leading-[1.8] text-[#2D3748] font-serif italic mb-8 flex-grow">
                     "{testimonial.text}"
                   </p>
                   <div className="flex items-center justify-between border-t border-[#F4EBE8] pt-4 mt-auto">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-[#E8DDD5] flex items-center justify-center text-[12px] font-bold text-[#4A5568]">
+                      <div className="h-10 w-10 rounded-full bg-[#E8DDD5] flex items-center justify-center text-[12px] font-bold text-[#4A5568] shrink-0">
                         {testimonial.name.charAt(0)}
                       </div>
-                      <div>
-                        <p className="text-[11px] font-bold text-[#1A202C] uppercase tracking-[1px]">{testimonial.name}</p>
-                        <p className="text-[11px] text-[#718096]">{testimonial.city}</p>
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-bold text-[#1A202C] uppercase tracking-[1px] truncate">{testimonial.name}</p>
+                        <p className="text-[11px] text-[#718096] truncate">{testimonial.city}</p>
                       </div>
                     </div>
-                    <Heart size={18} className="text-[#F4A0B0]" />
+                    <Heart size={18} className="text-[#F4A0B0] shrink-0" />
                   </div>
                 </article>
               ))}
@@ -1185,14 +1185,14 @@ export default function HomePage() {
             <button 
               onClick={() => setTestimonialIndex(Math.min(maxIndex, testimonialIndex + 1))} 
               disabled={testimonialIndex === maxIndex} 
-              className="absolute right-0 top-1/2 -translate-y-1/2 -mr-3 md:-mr-6 z-10 w-10 h-10 md:w-12 md:h-12 bg-white border border-[#EEE8E5] rounded-full shadow-sm flex items-center justify-center text-[#D4527A] disabled:opacity-40 hover:scale-105 transition-transform"
+              className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 -mr-3 md:-mr-6 z-10 w-10 h-10 md:w-12 md:h-12 bg-white border border-[#EEE8E5] rounded-full shadow-sm items-center justify-center text-[#D4527A] disabled:opacity-40 hover:scale-105 transition-transform"
             >
               <ChevronRight size={20} strokeWidth={1.5} />
             </button>
           </div>
 
           {/* Dots */}
-          <div className="flex justify-center gap-2 mt-8 md:mt-10">
+          <div className="hidden md:flex justify-center gap-2 mt-8 md:mt-10">
             <div className="w-2 h-2 rounded-full bg-[#D4527A]" />
             <div className="w-2 h-2 rounded-full bg-[#E2E8F0]" />
             <div className="w-2 h-2 rounded-full bg-[#E2E8F0]" />
