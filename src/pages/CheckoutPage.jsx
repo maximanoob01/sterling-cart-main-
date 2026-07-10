@@ -315,8 +315,8 @@ const CheckoutPage = () => {
         });
         
         if (!scriptLoaded || !window.Razorpay) {
-          // If in a testing/dev environment and Razorpay is blocked, do a mock payment
-          if (import.meta.env.DEV || window.location.hostname.includes('railway.app') || window.location.hostname === 'localhost') {
+          // If in a testing/dev environment (or using secret testmode flag) and Razorpay is blocked, do a mock payment
+          if (import.meta.env.DEV || window.location.hostname.includes('railway.app') || window.location.hostname === 'localhost' || window.location.search.includes('testmode=true')) {
             console.warn('Razorpay blocked by adblocker. Proceeding with Mock Payment for testing.');
             toast.success('Mock Payment Success (Testing Mode)');
             const res = await createOrderOnBackend('pay_mock_' + Date.now(), rzpOrder.order.id);
