@@ -756,8 +756,11 @@ export default function HomePage() {
 
       {/* ── CUSTOMER FAVOURITES REDESIGN ────────────────────────────────────────── */}
       <section className="bg-gradient-to-b from-[#FFF5F5] to-[#FDF8F8] px-4 pt-12 pb-12 md:px-8 md:pt-16 md:pb-16 relative overflow-hidden border-t border-[#F4EBE8]">
-        {/* Diamond pattern fading out */}
+        {/* Diamond pattern fading out from top */}
         <div className="absolute inset-0 bg-pattern-diamond opacity-60 pointer-events-none [mask-image:linear-gradient(to_bottom,white_0%,transparent_60%)] [-webkit-mask-image:linear-gradient(to_bottom,white_0%,transparent_60%)]" />
+        
+        {/* Diamond pattern fading in from bottom */}
+        <div className="absolute inset-0 bg-pattern-diamond opacity-60 pointer-events-none [mask-image:linear-gradient(to_top,white_0%,transparent_60%)] [-webkit-mask-image:linear-gradient(to_top,white_0%,transparent_60%)]" />
         
         {/* Soft decorative background circles (mimicking floral corners) */}
         <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#F4A0B0]/20 rounded-full blur-[80px] -translate-y-1/2 -translate-x-1/4 pointer-events-none" />
