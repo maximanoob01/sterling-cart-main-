@@ -148,7 +148,8 @@ export const CartProvider = ({ children }) => {
         });
         dispatch({ type: 'SET_CART', payload: res.cart.items });
       } catch (err) {
-        toast.error('Failed to add item to cart');
+        console.error("Add to cart error:", err);
+        toast.error(err.message || 'Failed to add item to cart');
         return;
       }
     } else {
