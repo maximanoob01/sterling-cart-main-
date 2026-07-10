@@ -769,11 +769,11 @@ export default function HomePage() {
         
         {/* Custom Header for Customer Favourites */}
         <div className="text-center mb-10 relative z-10">
-          <p className="text-[10px] md:text-[11px] font-bold text-[#D4AF37] uppercase tracking-[3px] mb-3 flex items-center justify-center gap-2">
+          <div className="text-[10px] md:text-[11px] font-bold text-[#D4AF37] uppercase tracking-[3px] mb-3 flex items-center justify-center gap-2">
             <div className="h-[1px] w-8 bg-[#D4AF37]/40" />
             MOST LOVED
             <div className="h-[1px] w-8 bg-[#D4AF37]/40" />
-          </p>
+          </div>
           <h2 className="font-serif text-[32px] md:text-[46px] text-[#1A202C] leading-tight mb-3">Customer favourites</h2>
           <p className="text-[13px] md:text-[15px] text-[#4A5568] max-w-lg mx-auto">Handpicked pieces our customers can't get enough of.</p>
           <div className="flex items-center justify-center gap-3 mt-5">
