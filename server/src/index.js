@@ -156,7 +156,7 @@ app.use(errorHandler);
 const startServer = async () => {
   await connectDB();
   await connectRedis();
-  await sequelize.sync(); // Create tables if they don't exist
+  await sequelize.sync({ alter: true }); // Create tables if they don't exist and alter existing ones to match models
   await addColumnIfMissing('users', 'adminLoginId', 'VARCHAR(255)');
 
   app.listen(PORT, () => {

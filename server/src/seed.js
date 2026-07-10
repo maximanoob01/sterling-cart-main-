@@ -45,26 +45,28 @@ const seed = async () => {
     console.log('🌱 Connecting to PostgreSQL and syncing tables...');
     await sequelize.authenticate();
     
-    // Force true drops existing tables and recreates them
-    await sequelize.sync({ force: true });
+    // Use alter instead of force to prevent dropping tables
+    await sequelize.sync({ alter: true });
     
-    console.log('✅ Tables created successfully');
+    console.log('✅ Tables created/updated successfully');
     
-    // Seed products
+    // Seed products safely
     const products = extractProducts();
-    await Product.bulkCreate(products);
+    await Product.bulkCreate(products, { ignoreDuplicates: true });
     console.log(`✅ Seeded ${products.length} products from src/data/products.js`);
 
-    // Seed coupons
-    await Coupon.bulkCreate(defaultCoupons);
+    // Seed coupons safely
+    await Coupon.bulkCreate(defaultCoupons, { ignoreDuplicates: true });
     console.log(`✅ Seeded ${defaultCoupons.length} coupons`);
 
-    // Create admin user
-    await User.create({
-      name: 'Admin User',
-      email: 'admin@sterlingkart.com',
-      phone: '+919999900000',
-      role: 'admin',
+    // Create admin user safely
+    await User.findOrCreate({
+      where: { email: 'admin@sterlingkart.com' },
+      defaults: {
+        name: 'Admin User',
+        phone: '+919999900000',
+        role: 'admin',
+      }
     });
     console.log('✅ Created admin user');
 
