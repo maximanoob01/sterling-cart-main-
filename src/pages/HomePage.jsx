@@ -1036,7 +1036,7 @@ export default function HomePage() {
             <div className="h-[1px] w-10 md:w-16 bg-[#F4A0B0]/30" />
           </div>
           
-          <h2 className="font-serif text-[28px] md:text-[46px] leading-[1.15] text-white mb-4 max-w-3xl">
+          <h2 className="font-serif text-[28px] md:text-[38px] leading-[1.15] text-white mb-4 max-w-3xl">
             Trusted by <span className="text-[#F4A0B0] italic font-medium">Creators</span>, Loved by <span className="text-[#F4A0B0] italic font-medium">Customers</span>
           </h2>
           
@@ -1066,14 +1066,14 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="relative z-10 -mt-12 h-[360px] w-full md:-mt-8 md:h-[600px]">
+        <div className="relative z-10 -mt-12 h-[360px] w-full md:-mt-8 md:h-[480px]">
           <LazyLoad fallback={<div className="w-full h-full flex items-center justify-center text-white/50">Loading videos...</div>}>
             <CircularGallery 
               videos={galleryVideos}
               bend={0.06}
-              itemWidth={isMobile ? 3.4 : 4}
-              itemHeight={isMobile ? 6.0 : 7}
-              gap={isMobile ? 0.3 : 0.4}
+              itemWidth={isMobile ? 3.4 : 3.4}
+              itemHeight={isMobile ? 6.0 : 6.0}
+              gap={isMobile ? 0.3 : 0.3}
             />
           </LazyLoad>
         </div>
