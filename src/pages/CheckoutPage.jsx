@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift, Coins, Star, X, PenTool, MapPin, Copy, Package, Truck, ShieldCheck } from 'lucide-react';
+import { Check, CreditCard, Smartphone, Building2, Wallet, Banknote, Shield, Lock, ChevronRight, Home, ArrowLeft, Scale, ShoppingCart, ChevronDown, Sparkles, ArrowRight, Gift, Coins, Star, X, PenTool, MapPin, Copy, Package, Truck, ShieldCheck, ShoppingBag, Tag, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useAuth } from '../context/AuthContext';
@@ -1133,310 +1133,269 @@ const CheckoutPage = () => {
           </div>
 
           {/* Order Summary Sidebar */}
-          <div className={`w-full lg:w-[320px] shrink-0 order-1 lg:order-2 ${isMobileSummaryOpen ? 'block' : 'hidden lg:block'}`}>
-            <div className="lg:sticky lg:top-[100px]">
-              <div className="glass-panel rounded-[24px] p-[24px] shadow-xl border border-white/60 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-[#D4527A]/10 rounded-full blur-[30px] pointer-events-none" />
+          {/* Order Summary Sidebar */}
+          <div className={`w-full lg:w-[440px] shrink-0 order-1 lg:order-2 ${isMobileSummaryOpen ? 'block' : 'hidden lg:block'}`}>
+            <div className="lg:sticky lg:top-[100px] flex flex-col gap-[16px]">
+              <div className="bg-white rounded-[24px] p-[20px] shadow-sm border border-[#F0E8EA]">
+                {/* Header */}
+                <div className="flex items-center justify-between pb-[16px] border-b border-[#F0E8EA]">
+                  <div className="flex items-center gap-[12px]">
+                    <div className="w-[40px] h-[40px] rounded-[12px] bg-[#FFF0F5] flex items-center justify-center text-[#D4527A]">
+                      <ShoppingBag size={20} strokeWidth={2} />
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-[20px] text-text-main font-semibold leading-tight">Order Summary</h3>
+                      <p className="font-sans text-[12px] text-[#8C8C8C] mt-[2px]">{totalItems} Item{totalItems > 1 ? 's' : ''} in your bag</p>
+                    </div>
+                  </div>
+                  <button onClick={() => navigate('/cart')} className="flex items-center gap-[6px] text-[#D4527A] font-medium text-[12px] hover:text-[#B94B68] transition-colors">
+                    <PenTool size={12} /> Edit Cart
+                  </button>
+                </div>
 
-                <h3 className="font-serif text-[20px] text-text-main mb-[20px] pb-[16px] border-b border-white relative z-10">
-                  Order Summary
-                </h3>
+                {/* Item List */}
+                <div className="py-[16px] border-b border-[#F0E8EA] flex flex-col gap-[16px]">
+                  {items.map((item, i) => (
+                    <div key={`${item.id}-${i}`} className="flex items-start gap-[16px]">
+                      <div className="w-[64px] h-[64px] rounded-[12px] bg-[#FAFAFA] border border-[#F0E8EA] overflow-hidden shrink-0">
+                        <img src={getItemImage(item)} alt={item.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0 pt-[2px]">
+                        <div className="flex justify-between items-start gap-[12px]">
+                          <h4 className="font-sans text-[14px] font-medium text-text-main leading-[1.3] line-clamp-1">{item.name}</h4>
+                          <span className="font-sans text-[15px] font-bold text-text-main shrink-0">{formatPrice(getItemPrice(item) * item.quantity)}</span>
+                        </div>
+                        <p className="font-sans text-[12px] text-[#8C8C8C] mt-[4px]">
+                          925 Sterling Silver {item.selectedSize ? ` • Size: ${item.selectedSize}` : ''}
+                        </p>
+                        <p className="font-sans text-[12px] text-[#8C8C8C] mt-[2px]">Qty: {item.quantity}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-                <div className="flex flex-col gap-[12px] font-sans text-[13px] relative z-10">
+                {/* Cost Breakdown */}
+                <div className="py-[16px] flex flex-col gap-[12px] font-sans text-[13px] border-b border-[#F0E8EA]">
                   <div className="flex justify-between items-center">
-                    <span className="text-text-muted">Subtotal ({totalItems} items)</span>
-                    <span className="text-text-main font-medium">{formatPrice(subtotal)}</span>
+                    <span className="text-text-main">Subtotal ({totalItems} item{totalItems > 1 ? 's' : ''})</span>
+                    <span className="text-text-main font-bold">{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-text-muted">Shipping</span>
-                    {shipping === 0 ? (
-                      <span className="text-[#D4527A] font-semibold text-[12px] uppercase tracking-[0.5px]">FREE ✓</span>
-                    ) : (
-                      <span className="text-text-main font-medium">{formatPrice(shipping)} <span className="text-[11px] text-text-muted">(free above ₹2,499)</span></span>
-                    )}
+                    <span className="text-text-main flex items-center gap-[8px]">
+                      Shipping <Truck size={14} className="text-[#D4527A]" /> <span className="text-[#D4527A] text-[11px] font-medium">Free above ₹2,499</span>
+                    </span>
+                    <span className="text-text-main font-bold">{shipping === 0 ? 'FREE' : formatPrice(shipping)}</span>
                   </div>
-                  {discount > 0 && (
-                    <div className="flex justify-between items-center text-[#D4527A]">
-                      <span>Coupon Discount</span>
-                      <span className="font-medium">-{formatPrice(discount)}</span>
+                  
+                  {(discount > 0 || (loyaltyApplied && appliedPoints > 0) || (appliedGiftCard && gcDiscount > 0)) && (
+                    <div className="flex justify-between items-center text-[#D4527A] font-medium mt-[4px]">
+                      <span className="flex items-center gap-[6px]">Total Savings <Tag size={14} /></span>
+                      <span className="font-bold">-{formatPrice(discount + (loyaltyApplied ? appliedPoints : 0) + (appliedGiftCard ? gcDiscount : 0))}</span>
                     </div>
                   )}
-
                   {selectedPayment === 'cod' && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-text-muted">Handling Fee (COD)</span>
-                      <span className="text-text-main font-medium">{formatPrice(codFee)}</span>
+                    <div className="flex justify-between items-center text-text-main mt-[4px]">
+                      <span>Handling Fee (COD)</span>
+                      <span className="font-bold">{formatPrice(codFee)}</span>
                     </div>
                   )}
                   {isGiftWrapped && (
-                    <div className="flex justify-between items-center text-[#D4527A]">
-                      <span className="flex items-center gap-1.5"><Gift size={12} /> Gift Packing</span>
-                      <span className="font-medium">{formatPrice(giftWrapFee)}</span>
-                    </div>
-                  )}
-                  {loyaltyApplied && appliedPoints > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-1.5 text-[#D4527A] font-semibold">
-                        <Coins size={12} /> Royal Points
-                      </span>
-                      <span className="font-bold text-[#D4527A]">−{formatPrice(appliedPoints)}</span>
-                    </div>
-                  )}
-                  {appliedGiftCard && gcDiscount > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-1.5 text-[#D4527A] font-semibold">
-                        <Gift size={12} /> Gift Card
-                      </span>
-                      <span className="font-bold text-[#D4527A]">−{formatPrice(gcDiscount)}</span>
+                    <div className="flex justify-between items-center text-text-main mt-[4px]">
+                      <span>Gift Packing</span>
+                      <span className="font-bold">{formatPrice(giftWrapFee)}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Free Delivery Progress */}
-                <div className="mt-[20px] relative z-10">
-                  <FreeDeliveryBar subtotal={subtotal} threshold={2499} compact />
+                {/* Free Delivery Bar */}
+                <div className="py-[16px]">
+                  <FreeDeliveryBar subtotal={subtotal} threshold={2499} />
                 </div>
 
-                {/* ── Royal Points Card ── */}
+                {/* Royal Points Card */}
                 {isAuthenticated && (
-                  <div className="mt-[20px] relative z-10">
-                    <div className="relative rounded-[20px] overflow-hidden shadow-[0_8px_32px_rgba(212,82,122,0.15)] border border-[#D4527A]/20">
-                      {/* Dark background matching site's dark tone */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#1C1C2E] via-[#24162A] to-[#1C1C2E]" />
-                      {/* Pink shimmer overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4527A]/5 to-transparent" />
-                      {/* Top pink accent line */}
-                      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#D4527A]/80 to-transparent" />
-
-                      <div className="relative p-4">
-                        {/* Header row */}
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2.5">
-                            {/* Animated coin */}
-                            <div className="relative">
-                              <div className="absolute inset-0 rounded-full bg-[#D4527A]/25 blur-md animate-pulse" />
-                              <motion.img
-                                src={royalPointsCoinImg}
-                                alt="Royal Points"
-                                className="relative w-10 h-10 rounded-full object-cover drop-shadow-[0_0_8px_rgba(212,82,122,0.5)]"
-                                animate={{ y: [0, -3, 0], rotate: [0, 5, 0, -5, 0] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                              />
+                  <div className="mb-[16px] rounded-[16px] overflow-hidden shadow-sm border border-[#4A2B4D]/20">
+                    <div className="bg-[#3D2240] p-[20px] relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#412544] via-[#2F1931] to-[#3D2240]" />
+                      <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-[20px]">
+                          <div className="flex items-center gap-[12px]">
+                            <div className="w-[48px] h-[48px] rounded-full bg-[#E5B869]/20 flex items-center justify-center border border-[#E5B869]/30">
+                              <img src={royalPointsCoinImg} alt="Coin" className="w-[36px] h-[36px] drop-shadow-md" />
                             </div>
                             <div>
-                              <p className="font-sans text-[10px] font-bold uppercase tracking-[2px] text-[#F4A0B0]/70">Sterling Kart</p>
-                              <p className="font-serif text-[15px] font-semibold text-white leading-tight">Royal Points</p>
+                              <p className="font-sans text-[9px] font-bold uppercase tracking-[2px] text-[#F4A0B0] mb-0.5">Sterling Kart</p>
+                              <p className="font-serif text-[20px] text-white leading-tight">Royal Points</p>
+                              <p className="font-sans text-[11px] text-[#A38BA6] mt-0.5">Your balance</p>
                             </div>
                           </div>
-                          {/* Balance badge */}
-                          <div className="flex flex-col items-end">
-                            <div className="flex items-baseline gap-1 bg-[#D4527A]/15 border border-[#D4527A]/30 rounded-xl px-3 py-1.5">
-                              <span className="font-sans text-[20px] font-black text-[#F4A0B0] leading-none">{balance}</span>
-                              <span className="font-sans text-[10px] font-bold text-[#D4527A]/70 uppercase tracking-wider">pts</span>
-                            </div>
-                            <p className="font-sans text-[9px] text-white/30 mt-0.5 text-right">Your balance</p>
+                          <div className="border border-white/10 rounded-full px-[16px] py-[6px] bg-white/5">
+                            <span className="font-sans text-[20px] font-bold text-[#E5B869]">{balance}</span>
+                            <span className="font-sans text-[11px] text-[#E5B869]/70 uppercase ml-1 font-medium">pts</span>
                           </div>
                         </div>
 
-                        {/* Divider */}
-                        <div className="h-[1px] bg-gradient-to-r from-transparent via-[#D4527A]/20 to-transparent mb-3" />
-
-                        {/* Body */}
-                        {balance === 0 ? (
-                          <div className="text-center py-2">
-                            <p className="font-sans text-[12px] text-white/40">
-                              No points yet — earn <span className="font-bold text-[#F4A0B0]">{willEarnPoints} pts</span> on this order!
-                            </p>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-sans text-[11px] text-[#A38BA6] mb-0.5">Redeem up to</p>
+                            <p className="font-sans text-[14px] text-white font-bold">{orderMaxRedeemable} pts <span className="font-normal text-[#A38BA6]">= {formatPrice(orderMaxRedeemable)} off</span></p>
                           </div>
-                        ) : loyaltyApplied ? (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="flex items-center justify-between bg-[#D4527A]/10 rounded-xl px-3 py-2.5 border border-[#D4527A]/20"
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-[#D4527A]/25 flex items-center justify-center">
-                                <Check size={12} strokeWidth={3} className="text-[#F4A0B0]" />
-                              </div>
-                              <div>
-                                <p className="font-sans text-[12px] font-bold text-white">{appliedPoints} pts applied · saves {formatPrice(appliedPoints)}</p>
-                                <p className="font-sans text-[10px] text-white/40">Remaining: {balance - appliedPoints} pts</p>
-                              </div>
-                            </div>
-                            <button
-                              onClick={handleRemoveLoyalty}
-                              className="font-sans text-[10px] font-bold text-[#F4A0B0]/60 hover:text-[#F4A0B0] transition-colors underline"
-                            >
+                          {loyaltyApplied ? (
+                            <button onClick={handleRemoveLoyalty} className="bg-white/10 text-white border border-white/20 px-[20px] py-[10px] rounded-full font-sans text-[12px] font-bold transition-colors hover:bg-white/20">
                               Remove
                             </button>
-                          </motion.div>
-                        ) : (
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <p className="font-sans text-[11px] text-white/40">Redeem up to</p>
-                              <p className="font-sans text-[14px] font-black text-white">{orderMaxRedeemable} pts <span className="text-[11px] font-normal text-white/40">= {formatPrice(orderMaxRedeemable)} off</span></p>
-                            </div>
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={handleApplyLoyalty}
-                              disabled={orderMaxRedeemable === 0}
-                              className="h-[36px] px-5 rounded-full font-bold text-[11px] tracking-[0.5px] uppercase transition-all disabled:opacity-30 disabled:cursor-not-allowed shrink-0 bg-gradient-to-r from-[#D4527A] to-[#B94B68] text-white shadow-[0_4px_16px_rgba(212,82,122,0.35)] hover:shadow-[0_6px_24px_rgba(212,82,122,0.5)]"
-                            >
-                              ✦ Apply
-                            </motion.button>
-                          </div>
-                        )}
-
-                        {/* Will earn footer */}
-                        <div className="mt-3 pt-3 border-t border-[#D4527A]/10 flex items-center gap-2">
-                          <Star size={10} className="text-[#D4527A] fill-[#D4527A] shrink-0" />
-                          <p className="font-sans text-[10px] text-white/30">
-                            You'll earn <span className="font-bold text-[#F4A0B0]">{willEarnPoints} pts</span> after this order
-                          </p>
+                          ) : (
+                            <button onClick={handleApplyLoyalty} disabled={orderMaxRedeemable === 0} className="bg-[#D4527A] text-white px-[20px] py-[10px] rounded-full font-sans text-[12px] font-bold flex items-center gap-[6px] shadow-sm disabled:opacity-50 transition-colors hover:bg-[#B94B68]">
+                              <Sparkles size={14} className="fill-white" /> Apply Points
+                            </button>
+                          )}
                         </div>
                       </div>
+                    </div>
+                    <div className="bg-[#2F1931] px-[20px] py-[12px] flex items-center gap-[8px] border-t border-white/5">
+                      <Star size={14} className="text-[#D4527A] fill-[#D4527A]" />
+                      <p className="font-sans text-[12px] text-[#A38BA6]">You'll earn <span className="font-bold text-[#D4527A]">{willEarnPoints} pts</span> after this order</p>
                     </div>
                   </div>
                 )}
 
-                {/* Gift Wrapping Option */}
-                <div className="mt-[20px] pt-[20px] border-t border-white/40 relative z-10">
-                  <div className="flex items-start gap-3">
-                    <div className="relative flex items-center justify-center mt-0.5">
-                      <input
-                        type="checkbox"
-                        id="giftWrap"
-                        checked={isGiftWrapped}
-                        onChange={(e) => setIsGiftWrapped(e.target.checked)}
-                        className="peer appearance-none w-4 h-4 border border-text-muted/50 rounded-sm bg-white/50 checked:bg-[#D4527A] checked:border-[#D4527A] cursor-pointer transition-colors"
-                      />
-                      <Check size={12} strokeWidth={3} className="absolute text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
-                    </div>
-                    <div className="flex-1">
-                      <label htmlFor="giftWrap" className="font-semibold text-[13px] text-text-main cursor-pointer flex items-center justify-between">
-                        <span className="flex items-center gap-1.5"><Gift size={14} className="text-[#D4527A]" /> Add Gift Packing (₹49)</span>
-                        <button onClick={(e) => { e.preventDefault(); setIsGiftDetailsOpen(!isGiftDetailsOpen); }} className="text-[#D4527A] hover:underline flex items-center gap-0.5 text-[11px]">
-                          Details <ChevronDown size={14} className={`transition-transform duration-300 ${isGiftDetailsOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                      </label>
-
-                      <AnimatePresence>
-                        {isGiftDetailsOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden"
-                          >
-                            <p className="text-[11px] text-text-muted mt-2 bg-white/40 p-2.5 rounded-xl border border-white/50 leading-relaxed shadow-sm">
-                              Make it special! Includes a premium wrapped box, a personalized handwritten note, and a Sterling Kart gift bag.
-                            </p>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-
-                      <AnimatePresence>
-                        {isGiftWrapped && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden mt-3"
-                          >
-                            <textarea
-                              placeholder="Write your gift message (optional)..."
-                              value={giftNote}
-                              onChange={(e) => setGiftNote(e.target.value)}
-                              className="w-full text-[12px] p-3 rounded-xl border border-white/60 bg-white/50 outline-none focus:border-[#D4527A] focus:bg-white resize-none shadow-sm transition-colors"
-                              rows={2}
-                            />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                {/* Gift Packing & Coupon */}
+                <div className="mb-[16px] rounded-[16px] border border-[#F0E8EA] bg-white overflow-hidden shadow-sm">
+                  {/* Gift Packing */}
+                  <div className="p-[16px] border-b border-[#F0E8EA]">
+                    <div className="flex items-start gap-[12px]">
+                      <div className="relative flex items-center justify-center mt-[2px]">
+                        <input
+                          type="checkbox"
+                          checked={isGiftWrapped}
+                          onChange={(e) => setIsGiftWrapped(e.target.checked)}
+                          className="peer appearance-none w-[18px] h-[18px] border-[1.5px] border-[#D9C5C9] rounded-[4px] bg-white checked:bg-[#D4527A] checked:border-[#D4527A] cursor-pointer transition-colors"
+                        />
+                        <Check size={12} strokeWidth={3} className="absolute text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-[10px]">
+                            <Gift size={20} className="text-[#D4527A]" />
+                            <div>
+                              <p className="font-sans text-[14px] font-medium text-text-main">Add Gift Packing</p>
+                              <p className="font-sans text-[12px] text-[#8C8C8C]">₹49</p>
+                            </div>
+                          </div>
+                          <button onClick={() => setIsGiftDetailsOpen(!isGiftDetailsOpen)} className="text-[#D4527A] font-medium text-[12px] flex items-center gap-[4px] hover:underline">
+                            Details <ChevronDown size={14} className={`transition-transform duration-300 ${isGiftDetailsOpen ? 'rotate-180' : ''}`} />
+                          </button>
+                        </div>
+                        <AnimatePresence>
+                          {isGiftDetailsOpen && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                              <p className="text-[12px] text-[#8C8C8C] mt-[12px] leading-relaxed">
+                                Make it special! Includes a premium wrapped box, a personalized handwritten note, and a Sterling Kart gift bag.
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                        <AnimatePresence>
+                          {isGiftWrapped && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mt-[12px]">
+                              <textarea placeholder="Write your gift message (optional)..." value={giftNote} onChange={(e) => setGiftNote(e.target.value)} className="w-full text-[12px] p-3 rounded-[12px] border border-[#F0E8EA] bg-[#FAFAFA] outline-none focus:border-[#D4527A] resize-none transition-colors" rows={2} />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Gift Card Option */}
-                <div className="mt-[20px] pt-[20px] border-t border-white/40 relative z-10">
-                  {appliedGiftCard ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="flex items-center justify-between bg-[#D4527A]/10 rounded-xl px-3 py-2.5 border border-[#D4527A]/20"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-[#D4527A]/25 flex items-center justify-center">
-                          <Check size={12} strokeWidth={3} className="text-[#F4A0B0]" />
+                  
+                  {/* Coupon / Gift Card */}
+                  <div className="p-[16px]">
+                    {appliedGiftCard ? (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-[12px]">
+                          <div className="w-[32px] h-[32px] rounded-full bg-[#D4527A]/10 flex items-center justify-center">
+                            <Check size={16} strokeWidth={3} className="text-[#D4527A]" />
+                          </div>
+                          <div>
+                            <p className="font-sans text-[13px] font-bold text-text-main">Gift Card Applied</p>
+                            <p className="font-sans text-[11px] text-[#8C8C8C]">Saving {formatPrice(gcDiscount)}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-sans text-[12px] font-bold text-text-main">Gift Card applied · saves {formatPrice(gcDiscount)}</p>
-                          <p className="font-sans text-[10px] text-text-muted">Balance: {formatPrice(appliedGiftCard.remainingBalance)}</p>
-                        </div>
+                        <button onClick={handleRemoveGiftCard} className="font-sans text-[12px] font-medium text-[#D4527A] hover:underline">Remove</button>
                       </div>
-                      <button
-                        onClick={handleRemoveGiftCard}
-                        className="font-sans text-[10px] font-bold text-[#D4527A] hover:text-[#B94B68] transition-colors underline"
-                      >
-                        Remove
-                      </button>
-                    </motion.div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <Gift size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                    ) : (
+                      <div className="flex items-center gap-[12px]">
+                        <Tag size={20} className="text-[#D4527A] shrink-0" />
                         <input
                           type="text"
                           value={giftCardCode}
                           onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
-                          placeholder="Gift Card Code"
-                          className="w-full pl-9 pr-3 py-2.5 bg-white/50 border border-white/60 rounded-xl text-[13px] focus:outline-none focus:border-[#D4527A] transition-colors font-mono placeholder-sans"
+                          placeholder="Gift Card / Coupon Code"
+                          className="flex-1 bg-transparent font-sans text-[14px] text-text-main outline-none placeholder:text-[#A8A8A8]"
                         />
+                        <button
+                          onClick={handleApplyGiftCard}
+                          disabled={isApplyingGC || !giftCardCode.trim()}
+                          className="px-[24px] py-[8px] rounded-[8px] border border-[#D4527A] text-[#D4527A] font-sans text-[12px] font-bold transition-colors hover:bg-[#FFF0F5] disabled:opacity-50 disabled:hover:bg-transparent"
+                        >
+                          {isApplyingGC ? '...' : 'Apply'}
+                        </button>
                       </div>
-                      <button
-                        onClick={handleApplyGiftCard}
-                        disabled={isApplyingGC || !giftCardCode.trim()}
-                        className="px-4 py-2.5 bg-gradient-to-r from-[#D4527A] to-[#B94B68] text-white rounded-xl text-[13px] font-bold hover:shadow-[0_4px_12px_rgba(212,82,122,0.3)] transition-all disabled:opacity-50"
-                      >
-                        {isApplyingGC ? '...' : 'Apply'}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="border-t border-white mt-[20px] pt-[20px] relative z-10">
-                  <div className="flex justify-between items-end">
-                    <div className="flex flex-col">
-                      <span className="font-serif text-[18px] text-text-main">Total</span>
-                      <span className="flex items-center gap-1 font-sans text-[10px] text-green-600 mt-1 uppercase tracking-wider font-bold">
-                        <ShieldCheck size={12} /> Secure Checkout
-                      </span>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className="font-sans text-[22px] font-bold text-text-main leading-none">{formatPrice(finalTotalAmount)}</span>
-                      <span className="font-sans text-[10px] text-text-muted mt-1 uppercase tracking-wider">Inclusive of all taxes</span>
-                    </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Item Thumbnails */}
-                <div className="mt-[24px] pt-[24px] border-t border-white relative z-10">
-                  <div className="flex items-center gap-[10px] flex-wrap">
-                    {items.slice(0, 4).map((item, i) => (
-                      <div key={`${item.id}-${item.selectedSize}-${i}`} className="w-[44px] h-[44px] rounded-[10px] bg-white border border-white/60 p-1 shadow-sm">
-                        <img
-                          src={getItemImage(item)}
-                          alt={item.name}
-                          className="w-full h-full rounded-[6px] object-cover"
-                        />
-                      </div>
-                    ))}
-                    {items.length > 4 && (
-                      <div className="w-[44px] h-[44px] rounded-[10px] glass bg-white/60 flex items-center justify-center font-sans text-[12px] font-bold text-[#D4527A] border border-white shadow-sm">
-                        +{items.length - 4}
-                      </div>
-                    )}
+                {/* Total Footer */}
+                <div className="bg-[#FAFAFA] rounded-[16px] p-[20px] flex items-center justify-between border border-[#F0E8EA]">
+                  <div>
+                    <h3 className="font-serif text-[22px] text-text-main font-semibold">Total</h3>
+                    <p className="font-sans text-[11px] font-medium text-[#15803D] flex items-center gap-[4px] mt-[4px]">
+                      <ShieldCheck size={14} /> Secure Checkout
+                    </p>
+                    <p className="font-sans text-[11px] text-[#8C8C8C] mt-[2px]">Inclusive of all taxes</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-sans text-[28px] font-bold text-text-main">{formatPrice(finalTotalAmount)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Trust Badges */}
+              <div className="bg-[#FAFAFA] rounded-[16px] p-[16px] border border-[#F0E8EA]">
+                <div className="grid grid-cols-4 gap-[8px]">
+                  <div className="flex flex-col items-center text-center gap-[8px]">
+                    <div className="w-[32px] h-[32px] rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center shrink-0 border border-[#F4A0B0]/30">
+                      <Shield size={14} />
+                    </div>
+                    <div>
+                      <p className="font-sans text-[9px] font-bold text-text-main leading-tight">100% Secure</p>
+                      <p className="font-sans text-[8px] text-[#8C8C8C] mt-[2px]">Payments</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center text-center gap-[8px]">
+                    <div className="w-[32px] h-[32px] rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center shrink-0 border border-[#F4A0B0]/30">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    </div>
+                    <div>
+                      <p className="font-sans text-[9px] font-bold text-text-main leading-tight">Easy Returns</p>
+                      <p className="font-sans text-[8px] text-[#8C8C8C] mt-[2px]">7 Days Return</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center text-center gap-[8px]">
+                    <div className="w-[32px] h-[32px] rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center shrink-0 border border-[#F4A0B0]/30">
+                      <Sparkles size={14} />
+                    </div>
+                    <div>
+                      <p className="font-sans text-[9px] font-bold text-text-main leading-tight">925 Sterling Silver</p>
+                      <p className="font-sans text-[8px] text-[#8C8C8C] mt-[2px]">Hallmarked</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center text-center gap-[8px]">
+                    <div className="w-[32px] h-[32px] rounded-full bg-[#FFF0F5] text-[#D4527A] flex items-center justify-center shrink-0 border border-[#F4A0B0]/30">
+                      <Heart size={14} />
+                    </div>
+                    <div>
+                      <p className="font-sans text-[9px] font-bold text-text-main leading-tight">Loved by</p>
+                      <p className="font-sans text-[8px] text-[#8C8C8C] mt-[2px]">50,000+ Customers</p>
+                    </div>
                   </div>
                 </div>
               </div>
