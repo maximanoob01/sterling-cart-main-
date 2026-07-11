@@ -576,32 +576,38 @@ export default function Header() {
 
       {/* Floating Bottom Nav for Mobile */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-border-main bg-bg-surface/95 px-2 py-2 pb-[calc(env(safe-area-inset-bottom)+8px)] shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-xl sm:hidden">
-        <Link to="/" className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
-          <Home size={20} />
-          <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Home</span>
+        <Link to="/" className={`flex flex-col items-center gap-1 p-2 transition-colors ${location.pathname === '/' ? 'text-[#D4527A]' : 'text-text-muted hover:text-[#D4527A]'}`}>
+          <motion.div animate={{ scale: location.pathname === '/' ? 1.15 : 1, y: location.pathname === '/' ? -2 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+            <Home size={20} fill={location.pathname === '/' ? '#D4527A' : 'none'} className={location.pathname === '/' ? 'text-[#D4527A]' : ''} />
+          </motion.div>
+          <span className="text-[9px] font-semibold capitalize tracking-[0.5px]">Home</span>
         </Link>
-        <Link to="/track-order" className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
-          <PackageSearch size={20} />
-          <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Track</span>
+        <Link to="/track-order" className={`flex flex-col items-center gap-1 p-2 transition-colors ${location.pathname === '/track-order' ? 'text-[#D4527A]' : 'text-text-muted hover:text-[#D4527A]'}`}>
+          <motion.div animate={{ scale: location.pathname === '/track-order' ? 1.15 : 1, y: location.pathname === '/track-order' ? -2 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+            <PackageSearch size={20} fill={location.pathname === '/track-order' ? '#D4527A' : 'none'} className={location.pathname === '/track-order' ? 'text-[#D4527A]' : ''} />
+          </motion.div>
+          <span className="text-[9px] font-semibold capitalize tracking-[0.5px]">Track</span>
         </Link>
-        <Link to="/dashboard?tab=wishlist" className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
-          <span className="relative">
-            <Heart size={20} />
+        <Link to="/dashboard?tab=wishlist" className={`flex flex-col items-center gap-1 p-2 transition-colors ${location.pathname === '/dashboard' && location.search.includes('tab=wishlist') ? 'text-[#D4527A]' : 'text-text-muted hover:text-[#D4527A]'}`}>
+          <motion.span className="relative" animate={{ scale: location.pathname === '/dashboard' && location.search.includes('tab=wishlist') ? 1.15 : 1, y: location.pathname === '/dashboard' && location.search.includes('tab=wishlist') ? -2 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+            <Heart size={20} fill={location.pathname === '/dashboard' && location.search.includes('tab=wishlist') ? '#D4527A' : 'none'} className={location.pathname === '/dashboard' && location.search.includes('tab=wishlist') ? 'text-[#D4527A]' : ''} />
             {wishlistItems.length > 0 && <span className="absolute -right-2 -top-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full bg-[#D4527A] px-1 text-[8px] font-bold text-white">{wishlistItems.length}</span>}
-          </span>
-          <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Wishlist</span>
+          </motion.span>
+          <span className="text-[9px] font-semibold capitalize tracking-[0.5px]">Wishlist</span>
         </Link>
-        <Link to="/cart" className={`flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A] ${isCartAnimating ? 'cart-attention' : ''}`}>
-          <span className="relative">
-            <ShoppingCart size={20} />
+        <Link to="/cart" className={`flex flex-col items-center gap-1 p-2 transition-colors ${location.pathname === '/cart' ? 'text-[#D4527A]' : 'text-text-muted hover:text-[#D4527A]'} ${isCartAnimating ? 'cart-attention' : ''}`}>
+          <motion.span className="relative" animate={{ scale: location.pathname === '/cart' ? 1.15 : 1, y: location.pathname === '/cart' ? -2 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+            <ShoppingCart size={20} fill={location.pathname === '/cart' ? '#D4527A' : 'none'} className={location.pathname === '/cart' ? 'text-[#D4527A]' : ''} />
             {totalItems > 0 && <span className="absolute -right-2 -top-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full bg-[#D4527A] px-1 text-[8px] font-bold text-white">{totalItems}</span>}
-          </span>
-          <span className="text-[9px] font-semibold uppercase tracking-[0.5px]">Cart</span>
+          </motion.span>
+          <span className="text-[9px] font-semibold capitalize tracking-[0.5px]">Cart</span>
         </Link>
         {isAuthenticated ? (
-          <Link to={isAdmin ? '/admin' : '/dashboard'} className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
-            <User size={20} />
-            <span className="relative mt-0.5 flex h-[11px] w-[48px] items-center justify-center overflow-hidden text-[9px] font-semibold uppercase tracking-[0.5px]">
+          <Link to={isAdmin ? '/admin' : '/dashboard'} className={`flex flex-col items-center gap-1 p-2 transition-colors ${((location.pathname === '/dashboard' && !location.search.includes('tab=wishlist')) || location.pathname === '/admin') ? 'text-[#D4527A]' : 'text-text-muted hover:text-[#D4527A]'}`}>
+            <motion.div animate={{ scale: ((location.pathname === '/dashboard' && !location.search.includes('tab=wishlist')) || location.pathname === '/admin') ? 1.15 : 1, y: ((location.pathname === '/dashboard' && !location.search.includes('tab=wishlist')) || location.pathname === '/admin') ? -2 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+              <User size={20} fill={((location.pathname === '/dashboard' && !location.search.includes('tab=wishlist')) || location.pathname === '/admin') ? '#D4527A' : 'none'} className={((location.pathname === '/dashboard' && !location.search.includes('tab=wishlist')) || location.pathname === '/admin') ? 'text-[#D4527A]' : ''} />
+            </motion.div>
+            <span className="relative mt-0.5 flex h-[11px] w-[48px] items-center justify-center overflow-hidden text-[9px] font-semibold capitalize tracking-[0.5px]">
               <AnimatePresence mode="popLayout">
                 <motion.span
                   key={`mobile-auth-${profileTextIndex}`}
@@ -617,9 +623,11 @@ export default function Header() {
             </span>
           </Link>
         ) : (
-          <button type="button" onClick={useAuth().openAuthModal} className="flex flex-col items-center gap-1 p-2 text-text-muted transition-colors hover:text-[#D4527A]">
-            <User size={20} />
-            <span className="relative mt-0.5 flex h-[11px] w-[48px] items-center justify-center overflow-hidden text-[9px] font-semibold uppercase tracking-[0.5px]">
+          <button type="button" onClick={useAuth().openAuthModal} className={`flex flex-col items-center gap-1 p-2 transition-colors ${((location.pathname === '/dashboard' && !location.search.includes('tab=wishlist')) || location.pathname === '/admin') ? 'text-[#D4527A]' : 'text-text-muted hover:text-[#D4527A]'}`}>
+            <motion.div animate={{ scale: ((location.pathname === '/dashboard' && !location.search.includes('tab=wishlist')) || location.pathname === '/admin') ? 1.15 : 1, y: ((location.pathname === '/dashboard' && !location.search.includes('tab=wishlist')) || location.pathname === '/admin') ? -2 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+              <User size={20} fill={((location.pathname === '/dashboard' && !location.search.includes('tab=wishlist')) || location.pathname === '/admin') ? '#D4527A' : 'none'} className={((location.pathname === '/dashboard' && !location.search.includes('tab=wishlist')) || location.pathname === '/admin') ? 'text-[#D4527A]' : ''} />
+            </motion.div>
+            <span className="relative mt-0.5 flex h-[11px] w-[48px] items-center justify-center overflow-hidden text-[9px] font-semibold capitalize tracking-[0.5px]">
               <AnimatePresence mode="popLayout">
                 <motion.span
                   key={`mobile-guest-${profileTextIndex}`}
