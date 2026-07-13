@@ -156,8 +156,11 @@ app.use(errorHandler);
 const startServer = async () => {
   await connectDB();
   await connectRedis();
-  await sequelize.sync({ alter: true }); // Create tables if they don't exist and alter existing ones to match models
+  // Add any raw columns BEFORE alter-sync so SQLite's backup-table copy doesn't fail
   await addColumnIfMissing('users', 'adminLoginId', 'VARCHAR(255)');
+  // Use alter:false on SQLite (alter:true recreates tables via a backup which breaks if columns differ)
+  const isSQLite = sequelize.getDialect() === 'sqlite';
+  await sequelize.sync({ alter: !isSQLite });
 
   app.listen(PORT, () => {
     console.log(`\n🚀 Sterling Kart API running on http://localhost:${PORT}`);

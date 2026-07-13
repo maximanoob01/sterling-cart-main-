@@ -16,11 +16,11 @@ router.get('/', authenticate, async (req, res, next) => {
     });
 
     if (!loyalty) {
-      loyalty = await Loyalty.create({ userId: req.dbUser.id, balance: 200 });
+      loyalty = await Loyalty.create({ userId: req.dbUser.id, balance: 50 });
       await LoyaltyHistory.create({
         loyaltyId: loyalty.id,
         type: 'earned',
-        points: 200,
+        points: 50,
         description: 'Welcome bonus',
         date: new Date(),
         expiresAt: new Date(new Date().setMonth(new Date().getMonth() + 12))

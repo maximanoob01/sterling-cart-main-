@@ -1,7 +1,9 @@
 import { Router } from 'express';
+import { body, query } from 'express-validator';
 import { Op } from 'sequelize';
 import { Product } from '../models/index.js';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
 import crypto from 'crypto';
 import redisClient, { safeGet, safeSet, safeDel } from '../services/redisService.js';
 
@@ -75,21 +77,22 @@ router.get('/', async (req, res, next) => {
       case 'name-desc': orderObj = [['name', 'DESC']]; break;
     }
 
-    const limitNum = Number(limit);
-    const offset = (Number(page) - 1) * limitNum;
+    const limitNum = Math.min(Math.max(Number(limit) || 50, 1), 200);
+    const pageNum = Math.max(Number(page) || 1, 1);
+    const offset = (pageNum - 1) * limitNum;
     
     const { count, rows: products } = await Product.findAndCountAll({
       where,
       order: orderObj,
       limit: limitNum,
-      offset
+      offset,
     });
 
     const responseData = {
       success: true,
       products,
       pagination: {
-        page: Number(page),
+        page: pageNum,
         limit: limitNum,
         total: count,
         pages: Math.ceil(count / limitNum),
@@ -133,7 +136,15 @@ router.get('/:idOrSlug', async (req, res, next) => {
 });
 
 // ─── POST /api/products — Create product (admin) ─────────────────────────────
-router.post('/', authenticate, requireAdmin, async (req, res, next) => {
+router.post('/', authenticate, requireAdmin, [
+  body('name').trim().notEmpty().withMessage('Product name is required'),
+  body('price').isFloat({ min: 0 }).withMessage('Price must be a non-negative number'),
+  body('category').trim().notEmpty().withMessage('Category is required'),
+  body('pricingType').optional().isIn(['fixed', 'weight']).withMessage('Invalid pricing type'),
+  body('weightGrams').optional({ nullable: true }).isFloat({ min: 0 }),
+  body('makingCharges').optional({ nullable: true }).isFloat({ min: 0 }),
+  body('stockQty').optional().isInt({ min: 0 }),
+], validate, async (req, res, next) => {
   try {
     const slug = req.body.name
       .toLowerCase()
@@ -147,7 +158,14 @@ router.post('/', authenticate, requireAdmin, async (req, res, next) => {
 });
 
 // ─── PUT /api/products/:id — Update product (admin) ──────────────────────────
-router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
+router.put('/:id', authenticate, requireAdmin, [
+  body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
+  body('price').optional().isFloat({ min: 0 }).withMessage('Price must be non-negative'),
+  body('pricingType').optional().isIn(['fixed', 'weight']).withMessage('Invalid pricing type'),
+  body('weightGrams').optional({ nullable: true }).isFloat({ min: 0 }),
+  body('makingCharges').optional({ nullable: true }).isFloat({ min: 0 }),
+  body('stockQty').optional().isInt({ min: 0 }),
+], validate, async (req, res, next) => {
   try {
     const product = await Product.findByPk(req.params.id);
     if (!product) return res.status(404).json({ success: false, error: 'Product not found' });

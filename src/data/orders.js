@@ -96,6 +96,7 @@ export const revenueData = [
 ];
 
 export const coupons = {
+  'SILVER10': { discount: 10, type: 'percentage', description: '10% off on first order', minOrder: 500 },
   'WELCOME10': { discount: 10, type: 'percentage', description: '10% off on first order', minOrder: 500 },
   'FESTIVE10': { discount: 10, type: 'percentage', description: '10% off festive collection', minOrder: 1000 },
   'BRIDE10': { discount: 10, type: 'percentage', description: '10% off bridal sets', minOrder: 3000 },

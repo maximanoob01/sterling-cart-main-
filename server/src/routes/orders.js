@@ -4,10 +4,12 @@ import { Op } from 'sequelize';
 import { Order, OrderItem, OrderTimeline, Product, Loyalty, LoyaltyHistory, Coupon, GiftCard, GiftCardTransaction, Notification, sequelize } from '../models/index.js';
 import { authenticate, requireAdmin, optionalAuth } from '../middleware/auth.js';
 import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
 import validate from '../middleware/validate.js';
 import { sendOrderConfirmation } from '../services/emailService.js';
 import shiprocketService from '../services/shiprocketService.js';
 import { getSiteSettings } from '../services/siteSettings.js';
+import { createHybridStore } from '../utils/rateLimitStore.js';
 import {
   generateOrderId, getItemPrice, FREE_DELIVERY_THRESHOLD,
   DELIVERY_FEE, COD_FEE, GIFT_WRAP_FEE, LOYALTY_EARN_RATE, LOYALTY_REDEEM_CAP,
@@ -15,6 +17,18 @@ import {
 } from '../config/constants.js';
 
 const router = Router();
+
+// 5 checkout attempts per 10 minutes per IP — prevents checkout spam
+const checkoutLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  message: { success: false, error: 'Too many orders placed. Please wait a few minutes.' },
+  store: createHybridStore(),
+});
+
+// Codes that are only valid on a user's first order (kept in sync with coupons.js)
+const FIRST_ORDER_ONLY_CODES = new Set(['SILVER10']);
+
 
 const TIMELINE_ORDER = {
   'Order Placed': 1,
@@ -27,8 +41,8 @@ const TIMELINE_ORDER = {
   'Cancelled': 99
 };
 
-// ─── POST /api/orders — Create order ─────────────────────────────────────────
-router.post('/', optionalAuth, [
+// ─── POST /api/orders — Create order ─────────────────────────────────────────────
+router.post('/', checkoutLimiter, optionalAuth, [
   body('form.fullName').trim().notEmpty(),
   body('form.email').isEmail(),
   body('form.phone')
@@ -83,12 +97,29 @@ router.post('/', optionalAuth, [
     // 2. Apply Coupon
     let discount = 0;
     if (couponCode) {
-      const coupon = await Coupon.findOne({ where: { code: couponCode.toUpperCase() }, transaction: t });
+      const upperCode = couponCode.toUpperCase();
+      const coupon = await Coupon.findOne({ where: { code: upperCode }, transaction: t });
       if (coupon) {
         const validity = coupon.isValid(subtotal);
         if (validity.valid) {
-          discount = coupon.calculateDiscount(subtotal);
-          await coupon.increment('usedCount', { by: 1, transaction: t });
+          // Enforce first-order-only rule at order creation (defence-in-depth)
+          if (FIRST_ORDER_ONLY_CODES.has(upperCode)) {
+            const priorOrder = await Order.findOne({
+              where: { userId: req.dbUser?.id || null },
+              transaction: t,
+            });
+            // Only block if we actually have a logged-in user with prior orders
+            if (req.dbUser && priorOrder) {
+              // Silently skip the discount rather than failing the order
+              console.warn(`[COUPON] ${upperCode} denied for repeat user ${req.dbUser.id}`);
+            } else {
+              discount = coupon.calculateDiscount(subtotal);
+              await coupon.increment('usedCount', { by: 1, transaction: t });
+            }
+          } else {
+            discount = coupon.calculateDiscount(subtotal);
+            await coupon.increment('usedCount', { by: 1, transaction: t });
+          }
         }
       }
     }
@@ -220,12 +251,14 @@ router.post('/', optionalAuth, [
         await LoyaltyHistory.create({
           loyaltyId: loyaltyAccount.id,
           type: 'earned',
+          status: 'confirmed',
           points: earnedPoints,
-          status: 'pending',
           description: `Earned from order #${orderId}`,
           orderId,
-          date: new Date()
+          date: new Date(),
+          expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // 1 year
         }, { transaction: t });
+        await loyaltyAccount.increment('balance', { by: earnedPoints, transaction: t });
       }
     }
 
@@ -493,7 +526,7 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
       const { sendInvoiceEmail } = await import('../services/emailService.js');
       sendInvoiceEmail(order, order.items || []).catch(console.error);
 
-      // Confirm pending Royal Points
+      // Confirm pending Loyalty Points
       if (order.userId) {
         const loyaltyAccount = await Loyalty.findOne({ where: { userId: order.userId }, transaction: t });
         if (loyaltyAccount) {

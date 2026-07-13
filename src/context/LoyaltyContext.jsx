@@ -7,9 +7,9 @@ const LoyaltyContext = createContext();
 // 1 point per ₹100 spent
 export const pointsEarned = (orderValue) => Math.floor(orderValue * 0.01);
 
-// Max redeemable per order: 3% of order value, capped by actual balance
+// Max redeemable per order: 10% of order value, capped by actual balance (matches backend LOYALTY_REDEEM_CAP)
 export const maxRedeemable = (orderValue, balance) =>
-  Math.min(balance, Math.floor(orderValue * 0.03));
+  Math.min(balance, Math.floor(orderValue * 0.10));
 
 export const LoyaltyProvider = ({ children }) => {
   const { user } = useAuth();

@@ -241,7 +241,8 @@ export const CartProvider = ({ children }) => {
   let discount = 0;
   if (state.coupon) {
     if (state.coupon.type === 'percentage') {
-      discount = Math.round(subtotal * (state.coupon.discount / 100));
+      const raw = Math.round(subtotal * (state.coupon.discount / 100));
+      discount = state.coupon.maxDiscount ? Math.min(raw, state.coupon.maxDiscount) : raw;
     } else {
       discount = state.coupon.discount;
     }

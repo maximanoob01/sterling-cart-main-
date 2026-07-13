@@ -19,6 +19,7 @@ import { formatPrice } from '../utils/formatPrice';
 import { generateInvoice } from '../utils/generateInvoice';
 import toast from 'react-hot-toast';
 import AdminCallRequestsTab from '../components/AdminCallRequestsTab';
+import AdminOffersTab from '../components/AdminOffersTab';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_COLORS = {
@@ -1117,6 +1118,7 @@ export default function AdminDashboardPage() {
     { id: 'products', label: 'Products', icon: <Package size={20} /> },
     { id: 'customers', label: 'Customers', icon: <Users size={20} /> },
     { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={20} /> },
+    { id: 'offers', label: 'Offers', icon: <Star size={20} /> },
     { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
   ];
 
@@ -1890,6 +1892,7 @@ export default function AdminDashboardPage() {
           {activeTab === 'products'   && renderProducts()}
           {activeTab === 'customers'  && renderCustomers()}
           {activeTab === 'analytics'  && renderAnalytics()}
+          {activeTab === 'offers'     && <AdminOffersTab />}
           {activeTab === 'settings'   && renderSettings()}
         </main>
         

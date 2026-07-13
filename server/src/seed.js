@@ -35,6 +35,7 @@ const extractProducts = () => {
 };
 
 const defaultCoupons = [
+  { code: 'SILVER10', type: 'percentage', discount: 10, minOrderValue: 500, maxDiscount: 1000, isActive: true },
   { code: 'WELCOME10', type: 'percentage', discount: 10, minOrderValue: 999, maxDiscount: 500, isActive: true },
   { code: 'FESTIVE10', type: 'percentage', discount: 10, minOrderValue: 1499, maxDiscount: 750, isActive: true },
   { code: 'FLAT200', type: 'flat', discount: 200, minOrderValue: 1999, isActive: true },

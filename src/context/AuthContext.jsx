@@ -4,6 +4,19 @@ import api from '../services/api';
 
 const AuthContext = createContext();
 
+const toastStyle = {
+  style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
+  iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
+};
+
+// Maps a caught ApiError to a user-readable string
+const friendlyAuthError = (error, fallback) => {
+  if (error?.status === 0) {
+    return 'Unable to reach the server. Please check your internet connection and try again.';
+  }
+  return error?.message || fallback;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,13 +32,11 @@ export const AuthProvider = ({ children }) => {
         const res = await api.get('/auth/me');
         setUser(res.user);
       } catch {
-        console.error('Session not found or expired');
         api.removeToken();
         setUser(null);
       }
       setLoading(false);
     };
-
     initAuth();
   }, []);
 
@@ -35,31 +46,18 @@ export const AuthProvider = ({ children }) => {
       await api.post('/auth/request-otp', { phone: formattedPhone, isSignup });
       return { success: true, message: `OTP sent to ${formattedPhone}` };
     } catch (error) {
-      console.error('OTP request error:', error);
-      return { success: false, error: error.message || 'Failed to send OTP' };
+      return { success: false, error: friendlyAuthError(error, 'Failed to send OTP') };
     }
   }, []);
 
   const verifyOtp = useCallback(async (phone, otp, isSignup = false, name = '', email = '') => {
     try {
       const formattedPhone = phone.startsWith('+') ? phone : `+91${phone.replace(/\s/g, '')}`;
-      
-      const res = await api.post('/auth/verify-otp', { 
-        phone: formattedPhone, 
-        otp,
-        isSignup,
-        name, 
-        email 
-      });
+      const res = await api.post('/auth/verify-otp', { phone: formattedPhone, otp, isSignup, name, email });
 
       api.setToken(res.token);
       setUser(res.user);
       closeAuthModal();
-
-      const toastStyle = {
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-        iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
-      };
 
       if (res.isNewUser || isSignup) {
         toast.success(`Welcome to Sterling Kart, ${res.user.name || 'there'}!`, toastStyle);
@@ -69,8 +67,7 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true, user: res.user };
     } catch (error) {
-      console.error('OTP verify error:', error);
-      return { success: false, error: error.message || 'Invalid OTP' };
+      return { success: false, error: friendlyAuthError(error, 'Invalid OTP. Please try again.') };
     }
   }, [closeAuthModal]);
 
@@ -82,10 +79,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       api.removeToken();
       setUser(null);
-      toast.success('Logged out successfully', {
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-        iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
-      });
+      toast.success('Logged out successfully', toastStyle);
     }
   }, []);
 
@@ -93,17 +87,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await api.put('/auth/profile', updates);
       setUser(res.user);
-      toast.success('Profile updated successfully', {
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-        iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
-      });
+      toast.success('Profile updated successfully', toastStyle);
     } catch {
       // Fallback: update locally
       setUser(prev => ({ ...prev, ...updates }));
-      toast.success('Profile updated', {
-        style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #FFF0F5' },
-        iconTheme: { primary: '#F4A0B0', secondary: '#FFF' },
-      });
+      toast.success('Profile updated', toastStyle);
     }
   }, []);
 

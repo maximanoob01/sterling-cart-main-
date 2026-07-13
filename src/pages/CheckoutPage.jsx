@@ -42,6 +42,9 @@ const CheckoutPage = () => {
     totalAmount,
     totalItems,
     clearCart,
+    applyCoupon,
+    removeCoupon,
+    coupon
   } = useCart();
   const { formatPrice, currency } = useCurrency();
   const { isAuthenticated } = useAuth();
@@ -91,7 +94,7 @@ const CheckoutPage = () => {
     if (orderMaxRedeemable <= 0) { toast.error('No points available to redeem'); return; }
     setAppliedPoints(orderMaxRedeemable);
     setLoyaltyApplied(true);
-    toast.success(`✨ ${orderMaxRedeemable} Royal Points applied!`, {
+    toast.success(`✨ ${orderMaxRedeemable} Loyalty Points applied!`, {
       style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #F4A0B0' },
       iconTheme: { primary: '#D4527A', secondary: '#FFF' },
     });
@@ -107,6 +110,43 @@ const CheckoutPage = () => {
     if (!giftCardCode.trim()) return;
     setIsApplyingGC(true);
     try {
+      // First try as a coupon
+      try {
+        const couponRes = await api.post('/coupons/validate', { code: giftCardCode, orderValue: subtotal });
+        if (couponRes.success) {
+          // API returns `discount` = pre-calculated ₹ amount, `discountValue` = raw %.
+          // CartContext does `subtotal * (coupon.discount / 100)` for percentage coupons,
+          // so we must store the raw % (discountValue) as the discount field.
+          const { discount: _calculated, discountValue, ...rest } = couponRes.coupon;
+          applyCoupon({ ...rest, discount: discountValue });
+          toast.success('Coupon applied!', {
+            style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #F4A0B0' },
+            iconTheme: { primary: '#D4527A', secondary: '#FFF' },
+          });
+          setGiftCardCode('');
+          setIsApplyingGC(false);
+          return;
+        }
+      } catch (couponErr) {
+        // 401 = needs login, 400 = business rule (e.g. already used, below min order)
+        // Surface these directly — only 404 (not a coupon code) falls through to gift card
+        if (couponErr.status === 401) {
+          toast.error('Please sign in or create an account to apply this coupon', {
+            duration: 4000,
+          });
+          setIsApplyingGC(false);
+          return;
+        }
+        if (couponErr.status === 400) {
+          toast.error(couponErr.message || 'Coupon cannot be applied');
+          setGiftCardCode('');
+          setIsApplyingGC(false);
+          return;
+        }
+        // 404 = not a coupon code at all → fall through and try as gift card
+      }
+
+      // Then try as gift card
       const res = await api.post('/gift-cards/apply', { code: giftCardCode });
       if (res.success) {
         setAppliedGiftCard({
@@ -117,9 +157,10 @@ const CheckoutPage = () => {
           style: { background: '#FFF0F5', color: '#2D2D2D', border: '1px solid #F4A0B0' },
           iconTheme: { primary: '#D4527A', secondary: '#FFF' },
         });
+        setGiftCardCode('');
       }
     } catch (err) {
-      toast.error(err.message || 'Invalid gift card code');
+      toast.error(err.message || 'Invalid code');
       setGiftCardCode('');
     } finally {
       setIsApplyingGC(false);
@@ -261,7 +302,7 @@ const CheckoutPage = () => {
       razorpayOrderId: razorpayOrderId || null,
       isGiftWrapped,
       giftNote,
-      couponCode: null, // TODO: pass coupon if applied
+      couponCode: coupon?.code || null,
       loyaltyPointsUsed: appliedPoints,
       giftCardCode: appliedGiftCard?.code || null,
       giftCardDiscount: gcDiscount,
@@ -553,7 +594,7 @@ const CheckoutPage = () => {
                 transition={{ delay: 0.8 }}
                 className="w-full h-[46px] bg-[#F4A0B0]/10 text-[#D4527A] border border-[#D4527A]/20 rounded-full font-bold text-[12px] tracking-[1px] uppercase flex items-center justify-center gap-2"
               >
-                <span>Loading Royal Points in</span>
+                <span>Loading Loyalty Points in</span>
                 <span className="w-4 tabular-nums text-center">{successCountdown}s</span>
                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}>
                   <Star size={14} className="text-[#D4527A]" />
@@ -614,7 +655,7 @@ const CheckoutPage = () => {
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4527A]/20 to-[#F4A0B0]/10 border border-[#D4527A]/30 rounded-full px-5 py-2 my-3">
                   <Coins size={18} className="text-[#F4A0B0]" />
                   <span className="font-sans text-[26px] font-black text-white">{orderSuccessData.earnedPoints}</span>
-                  <span className="font-sans text-[13px] font-bold text-[#F4A0B0]">Royal Points</span>
+                  <span className="font-sans text-[13px] font-bold text-[#F4A0B0]">Loyalty Points</span>
                 </div>
                 <p className="font-sans text-[13px] text-white/60 leading-relaxed mt-2">
                   Redeem them on your next order for an instant discount!
@@ -1247,7 +1288,7 @@ const CheckoutPage = () => {
                   <FreeDeliveryBar subtotal={subtotal} threshold={2499} />
                 </div>
 
-                {/* Royal Points Card */}
+                {/* Loyalty Points Card */}
                 {isAuthenticated && (
                   <div className="mb-[16px] rounded-[16px] overflow-hidden shadow-sm border border-[#4A2B4D]/20">
                     <div className="bg-[#3D2240] p-[20px] relative">
@@ -1260,7 +1301,7 @@ const CheckoutPage = () => {
                             </div>
                             <div>
                               <p className="font-sans text-[9px] font-bold uppercase tracking-[2px] text-[#F4A0B0] mb-0.5">Sterling Kart</p>
-                              <p className="font-serif text-[20px] text-white leading-tight">Royal Points</p>
+                              <p className="font-serif text-[20px] text-white leading-tight">Loyalty Points</p>
                               <p className="font-sans text-[11px] text-[#A38BA6] mt-0.5">Your balance</p>
                             </div>
                           </div>
@@ -1342,8 +1383,22 @@ const CheckoutPage = () => {
                   </div>
                   
                   {/* Coupon / Gift Card */}
-                  <div className="p-[16px]">
-                    {appliedGiftCard ? (
+                  <div className="p-[16px] space-y-[12px]">
+                    {coupon && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-[12px]">
+                          <div className="w-[32px] h-[32px] rounded-full bg-[#D4527A]/10 flex items-center justify-center">
+                            <Tag size={16} strokeWidth={2} className="text-[#D4527A]" />
+                          </div>
+                          <div>
+                            <p className="font-sans text-[13px] font-bold text-text-main">Coupon Applied: {coupon.code}</p>
+                            <p className="font-sans text-[11px] text-[#8C8C8C]">Saving {formatPrice(discount)}</p>
+                          </div>
+                        </div>
+                        <button onClick={() => removeCoupon()} className="font-sans text-[12px] font-medium text-[#D4527A] hover:underline">Remove</button>
+                      </div>
+                    )}
+                    {appliedGiftCard && (
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-[12px]">
                           <div className="w-[32px] h-[32px] rounded-full bg-[#D4527A]/10 flex items-center justify-center">
@@ -1356,14 +1411,15 @@ const CheckoutPage = () => {
                         </div>
                         <button onClick={handleRemoveGiftCard} className="font-sans text-[12px] font-medium text-[#D4527A] hover:underline">Remove</button>
                       </div>
-                    ) : (
+                    )}
+                    {(!coupon || !appliedGiftCard) && (
                       <div className="flex items-center gap-[8px] sm:gap-[12px]">
                         <Tag size={20} className="text-[#D4527A] shrink-0" />
                         <input
                           type="text"
                           value={giftCardCode}
                           onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
-                          placeholder="Gift Card / Coupon Code"
+                          placeholder={!coupon ? "Gift Card / Coupon Code" : "Gift Card Code"}
                           className="flex-1 min-w-0 bg-transparent font-sans text-[13px] sm:text-[14px] text-text-main outline-none placeholder:text-[#A8A8A8]"
                         />
                         <button

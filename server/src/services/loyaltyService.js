@@ -24,7 +24,7 @@ export async function syncExpiredPoints(loyalty) {
       loyaltyId: loyalty.id,
       type: 'expired',
       points: effectiveExpired,
-      description: 'Royal Points expired',
+      description: 'Loyalty Points expired',
       date: new Date()
     });
     

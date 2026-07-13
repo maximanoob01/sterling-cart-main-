@@ -37,7 +37,7 @@ const Crown = ({ size = 24, className = '', color = 'currentColor' }) => (
 
 const sidebarTabs = [
   { id: 'orders', label: 'My Orders', icon: Package },
-  { id: 'rewards', label: 'Royal Points', icon: Crown },
+  { id: 'rewards', label: 'Loyalty Points', icon: Crown },
   { id: 'wishlist', label: 'Wishlist', icon: Heart },
   { id: 'giftcards', label: 'My Gift Cards', icon: Gift },
   { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
@@ -92,7 +92,7 @@ const LoyaltyBalancePill = () => {
       className="mt-3 inline-flex items-center gap-1.5 bg-[#FFEBF0] text-[#D4527A] px-4 py-1.5 rounded-full mx-auto shadow-sm"
     >
       <span className="text-sm">💎</span>
-      <span className="font-sans text-[12px] font-bold">{balance} Royal Points</span>
+      <span className="font-sans text-[12px] font-bold">{balance} Loyalty Points</span>
     </motion.div>
   );
 };
@@ -745,7 +745,7 @@ const RewardsTab = () => {
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-1">
         <div>
           <h2 className="text-2xl font-serif text-[#5A1F2E] tracking-tight flex items-center gap-2">
-            <span>👑</span> Royal Points
+            <span>👑</span> Loyalty Points
           </h2>
           <p className="text-xs text-silver-500 mt-0.5 font-medium">Earn points on every purchase and unlock exclusive rewards.</p>
         </div>
@@ -795,7 +795,7 @@ const RewardsTab = () => {
               
               <motion.img
                 src={royalPointsCoinImg}
-                alt="Royal Points"
+                alt="Loyalty Points"
                 className="relative w-full h-full rounded-full object-cover drop-shadow-[0_0_10px_rgba(212,82,122,0.6)]"
                 animate={{ rotate: [0, 5, -5, 5, 0], y: [0, -4, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
@@ -1112,7 +1112,7 @@ const UserDashboardPage = () => {
 
   const sidebarTabs = [
     { id: 'orders', label: 'My Orders', icon: Package },
-    { id: 'rewards', label: 'Royal Points', icon: Crown },
+    { id: 'rewards', label: 'Loyalty Points', icon: Crown },
     { id: 'wishlist', label: 'Wishlist', icon: Heart },
     { id: 'giftcards', label: 'Gift Cards', icon: Gift },
     { id: 'profile', label: 'Profile Settings', icon: User },

@@ -185,21 +185,21 @@ function ImageZoom({ image, name, onClose }) {
   );
 }
 
-function RoyalPointsGuide({ onClose }) {
+function LoyaltyPointsGuide({ onClose }) {
   return (
-    <ModalShell title="Royal Points Program" onClose={onClose}>
+    <ModalShell title="Loyalty Points Program" onClose={onClose}>
       <div className="space-y-5 text-[13px] md:text-[14px] text-[#666] leading-relaxed">
         <p>
           <strong className="text-[#1A1A1A]">Earn points on every purchase:</strong><br />
-          You earn 1 Royal Point for every ₹100 spent on our website. Points are credited to your account once your order is marked as "Delivered".
+          You earn 1 Loyalty Point for every ₹100 spent on our website. Points are credited to your account once your order is marked as "Delivered".
         </p>
         <p>
           <strong className="text-[#1A1A1A]">Redeem points:</strong><br />
-          You can use your Royal Points to get a discount on future orders. You can redeem points up to 10% of your total order value.
+          You can use your Loyalty Points to get a discount on future orders. You can redeem points up to 10% of your total order value.
         </p>
         <p>
           <strong className="text-[#1A1A1A]">Validity:</strong><br />
-          Royal Points are valid for exactly 12 months from the date they are credited to your account.
+          Loyalty Points are valid for exactly 12 months from the date they are credited to your account.
         </p>
       </div>
     </ModalShell>
@@ -306,7 +306,7 @@ export default function ProductDetailPage() {
   const [isEngravingEnabled, setIsEngravingEnabled] = useState(false);
   const [engravingText, setEngravingText] = useState('');
   const [engravingType, setEngravingType] = useState('text');
-  const [isRoyalPointsGuideOpen, setIsRoyalPointsGuideOpen] = useState(false);
+  const [isLoyaltyPointsGuideOpen, setisLoyaltyPointsGuideOpen] = useState(false);
 
 
 
@@ -515,7 +515,7 @@ export default function ProductDetailPage() {
                 </>
               )}
 
-              {/* ── Royal Points badge (logged-in users only) ── */}
+              {/* ── Loyalty Points badge (logged-in users only) ── */}
               {isAuthenticated && (() => {
                 const basePrice = getItemPrice(product);
                 const earnOnThis = pointsEarned(basePrice);
@@ -529,15 +529,15 @@ export default function ProductDetailPage() {
                     <div className="flex items-center gap-2.5">
                       <img
                         src={royalPointsCoinImg}
-                        alt="Royal Points"
+                        alt="Loyalty Points"
                         className="w-7 h-7 rounded-full object-cover flex-shrink-0 drop-shadow-[0_0_4px_rgba(212,82,122,0.4)]"
                       />
                       <p className="font-sans text-[12px] font-bold text-[#D4527A]">
-                        Earn <span className="text-[14px]">{earnOnThis}</span> Royal Points
+                        Earn <span className="text-[14px]">{earnOnThis}</span> Loyalty Points
                       </p>
                     </div>
                     <button 
-                      onClick={() => setIsRoyalPointsGuideOpen(true)} 
+                      onClick={() => setisLoyaltyPointsGuideOpen(true)} 
                       className="text-[10px] text-text-muted hover:text-[#D4527A] underline shrink-0 font-medium"
                     >
                       How does it work?
@@ -767,10 +767,10 @@ export default function ProductDetailPage() {
             <div className="mt-4 flex items-center gap-3 rounded-2xl border border-dashed border-[#F4A0B0]/60 bg-gradient-to-r from-[#FFF0F5] to-[#FDF8FA] p-3.5 sm:gap-4 sm:p-4">
               <div className="flex-1">
                 <p className="text-[9px] font-bold uppercase tracking-[1.5px] text-[#D4527A] mb-1">Available offer</p>
-                <p className="text-[15px] font-semibold text-text-main">Flat ₹500 off</p>
-                <p className="text-[11px] text-text-muted mt-0.5">On your first purchase</p>
+                <p className="text-[15px] font-semibold text-text-main">10% off on your first order</p>
+                <p className="text-[12px] text-text-muted mt-0.5">Use code during checkout</p>
               </div>
-              <span className="shrink-0 rounded-xl border border-dashed border-[#D4527A]/40 bg-white px-3 py-2 text-[12px] font-bold tracking-[1px] text-[#D4527A] sm:text-[13px]">SK500</span>
+              <span className="shrink-0 rounded-xl border border-dashed border-[#D4527A]/40 bg-white px-3 py-2 text-[12px] font-bold tracking-[1px] text-[#D4527A] sm:text-[13px]">SILVER10</span>
             </div>
 
             {/* Delivery check */}
@@ -935,7 +935,7 @@ export default function ProductDetailPage() {
       <AnimatePresence>
         {isSizeGuideOpen && <RingSizeGuide onClose={() => setIsSizeGuideOpen(false)} />}
         {isZoomOpen && <ImageZoom image={mainImage} name={product.name} onClose={() => setIsZoomOpen(false)} />}
-        {isRoyalPointsGuideOpen && <RoyalPointsGuide onClose={() => setIsRoyalPointsGuideOpen(false)} />}
+        {isLoyaltyPointsGuideOpen && <LoyaltyPointsGuide onClose={() => setisLoyaltyPointsGuideOpen(false)} />}
       </AnimatePresence>
     </div>
   );
