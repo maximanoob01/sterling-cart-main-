@@ -160,7 +160,11 @@ const CheckoutPage = () => {
         setGiftCardCode('');
       }
     } catch (err) {
-      toast.error(err.message || 'Invalid code');
+      if (err.status === 401 && err.message === 'No token provided') {
+        toast.error('Invalid coupon or gift card code');
+      } else {
+        toast.error(err.message || 'Invalid code');
+      }
       setGiftCardCode('');
     } finally {
       setIsApplyingGC(false);
