@@ -670,7 +670,12 @@ const CheckoutPage = () => {
       </div>
 
       <div className="relative z-10 max-w-[1320px] mx-auto px-5 md:px-10 lg:px-20">
-        <h1 className="font-serif text-[28px] md:text-[36px] text-text-main mb-[20px] text-center">Secure Checkout</h1>
+        <div className="text-center mb-[20px]">
+          <h1 className="font-serif text-[28px] md:text-[36px] text-text-main leading-tight">Secure Checkout</h1>
+          <p className="text-[12px] text-text-muted/60 mt-1.5 flex items-center justify-center gap-1.5 font-medium tracking-wide">
+            <Lock size={12} /> 256-bit encrypted · PCI DSS compliant
+          </p>
+        </div>
 
         {/* Progress Bar */}
         <div className="mb-[32px] max-w-xl mx-auto relative">

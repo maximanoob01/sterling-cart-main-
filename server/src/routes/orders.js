@@ -7,9 +7,11 @@ import crypto from 'crypto';
 import validate from '../middleware/validate.js';
 import { sendOrderConfirmation } from '../services/emailService.js';
 import shiprocketService from '../services/shiprocketService.js';
+import { getSiteSettings } from '../services/siteSettings.js';
 import {
   generateOrderId, getItemPrice, FREE_DELIVERY_THRESHOLD,
   DELIVERY_FEE, COD_FEE, GIFT_WRAP_FEE, LOYALTY_EARN_RATE, LOYALTY_REDEEM_CAP,
+  SILVER_RATE_PER_GRAM
 } from '../config/constants.js';
 
 const router = Router();
@@ -45,6 +47,9 @@ router.post('/', optionalAuth, [
     const { form, items, paymentMethod, razorpayPaymentId, razorpayOrderId,
       isGiftWrapped, giftNote, couponCode, loyaltyPointsUsed, giftCardCode } = req.body;
 
+    const settings = await getSiteSettings();
+    const liveSilverRate = settings.silverPriceCache?.today || SILVER_RATE_PER_GRAM;
+
     const orderId = generateOrderId();
     let subtotal = 0;
     const orderItems = [];
@@ -54,7 +59,7 @@ router.post('/', optionalAuth, [
       const product = await Product.findByPk(item.productId, { transaction: t });
       if (!product) continue;
 
-      const unitPrice = getItemPrice(product);
+      const unitPrice = getItemPrice(product, liveSilverRate);
       subtotal += unitPrice * item.qty;
 
       orderItems.push({
