@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Shield, Gem, Heart, Home, ChevronRight, Send, Sparkles, Award, Users, Star } from 'lucide-react';
 import aboutHero from '../assets/images/about_hero.webp';
-import teamAarti from '../assets/images/team_aarti.png';
-import teamRahul from '../assets/images/team_rahul.png';
-import teamSneha from '../assets/images/team_sneha.png';
-import teamVikram from '../assets/images/team_vikram.png';
 import toast from 'react-hot-toast';
+
+const teamAarti = 'https://ui-avatars.com/api/?name=Aarti+Desai&background=F4A0B0&color=fff&size=256';
+const teamRahul = 'https://ui-avatars.com/api/?name=Rahul+Menon&background=F4A0B0&color=fff&size=256';
+const teamSneha = 'https://ui-avatars.com/api/?name=Sneha+Kapoor&background=F4A0B0&color=fff&size=256';
+const teamVikram = 'https://ui-avatars.com/api/?name=Vikram+Joshi&background=F4A0B0&color=fff&size=256';
+
 import SEO from '../components/seo/SEO';
 
 /* ── Animation variants ── */
