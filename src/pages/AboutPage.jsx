@@ -5,10 +5,10 @@ import { Shield, Gem, Heart, Home, ChevronRight, Send, Sparkles, Award, Users, S
 import aboutHero from '../assets/images/about_hero.webp';
 import toast from 'react-hot-toast';
 
-const teamAarti = 'https://ui-avatars.com/api/?name=Aarti+Desai&background=F4A0B0&color=fff&size=256';
-const teamRahul = 'https://ui-avatars.com/api/?name=Rahul+Menon&background=F4A0B0&color=fff&size=256';
-const teamSneha = 'https://ui-avatars.com/api/?name=Sneha+Kapoor&background=F4A0B0&color=fff&size=256';
-const teamVikram = 'https://ui-avatars.com/api/?name=Vikram+Joshi&background=F4A0B0&color=fff&size=256';
+const teamYogendar = 'https://ui-avatars.com/api/?name=Yogendar+Sahdev&background=F4A0B0&color=fff&size=256';
+const teamPalki = 'https://ui-avatars.com/api/?name=Palki+Sahdev&background=F4A0B0&color=fff&size=256';
+const teamPal = 'https://ui-avatars.com/api/?name=Pal+Gems&background=F4A0B0&color=fff&size=256';
+const teamSterling = 'https://ui-avatars.com/api/?name=Sterling+Kart&background=F4A0B0&color=fff&size=256';
 
 import SEO from '../components/seo/SEO';
 
@@ -48,25 +48,25 @@ const values = [
 ];
 
 const teamMembers = [
-  { name: 'Aarti Desai',   role: 'Founder & Creative Director', photo: teamAarti,  quote: '"Jewellery is emotion, made tangible."' },
-  { name: 'Rahul Menon',   role: 'Head of Design',              photo: teamRahul,  quote: '"Every curve has a reason."' },
-  { name: 'Sneha Kapoor',  role: 'Lead Artisan',                photo: teamSneha,  quote: '"Hands remember what eyes forget."' },
-  { name: 'Vikram Joshi',  role: 'Customer Experience',         photo: teamVikram, quote: '"Delight is in the details."' },
+  { name: 'Yogendar Pal Sahdev', role: 'Founder, Pal Jewellers (Est. 1972)', photo: teamYogendar, quote: '"Trust is the finest jewel of all."' },
+  { name: 'Palki Jewellers',     role: 'Second Chapter (Est. 1996)',          photo: teamPalki,   quote: '"Every generation adds its own brilliance."' },
+  { name: 'Pal Gems',            role: 'Fine Gems Division (Est. 2017)',       photo: teamPal,     quote: '"Craftsmanship never goes out of style."' },
+  { name: 'Sterling Kart',       role: 'Third Generation Legacy (Est. 2022)', photo: teamSterling, quote: '"Where legacy shines forward."' },
 ];
 
 const stats = [
-  { value: '50K+', label: 'Happy Customers', icon: Users },
-  { value: '2022', label: 'Founded In',       icon: Award },
+  { value: '50+',  label: 'Years of Legacy',  icon: Award },
+  { value: '1972', label: 'Est. in Roorkee',  icon: Home },
   { value: '925',  label: 'Silver Purity',    icon: Star },
   { value: '100%', label: 'Hallmarked',       icon: Sparkles },
 ];
 
 const milestones = [
-  { year: '2020', title: 'Born in Jaipur', desc: 'A small home studio, a big dream. Aarti Desai crafted the first collection by hand.' },
-  { year: '2021', title: 'Going Digital',  desc: 'Sterling Kart launched online, bringing artisan silver to doorsteps across India.' },
-  { year: '2022', title: 'BIS Certified',  desc: 'Every piece earned BIS hallmarking — India\'s gold standard for precious metals.' },
-  { year: '2023', title: '25K Milestone',  desc: 'We celebrated 25,000 customers and expanded into bridal collections.' },
-  { year: '2024', title: 'All-India Love', desc: 'Shipping to every Indian pin code, with same-day dispatch from our Jaipur workshop.' },
+  { year: '1972', title: 'Pal Jewellers Founded',    desc: 'Mr. Yogendar Pal Sahdev opened the first showroom in Roorkee, Uttarakhand — built on honesty, quality, and exceptional craftsmanship.' },
+  { year: '1996', title: 'Palki Jewellers Est.',     desc: 'As the family legacy grew, Palki Jewellers was established, further deepening the family\'s commitment to fine jewellery.' },
+  { year: '2017', title: 'Pal Gems Launches',        desc: 'Pal Gems was born, strengthening the Sahdev family\'s expertise in fine gems and precious stones.' },
+  { year: '2022', title: 'Sterling Kart Goes Live',  desc: 'The third generation launched Sterling Kart — bringing 50 years of family craftsmanship to the modern online customer.' },
+  { year: '2024', title: 'Pan-India Reach',          desc: 'Shipping BIS-hallmarked 925 sterling silver to every Indian pin code, trusted by thousands of customers across the country.' },
 ];
 
 /* ── Animated stat counter ── */
@@ -235,7 +235,7 @@ const AboutPage = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <div className="h-px w-6 md:w-10 bg-pink-300/80" />
-            <span className="text-pink-300 text-[9px] sm:text-[10px] md:text-xs font-sans uppercase tracking-[0.2em] sm:tracking-[0.35em] text-center max-w-[200px] sm:max-w-none">Est. 2022 · A Unit of Pal Gems, Roorkee</span>
+            <span className="text-pink-300 text-[9px] sm:text-[10px] md:text-xs font-sans uppercase tracking-[0.2em] sm:tracking-[0.35em] text-center max-w-[200px] sm:max-w-none">Est. 1972 · A Sahdev Family Legacy, Roorkee</span>
             <div className="h-px w-6 md:w-10 bg-pink-300/80" />
           </motion.div>
 
@@ -254,7 +254,7 @@ const AboutPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.55 }}
           >
-            Crafting timeless silver jewellery with love since 2022
+            A multi-generational legacy of trust, craftsmanship, and excellence since 1972
           </motion.p>
         </motion.div>
       </section>
@@ -281,7 +281,7 @@ const AboutPage = () => {
           {/* section label */}
           <motion.div className="flex items-center justify-center gap-3" variants={fadeUp}>
             <div className="w-8 h-[2px] bg-pink-400 rounded-full" />
-            <span className="text-pink-400 text-xs uppercase tracking-[0.3em] font-sans font-semibold">The Beginning</span>
+            <span className="text-pink-400 text-xs uppercase tracking-[0.3em] font-sans font-semibold">Our Story</span>
             <div className="w-8 h-[2px] bg-pink-400 rounded-full" />
           </motion.div>
 
@@ -296,26 +296,26 @@ const AboutPage = () => {
           <motion.div className="w-20 h-[2px] bg-pink-300 mx-auto" variants={fadeUp} />
 
           <motion.p className="text-silver-600 leading-relaxed text-base sm:text-lg font-sans max-w-3xl" variants={fadeUp}>
-            Sterling Kart was born from a simple yet powerful belief — that every woman deserves access to
-            beautiful, high-quality silver jewellery without breaking the bank. What started as a small passion
-            project in a home studio in Jaipur has blossomed into a beloved brand trusted by thousands of
-            women across India. Our founder, Aarti Desai, grew up watching her grandmother's hands transform raw
-            silver into breathtaking ornaments, and that spark of wonder never left her.
+            Our journey began in 1972, when our grandfather, Mr. Yogendar Pal Sahdev, opened the first Pal Jewellers
+            showroom in Roorkee, Uttarakhand. Built on honesty, quality, and exceptional craftsmanship, the business
+            earned the trust of generations of customers. As the family legacy grew, Palki Jewellers was established
+            in 1996, followed by Pal Gems in 2017 — further strengthening our commitment to fine jewellery.
           </motion.p>
 
           <motion.p className="text-silver-600 leading-relaxed text-base sm:text-lg font-sans max-w-3xl" variants={fadeUp}>
-            Today, we work with a close-knit team of skilled artisans who share our obsession with perfection.
-            Every ring, necklace, and earring in our collection is hand-finished and inspected to meet our exacting
-            standards. We source only 925 sterling silver — the international benchmark for quality — and pair it
-            with ethically sourced stones to create pieces that are as pure as they are stunning. From minimalist
-            everyday elegance to show-stopping bridal sets, our collections are designed for the modern Indian woman.
+            Today, the third generation of the Sahdev family proudly carries this legacy forward with Sterling Kart —
+            a contemporary jewellery brand created for the modern generation. We understand that today's customers
+            seek jewellery that is stylish, versatile, and effortlessly wearable. Sterling Kart brings together
+            the elegance of 92.5 Sterling Silver with the latest global trends, offering beautifully crafted pieces
+            finished in premium platinum, gold, and rose gold plating.
           </motion.p>
 
           <motion.p className="text-silver-600 leading-relaxed text-base sm:text-lg font-sans max-w-3xl" variants={fadeUp}>
-            But Sterling Kart is more than a jewellery store — it's a community. We celebrate the stories our
-            customers share: the first piece of silver a mother gifts her daughter, the earrings worn on a first
-            date, the bracelet that becomes a daily talisman. These moments of connection and joy are what drive
-            us to keep creating, keep innovating, and keep pouring our hearts into every design.
+            Designed for everyday wear as well as special occasions, our collections blend timeless quality with
+            modern fashion. Every piece reflects our family's decades of expertise while embracing the evolving
+            style of today's generation. Our mission is simple — to make premium sterling silver jewellery that is
+            fashionable, durable, and accessible, without compromising on the trust and values that have defined
+            our family for over 50 years.
           </motion.p>
         </motion.div>
       </section>
@@ -386,14 +386,14 @@ const AboutPage = () => {
           >
             <motion.div className="flex items-center justify-center gap-3 mb-4" variants={fadeUp}>
               <div className="w-8 h-[2px] bg-pink-400 rounded-full" />
-              <span className="text-pink-400 text-xs uppercase tracking-[0.3em] font-sans font-semibold">The People</span>
+              <span className="text-pink-400 text-xs uppercase tracking-[0.3em] font-sans font-semibold">Our Legacy</span>
               <div className="w-8 h-[2px] bg-pink-400 rounded-full" />
             </motion.div>
             <motion.h2 className="text-3xl sm:text-4xl font-serif text-charcoal mb-3" variants={fadeUp}>
-              Meet the Team
+              A Story Across Generations
             </motion.h2>
             <motion.p className="text-silver-600 font-sans max-w-md mx-auto text-[15px]" variants={fadeUp}>
-              The passionate people who bring Sterling Kart to life every day.
+              From Pal Jewellers to Sterling Kart — five decades of the Sahdev family's passion for fine jewellery.
             </motion.p>
           </motion.div>
 
