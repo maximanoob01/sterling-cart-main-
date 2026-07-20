@@ -7,6 +7,7 @@ import OrderConfirmationEmail from '../emails/OrderConfirmationEmail.jsx';
 import InvoiceEmail from '../emails/InvoiceEmail.jsx';
 import GiftCardEmail from '../emails/GiftCardEmail.jsx';
 import ContactNotificationEmail from '../emails/ContactNotificationEmail.jsx';
+import CallConfirmationEmail from '../emails/CallConfirmationEmail.jsx';
 
 // Validate environment variables on startup
 const validateEnv = () => {
@@ -128,5 +129,16 @@ export const sendInvoiceEmail = async (order, items, pdfBase64) => {
     subject: `Your Invoice for Order ${orderId}`,
     html,
     attachments
+  });
+};
+
+export const sendCallConfirmation = async ({ name, email, preferredDate, finalTime, timeSlot }) => {
+  if (!email) return { success: false, error: 'No email address provided' };
+  const html = await render(React.createElement(CallConfirmationEmail, { name, preferredDate, finalTime, timeSlot }));
+  return await sendWithResend('Call Confirmation', {
+    from: process.env.NOREPLY_EMAIL_FROM,
+    to: email,
+    subject: `Your Call with Sterling Kart is Confirmed ✓`,
+    html,
   });
 };

@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import { CallRequest } from '../models/index.js';
 import validate from '../middleware/validate.js';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
+import { sendCallConfirmation } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -81,6 +82,17 @@ router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
     // WhatsApp Mocks to Customer
     if (status === 'Confirmed' && (oldStatus !== 'Confirmed' || dateChanged)) {
       console.log(`\n[WHATSAPP MOCK] To ${request.phone}: Hi ${request.name}, your personalized consultation has been confirmed for ${request.preferredDate} at ${request.finalTime || request.timeSlot}. We'll call you shortly. Thank you!\n`);
+
+      // Send confirmation email if customer provided one
+      if (request.email) {
+        sendCallConfirmation({
+          name:          request.name,
+          email:         request.email,
+          preferredDate: request.preferredDate,
+          finalTime:     request.finalTime,
+          timeSlot:      request.timeSlot,
+        }).catch(err => console.error('[EMAIL] Call confirmation failed:', err.message));
+      }
     } else if (status === 'Cancelled' && oldStatus !== 'Cancelled') {
       console.log(`\n[WHATSAPP MOCK] To ${request.phone}: Hi ${request.name}, unfortunately your consultation request for ${request.preferredDate} has been cancelled. Please contact us for more info.\n`);
     }

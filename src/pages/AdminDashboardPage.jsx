@@ -21,7 +21,7 @@ import toast from 'react-hot-toast';
 import AdminCallRequestsTab from '../components/AdminCallRequestsTab';
 import AdminOffersTab from '../components/AdminOffersTab';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const STATUS_COLORS = {
   Delivered:        { bg: '#E6F4EA', text: '#137333' },
   Shipped:          { bg: '#F3E8FF', text: '#7E22CE' },
@@ -117,7 +117,7 @@ const buildRevenueData = (orders) => {
     }));
 };
 
-// ─── Helper: status badge ──────────────────────────────────────────────────────
+// â”€â”€â”€ Helper: status badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StatusBadge({ status, size = 'sm' }) {
   const c = STATUS_COLORS[status] || STATUS_COLORS['Pending'];
   const cls = size === 'sm'
@@ -128,7 +128,7 @@ function StatusBadge({ status, size = 'sm' }) {
   );
 }
 
-// ─── Order Detail Panel ────────────────────────────────────────────────────────
+// â”€â”€â”€ Order Detail Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function OrderDetailPanel({ order, onClose }) {
   const handlePrintInvoice = () => {
     const addr = order.shippingAddress;
@@ -139,8 +139,8 @@ function OrderDetailPanel({ order, onClose }) {
           ${item.engravingText ? `<br><small style="color:#D4527A;font-weight:600;">Engraving: "${item.engravingText}"</small>` : ''}
         </td>
         <td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:center;">${item.qty}</td>
-        <td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:right;">₹${item.price.toLocaleString()}</td>
-        <td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:right;">₹${(item.price * item.qty).toLocaleString()}</td>
+        <td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:right;">â‚¹${item.price.toLocaleString()}</td>
+        <td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:right;">â‚¹${(item.price * item.qty).toLocaleString()}</td>
       </tr>
     `).join('');
 
@@ -185,7 +185,7 @@ function OrderDetailPanel({ order, onClose }) {
           <div class="address-block">
             ${addr ? `<strong>${addr.fullName}</strong><br>
             ${addr.addressLine1}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}<br>
-            ${addr.city}, ${addr.state} — ${addr.pincode}<br>
+            ${addr.city}, ${addr.state} â€” ${addr.pincode}<br>
             ${addr.landmark ? 'Landmark: ' + addr.landmark + '<br>' : ''}` : `<strong>${order.customerName}</strong><br>`}
             Phone: ${order.customerPhone}<br>
             Email: ${order.customerEmail}
@@ -196,7 +196,7 @@ function OrderDetailPanel({ order, onClose }) {
           <div class="address-block">
             ${addr ? `<strong>${addr.fullName}</strong><br>
             ${addr.addressLine1}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}<br>
-            ${addr.city}, ${addr.state} — ${addr.pincode}` : '<em>Digital Delivery / N/A</em>'}
+            ${addr.city}, ${addr.state} â€” ${addr.pincode}` : '<em>Digital Delivery / N/A</em>'}
             ${order.trackingNumber ? '<br><br><strong>Tracking:</strong> ' + order.trackingNumber + '<br><strong>Courier:</strong> ' + order.courierName : ''}
           </div>
         </div>
@@ -206,11 +206,11 @@ function OrderDetailPanel({ order, onClose }) {
         <tbody>${itemsHTML}</tbody>
       </table>
       <div class="totals">
-        <div class="row"><span>Subtotal</span><span>₹${order.subtotal.toLocaleString()}</span></div>
-        ${order.discount > 0 ? `<div class="row"><span>Discount${order.couponCode ? ' (' + order.couponCode + ')' : ''}</span><span style="color:#137333">−₹${order.discount.toLocaleString()}</span></div>` : ''}
-        <div class="row"><span>Shipping</span><span>${order.shipping === 0 ? 'FREE' : '₹' + order.shipping}</span></div>
-        <div class="row"><span>GST (3%)</span><span>₹${order.gst.toLocaleString()}</span></div>
-        <div class="row grand"><span>Total Payable</span><span>₹${order.total.toLocaleString()}</span></div>
+        <div class="row"><span>Subtotal</span><span>â‚¹${order.subtotal.toLocaleString()}</span></div>
+        ${order.discount > 0 ? `<div class="row"><span>Discount${order.couponCode ? ' (' + order.couponCode + ')' : ''}</span><span style="color:#137333">âˆ’â‚¹${order.discount.toLocaleString()}</span></div>` : ''}
+        <div class="row"><span>Shipping</span><span>${order.shipping === 0 ? 'FREE' : 'â‚¹' + order.shipping}</span></div>
+        <div class="row"><span>GST (3%)</span><span>â‚¹${order.gst.toLocaleString()}</span></div>
+        <div class="row grand"><span>Total Payable</span><span>â‚¹${order.total.toLocaleString()}</span></div>
       </div>
       <div class="footer">Thank you for shopping with Sterling Kart! For queries: hello@sterlingcart.com | +91 99999 00000</div>
       </body></html>
@@ -233,7 +233,7 @@ function OrderDetailPanel({ order, onClose }) {
         onClick={onClose}
       />
       {/* Panel */}
-      <div className="fixed top-0 right-0 z-[210] h-full w-full max-w-[520px] bg-bg-surface shadow-[−8px_0_40px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden"
+      <div className="fixed top-0 right-0 z-[210] h-full w-full max-w-[520px] bg-bg-surface shadow-[âˆ’8px_0_40px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden"
         style={{ animation: 'slideInRight 0.3s cubic-bezier(0.25,1,0.5,1)' }}
       >
         <style>{`@keyframes slideInRight{from{transform:translateX(100%)}to{transform:translateX(0)}}`}</style>
@@ -265,7 +265,7 @@ function OrderDetailPanel({ order, onClose }) {
             <StatusBadge status={order.status} size="lg" />
             {order.trackingNumber && (
               <span className="font-sans text-[12px] text-text-muted flex items-center gap-2">
-                <span>{order.courierName || 'Shiprocket'} · {order.trackingNumber}</span>
+                <span>{order.courierName || 'Shiprocket'} Â· {order.trackingNumber}</span>
                 {order.trackingUrl && (
                   <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-[#D4527A] hover:underline font-semibold">Track</a>
                 )}
@@ -307,8 +307,8 @@ function OrderDetailPanel({ order, onClose }) {
                   <>
                     <p className="font-semibold">{addr.fullName}</p>
                     <p>{addr.addressLine1}{addr.addressLine2 ? ', ' + addr.addressLine2 : ''}</p>
-                    <p>{addr.city}, {addr.state} — {addr.pincode}</p>
-                    {addr.landmark && <p className="text-text-muted text-[12px]">📍 {addr.landmark}</p>}
+                    <p>{addr.city}, {addr.state} â€” {addr.pincode}</p>
+                    {addr.landmark && <p className="text-text-muted text-[12px]">ðŸ“ {addr.landmark}</p>}
                   </>
                 ) : (
                   <p className="italic text-text-muted mt-0.5">Digital Delivery / Not Provided</p>
@@ -335,7 +335,7 @@ function OrderDetailPanel({ order, onClose }) {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="font-sans font-bold text-[13px] text-text-main">{formatPrice(item.price * item.qty)}</p>
-                    <p className="font-sans text-[11px] text-text-muted">×{item.qty}</p>
+                    <p className="font-sans text-[11px] text-text-muted">Ã—{item.qty}</p>
                   </div>
                 </div>
               ))}
@@ -351,7 +351,7 @@ function OrderDetailPanel({ order, onClose }) {
             {order.discount > 0 && (
               <div className="flex justify-between font-sans text-[13px] text-[#137333]">
                 <span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span>
-                <span>−{formatPrice(order.discount)}</span>
+                <span>âˆ’{formatPrice(order.discount)}</span>
               </div>
             )}
             <div className="flex justify-between font-sans text-[13px] text-text-muted">
@@ -388,7 +388,7 @@ function OrderDetailPanel({ order, onClose }) {
                     {step.date && (
                       <p className="font-sans text-[11px] text-text-muted">
                         {new Date(step.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        {' · '}
+                        {' Â· '}
                         {new Date(step.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     )}
@@ -403,7 +403,7 @@ function OrderDetailPanel({ order, onClose }) {
   );
 }
 
-// ─── Add/Edit Product Modal ────────────────────────────────────────────────────
+// â”€â”€â”€ Add/Edit Product Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ProductModal({ product, onSave, onClose, mode = 'edit' }) {
   const [form, setForm] = useState(product);
   const fileInputRef = useRef(null);
@@ -522,7 +522,7 @@ function ProductModal({ product, onSave, onClose, mode = 'edit' }) {
 
           {/* Pricing Type */}
 
-          {/* ── Settings Tab ── */}
+          {/* â”€â”€ Settings Tab â”€â”€ */}
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-2">Pricing Type</label>
             <div className="flex gap-3">
@@ -549,11 +549,11 @@ function ProductModal({ product, onSave, onClose, mode = 'edit' }) {
                 <input type="number" step="0.1" min="0" value={form.weightGrams} onChange={e => set('weightGrams', e.target.value)} placeholder="e.g. 5.2" className="w-full h-[40px] px-3 border border-[#BAE6FD] rounded-[10px] font-sans text-[13px] outline-none focus:border-[#0369A1] bg-white" />
               </div>
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-[1px] text-[#0369A1] mb-1.5 flex items-center gap-1"><Wrench size={11} /> Making Charges (₹)</label>
+                <label className="block text-[11px] font-bold uppercase tracking-[1px] text-[#0369A1] mb-1.5 flex items-center gap-1"><Wrench size={11} /> Making Charges (â‚¹)</label>
                 <input type="number" step="1" min="0" value={form.makingCharges} onChange={e => set('makingCharges', e.target.value)} placeholder="e.g. 350" className="w-full h-[40px] px-3 border border-[#BAE6FD] rounded-[10px] font-sans text-[13px] outline-none focus:border-[#0369A1] bg-white" />
               </div>
               <div className="col-span-2 text-[11px] text-[#0369A1] bg-white/70 rounded-[8px] px-3 py-2">
-                Estimated price: <strong>₹{Math.round(102.4 * (parseFloat(form.weightGrams) || 0) + (parseInt(form.makingCharges) || 0))}</strong> + 3% GST
+                Estimated price: <strong>â‚¹{Math.round(102.4 * (parseFloat(form.weightGrams) || 0) + (parseInt(form.makingCharges) || 0))}</strong> + 3% GST
               </div>
             </div>
           )}
@@ -561,11 +561,11 @@ function ProductModal({ product, onSave, onClose, mode = 'edit' }) {
           {/* Price & MRP */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Selling Price (₹) *</label>
+              <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">Selling Price (â‚¹) *</label>
               <input type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0" className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A]" />
             </div>
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">MRP (₹)</label>
+              <label className="block text-[11px] font-bold uppercase tracking-[1px] text-text-muted mb-1.5">MRP (â‚¹)</label>
               <input type="number" value={form.mrp} onChange={e => set('mrp', e.target.value)} placeholder="0" className="w-full h-[40px] px-3 border border-border-main rounded-[10px] font-sans text-[13px] outline-none focus:border-[#D4527A]" />
             </div>
             <div>
@@ -604,7 +604,7 @@ function ProductModal({ product, onSave, onClose, mode = 'edit' }) {
   );
 }
 
-// ─── KPI Card ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ KPI Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function KpiCard({ label, value, sub, icon, iconBg, iconColor, trend, trendLabel }) {
   const isUp = trend >= 0;
   return (
@@ -627,7 +627,7 @@ function KpiCard({ label, value, sub, icon, iconBg, iconColor, trend, trendLabel
   );
 }
 
-// ─── Notification Bell ───────────────────────────────────────────────────────
+// â”€â”€â”€ Notification Bell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 function NotificationBell({ notifications, onMarkAllRead, onMarkRead }) {
@@ -761,7 +761,7 @@ function NotificationBell({ notifications, onMarkAllRead, onMarkRead }) {
   );
 }
 
-// ─── Custom Tooltip for charts ─────────────────────────────────────────────────
+// â”€â”€â”€ Custom Tooltip for charts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const CustomTooltip = ({ active, payload, label, currency }) => {
   if (!active || !payload?.length) return null;
   return (
@@ -772,7 +772,7 @@ const CustomTooltip = ({ active, payload, label, currency }) => {
   );
 };
 
-// ─── Main Component ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function AdminDashboardPage() {
   const { user, isAdmin, openAuthModal } = useAuth();
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
@@ -794,6 +794,7 @@ export default function AdminDashboardPage() {
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [adminDataLoading, setAdminDataLoading] = useState(false);
+  const [pendingCallCount, setPendingCallCount] = useState(0);
   const [settingsForm, setSettingsForm] = useState({
     adminUserId: '',
     adminPhone: '',
@@ -833,12 +834,14 @@ export default function AdminDashboardPage() {
     const fetchAdminData = async () => {
       setAdminDataLoading(true);
       try {
-        const [ordersRes, customersRes, settingsRes, notifRes] = await Promise.all([
+        const [ordersRes, customersRes, settingsRes, notifRes, callRes] = await Promise.all([
           api.get('/orders/admin/all?limit=500'),
           api.get('/admin/customers?limit=500'),
           api.get('/admin/settings'),
-          api.get('/admin/notifications').catch(() => ({ notifications: [] }))
+          api.get('/admin/notifications').catch(() => ({ notifications: [] })),
+          api.get('/admin/call-requests?status=Pending').catch(() => ({ requests: [] }))
         ]);
+        setPendingCallCount((callRes.requests || []).length);
 
         setOrders((ordersRes.orders || []).map(normalizeOrder));
         setCustomers((customersRes.customers || []).map(normalizeCustomer));
@@ -860,7 +863,7 @@ export default function AdminDashboardPage() {
     fetchAdminData();
   }, [user, isAdmin]);
 
-  // ── Redirect ────────────────────────────────────────────────────────────────
+  // â”€â”€ Redirect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (!user || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
@@ -876,7 +879,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // ── Derived analytics data ───────────────────────────────────────────────────
+  // â”€â”€ Derived analytics data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const totalRevenue = orders.reduce((s, o) => s + (o.status !== 'Cancelled' ? o.total : 0), 0);
   const todayKey = new Date().toISOString().slice(0, 10);
   const revenueToday = orders.reduce((sum, o) => {
@@ -911,7 +914,7 @@ export default function AdminDashboardPage() {
     .sort((a, b) => b.rating * b.reviewCount - a.rating * a.reviewCount)
     .slice(0, 5);
 
-  // ── Filtered data ─────────────────────────────────────────────────────────
+  // â”€â”€ Filtered data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const filteredProducts = products.filter(p => {
     const matchSearch = p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
       (p.sku || '').toLowerCase().includes(productSearch.toLowerCase());
@@ -934,7 +937,7 @@ export default function AdminDashboardPage() {
     return 0;
   });
 
-  // ── Handlers ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
     const orderToUpdate = orders.find(o => o.id === orderId);
     if (!orderToUpdate) return;
@@ -994,7 +997,7 @@ export default function AdminDashboardPage() {
       const data = await api.post(`/custom-orders/${rejectOrderId}/reject`, { reason: rejectReason });
       if (data.success) {
         if (data.refunded) {
-          toast.success(`Razorpay Refund Processed for ${rejectOrderId}`, { icon: '💸' });
+          toast.success(`Razorpay Refund Processed for ${rejectOrderId}`, { icon: 'ðŸ’¸' });
           setOrders(orders.map(o => (o.id === rejectOrderId || o.orderId === rejectOrderId) ? { ...o, status: 'Cancelled', rejectionReason: rejectReason } : o));
         } else {
           setOrders(orders.map(o => {
@@ -1110,7 +1113,7 @@ export default function AdminDashboardPage() {
     return matchSearch && matchStatus;
   });
 
-  // ── Sidebar ───────────────────────────────────────────────────────────────
+  // â”€â”€ Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const sidebarLinks = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { id: 'orders', label: 'Orders', icon: <ShoppingBag size={20} />, badge: pendingOrders || null },
@@ -1122,12 +1125,59 @@ export default function AdminDashboardPage() {
     { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
   ];
 
-  // ─────────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // RENDER SECTIONS
-  // ─────────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const renderDashboard = () => (
     <div className="space-y-[24px]">
+      {/* ── Quick Nav Grid ────────────────────────────────────────────────────── */}
+      <div className="bg-bg-surface rounded-[16px] shadow-product p-6">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-8 h-8 rounded-[8px] bg-[#FFF0F5] flex items-center justify-center">
+            <LayoutDashboard size={16} className="text-[#D4527A]" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4527A]">Sterling Kart</p>
+            <h2 className="font-serif text-[18px] font-bold text-text-main leading-none">Admin Panel</h2>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { id: 'orders',        label: 'Orders',        icon: <ShoppingBag size={22}/>,  badge: pendingOrders || null,  bg: '#FFF0F5', color: '#D4527A' },
+            { id: 'custom-orders', label: 'Custom Orders', icon: <Palette size={22}/>,       badge: null,                   bg: '#FFF3E0', color: '#E65100' },
+            { id: 'products',      label: 'Products',      icon: <Package size={22}/>,       badge: products.length || null, bg: '#F3E8FF', color: '#7E22CE' },
+            { id: 'customers',     label: 'Customers',     icon: <Users size={22}/>,         badge: customers.length || null, bg: '#E0F2FE', color: '#0369A1' },
+            { id: 'analytics',     label: 'Analytics',     icon: <BarChart3 size={22}/>,     badge: null,                   bg: '#E6F4EA', color: '#137333' },
+            { id: 'offers',        label: 'Offers',        icon: <Star size={22}/>,          badge: null,                   bg: '#FFFDE7', color: '#A16207' },
+            { id: 'settings',      label: 'Settings',      icon: <Settings size={22}/>,      badge: null,                   bg: '#F0F0F0', color: '#555555' },
+          ].map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className="group relative flex flex-col items-center justify-center gap-2 p-4 rounded-[14px] border border-border-main bg-white hover:border-[#D4527A] hover:shadow-md transition-all duration-200 text-center"
+            >
+              {/* Badge */}
+              {item.badge != null && item.badge > 0 && (
+                <span className="absolute top-2.5 right-2.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[9px] font-bold bg-[#D4527A] text-white leading-none">
+                  {item.badge}
+                </span>
+              )}
+              {/* Icon */}
+              <div
+                className="w-11 h-11 rounded-[10px] flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
+                style={{ background: item.bg, color: item.color }}
+              >
+                {item.icon}
+              </div>
+              <span className="font-sans text-[12px] font-semibold text-text-main group-hover:text-[#D4527A] transition-colors leading-tight">
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* KPI row */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-[20px]">
         <KpiCard label="Total Revenue" value={formatPrice(totalRevenue)} sub={`${orders.filter(o=>o.status!=='Cancelled').length} orders`} icon={<TrendingUp size={22}/>} iconBg="#FFF0F5" iconColor="#D4527A" trend={12.4} trendLabel="vs last month"/>
@@ -1140,8 +1190,8 @@ export default function AdminDashboardPage() {
         {/* Revenue chart */}
         <div className="xl:col-span-2 bg-bg-surface rounded-[16px] p-[24px] shadow-product">
           <div className="flex items-center justify-between mb-[20px]">
-            <h3 className="font-serif text-[18px] font-bold text-text-main">Revenue — Last 30 Days</h3>
-            <span className="font-sans text-[12px] text-text-muted">₹ INR</span>
+            <h3 className="font-serif text-[18px] font-bold text-text-main">Revenue â€” Last 30 Days</h3>
+            <span className="font-sans text-[12px] text-text-muted">â‚¹ INR</span>
           </div>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -1154,7 +1204,7 @@ export default function AdminDashboardPage() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F0F0"/>
                 <XAxis dataKey="date" tick={{fontSize:11,fill:'#A8A8A8',fontFamily:'Inter'}} axisLine={false} tickLine={false} interval={4}/>
-                <YAxis tickFormatter={v=>`₹${v/1000}k`} tick={{fontSize:11,fill:'#A8A8A8',fontFamily:'Inter'}} axisLine={false} tickLine={false}/>
+                <YAxis tickFormatter={v=>`â‚¹${v/1000}k`} tick={{fontSize:11,fill:'#A8A8A8',fontFamily:'Inter'}} axisLine={false} tickLine={false}/>
                 <Tooltip content={<CustomTooltip currency/>}/>
                 <Line type="monotone" dataKey="revenue" stroke="#F4A0B0" strokeWidth={2.5} dot={false} activeDot={{r:5,fill:'#D4527A'}}/>
               </LineChart>
@@ -1243,32 +1293,74 @@ export default function AdminDashboardPage() {
 
   const renderOrders = () => (
     <div className="bg-bg-surface rounded-[16px] shadow-product overflow-hidden">
-      <div className="p-[24px] flex flex-col md:flex-row justify-between gap-[16px] items-start md:items-center border-b border-border-main">
-        <div>
-          <h3 className="font-serif text-[18px] font-bold text-text-main">Manage Orders</h3>
-          <div className="flex gap-4 mt-2">
-            <button onClick={() => setOrderSubTab('orders')} className={`font-bold pb-1 border-b-2 text-[13px] ${orderSubTab === 'orders' ? 'border-[#D4527A] text-[#D4527A]' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Product Orders</button>
-            <button onClick={() => setOrderSubTab('calls')} className={`font-bold pb-1 border-b-2 text-[13px] ${orderSubTab === 'calls' ? 'border-[#D4527A] text-[#D4527A]' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Call Requests</button>
+      {/* â”€â”€ Section header â”€â”€ */}
+      <div className="px-[24px] pt-[24px] pb-0 border-b border-border-main">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-0">
+          <div>
+            <p className="text-[#D4527A] uppercase tracking-[0.18em] text-[10px] font-bold mb-1">Admin Panel</p>
+            <h3 className="font-serif text-[22px] font-bold text-text-main leading-tight">Manage Orders</h3>
           </div>
+          {/* Search + filter toolbar â€” only for product orders */}
+          {orderSubTab === 'orders' && (
+            <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto pb-[18px]">
+              <div className="relative w-full md:w-[220px]">
+                <Search size={15} className="absolute left-[11px] top-1/2 -translate-y-1/2 text-[#A8A8A8]"/>
+                <input type="text" placeholder="Search orders..." value={orderSearch} onChange={e => setOrderSearch(e.target.value)} className="w-full pl-[34px] pr-[12px] h-[38px] border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A]"/>
+              </div>
+              <div className="grid grid-cols-2 gap-3 w-full md:flex md:w-auto">
+                <select value={orderStatusFilter} onChange={e => setOrderStatusFilter(e.target.value)} className="w-full h-[38px] px-3 border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A] bg-white appearance-none cursor-pointer">
+                  <option>All</option>
+                  {Object.keys(STATUS_COLORS).map(s => <option key={s}>{s}</option>)}
+                </select>
+                <button onClick={() => toast.success('Exporting CSV...')} className="btn-secondary w-full justify-center h-[38px] px-[14px] flex items-center gap-[6px] font-sans text-[13px] whitespace-nowrap"><Download size={15}/> Export</button>
+              </div>
+            </div>
+          )}
         </div>
-        {orderSubTab === 'orders' && (
-          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-            <div className="relative w-full md:w-[220px]">
-              <Search size={15} className="absolute left-[11px] top-1/2 -translate-y-1/2 text-[#A8A8A8]"/>
-              <input type="text" placeholder="Search orders..." value={orderSearch} onChange={e => setOrderSearch(e.target.value)} className="w-full pl-[34px] pr-[12px] h-[38px] border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A]"/>
-            </div>
-            <div className="grid grid-cols-2 gap-3 w-full md:flex md:w-auto">
-              <select value={orderStatusFilter} onChange={e => setOrderStatusFilter(e.target.value)} className="w-full h-[38px] px-3 border border-border-main rounded-[8px] font-sans text-[13px] outline-none focus:border-[#1A1A1A] bg-white appearance-none cursor-pointer">
-                <option>All</option>
-                {Object.keys(STATUS_COLORS).map(s => <option key={s}>{s}</option>)}
-              </select>
-              <button onClick={() => toast.success('Exporting CSV...')} className="btn-secondary w-full justify-center h-[38px] px-[14px] flex items-center gap-[6px] font-sans text-[13px] whitespace-nowrap"><Download size={15}/> Export</button>
-            </div>
-          </div>
-        )}
+
+        {/* â”€â”€ Tab pills â”€â”€ */}
+        <div className="flex gap-1 mt-4 -mb-px">
+          <button
+            onClick={() => setOrderSubTab('orders')}
+            className={`relative flex items-center gap-2 px-5 py-3 text-[13px] font-bold rounded-t-xl border border-b-0 transition-all duration-200 ${
+              orderSubTab === 'orders'
+                ? 'bg-white border-border-main text-text-main shadow-sm z-10'
+                : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <ShoppingBag size={14} />
+            Product Orders
+            {orders.length > 0 && (
+              <span className={`ml-1 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold ${
+                orderSubTab === 'orders' ? 'bg-[#1A1A1A] text-white' : 'bg-gray-200 text-gray-500'
+              }`}>
+                {orders.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setOrderSubTab('calls')}
+            className={`relative flex items-center gap-2 px-5 py-3 text-[13px] font-bold rounded-t-xl border border-b-0 transition-all duration-200 ${
+              orderSubTab === 'calls'
+                ? 'bg-white border-border-main text-text-main shadow-sm z-10'
+                : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <Phone size={14} />
+            Call Requests
+            {pendingCallCount > 0 && (
+              <span className={`ml-1 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold ${
+                orderSubTab === 'calls' ? 'bg-[#D4527A] text-white' : 'bg-[#D4527A]/15 text-[#D4527A]'
+              }`}>
+                {pendingCallCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
+
       {orderSubTab === 'calls' ? (
-        <AdminCallRequestsTab />
+        <AdminCallRequestsTab onCountChange={setPendingCallCount} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -1336,7 +1428,7 @@ export default function AdminDashboardPage() {
                           <div className="col-span-2 mt-1 border-t border-border-main pt-2">
                             <p className="font-bold text-text-muted uppercase tracking-[0.5px]">Customer Details</p>
                             <p className="text-text-main mt-0.5">{order.customerName}</p>
-                            <p className="text-text-muted">{order.customerPhone} · {order.customerEmail}</p>
+                            <p className="text-text-muted">{order.customerPhone} Â· {order.customerEmail}</p>
                           </div>
                         </div>
                       </td>
@@ -1557,7 +1649,7 @@ export default function AdminDashboardPage() {
               <LineChart data={revenueData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F0F0"/>
                 <XAxis dataKey="date" tick={{fontSize:10,fill:'#A8A8A8'}} axisLine={false} tickLine={false} interval={5}/>
-                <YAxis tickFormatter={v=>`₹${v/1000}k`} tick={{fontSize:10,fill:'#A8A8A8'}} axisLine={false} tickLine={false}/>
+                <YAxis tickFormatter={v=>`â‚¹${v/1000}k`} tick={{fontSize:10,fill:'#A8A8A8'}} axisLine={false} tickLine={false}/>
                 <Tooltip content={<CustomTooltip currency/>}/>
                 <Line type="monotone" dataKey="revenue" stroke="#D4527A" strokeWidth={2} dot={false} activeDot={{r:4}}/>
               </LineChart>
@@ -1572,7 +1664,7 @@ export default function AdminDashboardPage() {
               <BarChart data={catBarData} barSize={28}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F0F0"/>
                 <XAxis dataKey="name" tick={{fontSize:10,fill:'#A8A8A8'}} axisLine={false} tickLine={false}/>
-                <YAxis tickFormatter={v=>`₹${v/1000}k`} tick={{fontSize:10,fill:'#A8A8A8'}} axisLine={false} tickLine={false}/>
+                <YAxis tickFormatter={v=>`â‚¹${v/1000}k`} tick={{fontSize:10,fill:'#A8A8A8'}} axisLine={false} tickLine={false}/>
                 <Tooltip content={<CustomTooltip currency/>}/>
                 <Bar dataKey="revenue" fill="#F4A0B0" radius={[6,6,0,0]}/>
               </BarChart>
@@ -1815,9 +1907,9 @@ export default function AdminDashboardPage() {
     </div>
   );
 
-  // ─────────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // LAYOUT
-  // ─────────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className="flex h-screen bg-[#F8F8FA] overflow-hidden">
       {/* Sidebar */}
@@ -1953,210 +2045,327 @@ export default function AdminDashboardPage() {
   );
 }
 
-// ─── Bulk Upload Modal ────────────────────────────────────────────────────────
+// â”€â”€â”€ Bulk Upload Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function BulkUploadModal({ onClose }) {
   const { addMultipleProducts } = useProducts();
-  const [file, setFile] = useState(null);
-  const [parsedData, setParsedData] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const { addProduct } = useProducts();
+  const [parsedData, setParsedData] = useState(null); // [{ ...fields, _imgFiles: File[], _imgUrls: string[] }]
+  const [progress, setProgress] = useState({ done: 0, total: 0, running: false, errors: [] });
 
-  const TEMPLATE_HEADERS = ['name', 'category', 'price', 'originalPrice', 'stockQty', 'description', 'shortDescription', 'metal'];
+  // â”€â”€ Template columns (mirrors POST /api/products body) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const TEMPLATE_HEADERS = [
+    'name', 'category', 'price', 'originalPrice', 'stockQty',
+    'pricingType', 'badge', 'metal', 'occasion', 'style', 'stoneType',
+    'shortDescription', 'description',
+    'image1URL', 'image2URL', 'image3URL', 'image4URL',
+  ];
 
+  const SAMPLE_ROW = [
+    'Silver Leaf Ring', 'rings', '2499', '3200', '10',
+    'fixed', 'New', '925 Sterling Silver', 'everyday', 'minimalist', 'No Stone',
+    'Delicate leaf-shaped sterling silver ring.',
+    'Handcrafted 925 sterling silver ring with a detailed leaf motif. Adjustable band.',
+    'https://your-cdn.com/image1.jpg', '', '', '',
+  ];
+
+  // â”€â”€ Download template â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleDownloadTemplate = async () => {
     const XLSX = await import('xlsx');
-    const ws = XLSX.utils.aoa_to_sheet([TEMPLATE_HEADERS]);
+    const ws = XLSX.utils.aoa_to_sheet([TEMPLATE_HEADERS, SAMPLE_ROW]);
+
+    // Column widths
+    ws['!cols'] = TEMPLATE_HEADERS.map(h =>
+      ({ wch: h.includes('description') || h.includes('Description') ? 40 : h.includes('URL') ? 35 : 18 })
+    );
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Template");
-    XLSX.writeFile(wb, "Product_Upload_Template.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, 'Products');
+    XLSX.writeFile(wb, 'SterlingKart_Product_Upload_Template.xlsx');
   };
 
+  // â”€â”€ Parse uploaded Excel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleFileUpload = async (e) => {
     const uploadedFile = e.target.files[0];
     if (!uploadedFile) return;
-    setFile(uploadedFile);
 
     const XLSX = await import('xlsx');
+    const buf = await uploadedFile.arrayBuffer();               // Bug fix: was readAsBinaryString (deprecated)
+    const wb = XLSX.read(buf, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
 
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const bstr = evt.target.result;
-      const wb = XLSX.read(bstr, { type: 'binary' });
-      const wsname = wb.SheetNames[0];
-      const ws = wb.Sheets[wsname];
-      const data = XLSX.utils.sheet_to_json(ws);
-      
-      const dataWithImages = data.map(row => ({
-        ...row,
-        images: [],
-        price: Number(row.price) || 0,
-        originalPrice: Number(row.originalPrice) || 0,
-        stockQty: Number(row.stockQty) || 0,
-      }));
-      setParsedData(dataWithImages);
-    };
-    reader.readAsBinaryString(uploadedFile);
+    const parsed = rows.map(row => {
+      // Pull image URLs from the 4 dedicated columns
+      const urlsFromSheet = [row.image1URL, row.image2URL, row.image3URL, row.image4URL]
+        .map(u => (u || '').trim())
+        .filter(Boolean);
+
+      return {
+        name:             String(row.name || '').trim(),
+        category:         String(row.category || 'rings').trim().toLowerCase(),
+        price:            Number(row.price)         || 0,
+        originalPrice:    Number(row.originalPrice) || 0,
+        stockQty:         Number(row.stockQty)      || 0,
+        pricingType:      String(row.pricingType    || 'fixed').trim(),
+        badge:            String(row.badge          || 'New').trim(),
+        metal:            String(row.metal          || '925 Sterling Silver').trim(),
+        occasion:         String(row.occasion       || 'everyday').trim(),
+        style:            String(row.style          || 'minimalist').trim(),
+        stoneType:        String(row.stoneType      || 'No Stone').trim(),
+        shortDescription: String(row.shortDescription || '').trim(),
+        description:      String(row.description   || '').trim(),
+        _imgFiles:  [],           // File objects added via picker
+        _imgUrls:   urlsFromSheet, // URLs from sheet columns
+      };
+    });
+
+    setParsedData(parsed);
   };
 
-  const handleImageUpload = (rowIndex, e) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
+  // ——— Per-row image picker (max 4 total across URLs + files) —————————————————
+  const handleImagePick = (rowIdx, e) => {
+    const picked = Array.from(e.target.files || []);
+    if (!picked.length) return;
+    setParsedData(prev => prev.map((row, i) => {
+      if (i !== rowIdx) return row;
+      const slots = 4 - row._imgUrls.length;   // how many file slots are left
+      const newFiles = picked.slice(0, Math.max(0, slots - row._imgFiles.length));
+      return { ...row, _imgFiles: [...row._imgFiles, ...newFiles] };
+    }));
+    e.target.value = '';
+  };
 
-    const newImageUrls = files.map(file => URL.createObjectURL(file));
-    setParsedData(prev => prev.map((row, i) => 
-      i === rowIndex ? { ...row, images: [...(row.images || []), ...newImageUrls] } : row
+  const removeUrlImg = (rowIdx, urlIdx) =>
+    setParsedData(prev => prev.map((row, i) =>
+      i !== rowIdx ? row : { ...row, _imgUrls: row._imgUrls.filter((_, j) => j !== urlIdx) }
     ));
-  };
 
-  const removeImage = (rowIndex, imgIndex) => {
-    setParsedData(prev => prev.map((row, i) => 
-      i === rowIndex ? { ...row, images: row.images.filter((_, idx) => idx !== imgIndex) } : row
+  const removeFileImg = (rowIdx, fileIdx) =>
+    setParsedData(prev => prev.map((row, i) =>
+      i !== rowIdx ? row : { ...row, _imgFiles: row._imgFiles.filter((_, j) => j !== fileIdx) }
     ));
-  };
 
-  const handleApprove = () => {
-    if (!parsedData || parsedData.length === 0) return;
-    setIsUploading(true);
+  // ——— Approve & Upload ———————————————————————————————————————————————————————
+  const handleApprove = async () => {
+    if (!parsedData?.length) return;
+    const errors = [];
+    setProgress({ done: 0, total: parsedData.length, running: true, errors: [] });
 
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.floor(Math.random() * 10) + 5;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        
-        addMultipleProducts(parsedData);
-        
-        setTimeout(() => {
-          toast.success(`${parsedData.length} products uploaded successfully!`);
-          setIsUploading(false);
-          onClose();
-        }, 500);
+    for (let i = 0; i < parsedData.length; i++) {
+      const row = parsedData[i];
+      try {
+        let imageUrls = [...row._imgUrls];
+
+        // 1. Upload any file-picked images first
+        if (row._imgFiles.length > 0) {
+          const fd = new FormData();
+          row._imgFiles.forEach(f => fd.append('images', f));
+          const uploadRes = await api.upload('/upload', fd);
+          if (uploadRes.success) imageUrls = [...imageUrls, ...uploadRes.urls];
+        }
+
+        // 2. POST product to DB via the same path addProduct uses
+        const payload = {
+          name:             row.name,
+          category:         row.category,
+          price:            row.price,
+          originalPrice:    row.originalPrice || undefined,
+          stockQty:         row.stockQty,
+          pricingType:      row.pricingType,
+          badge:            row.badge,
+          metal:            row.metal,
+          occasion:         row.occasion,
+          style:            row.style,
+          stoneType:        row.stoneType,
+          shortDescription: row.shortDescription,
+          description:      row.description,
+          images:           imageUrls,
+          inStock:          row.stockQty > 0,
+        };
+        await addProduct(payload);           // addProduct already calls POST /api/products
+      } catch (err) {
+        errors.push(`Row ${i + 1} (${row.name || 'Unnamed'}): ${err.message}`);
       }
-      setUploadProgress(progress);
-    }, 200);
+
+      setProgress(p => ({ ...p, done: i + 1, errors }));
+    }
+
+    setProgress(p => ({ ...p, running: false }));
+    const ok = parsedData.length - errors.length;
+    if (ok > 0) toast.success(`${ok} product${ok > 1 ? 's' : ''} uploaded successfully!`);
+    if (errors.length) toast.error(`${errors.length} product${errors.length > 1 ? 's' : ''} failed — see details below.`);
+    if (!errors.length) onClose();
   };
 
-  if (isUploading) {
+  // ——— Progress overlay ———————————————————————————————————————————————————————
+  if (progress.running || (progress.total > 0 && progress.done === progress.total)) {
+    const pct = progress.total ? Math.round((progress.done / progress.total) * 100) : 0;
+    const finished = !progress.running && progress.done === progress.total;
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <div className="bg-white rounded-2xl p-10 flex flex-col items-center max-w-sm w-full shadow-2xl">
-          <div className="relative w-20 h-20 mb-6">
+          <div className="relative w-24 h-24 mb-6">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle className="text-gray-200 stroke-current" strokeWidth="8" cx="50" cy="50" r="40" fill="transparent"></circle>
-              <circle className="text-[#D4527A] stroke-current transition-all duration-300 ease-out" strokeWidth="8" strokeLinecap="round" cx="50" cy="50" r="40" fill="transparent" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * uploadProgress) / 100}></circle>
+              <circle className="text-gray-100 stroke-current" strokeWidth="8" cx="50" cy="50" r="40" fill="transparent" />
+              <circle
+                className="text-[#D4527A] stroke-current transition-all duration-300"
+                strokeWidth="8" strokeLinecap="round" cx="50" cy="50" r="40"
+                fill="transparent" strokeDasharray="251.2"
+                strokeDashoffset={251.2 - (251.2 * pct) / 100}
+              />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-xl font-bold text-text-main">{uploadProgress}%</span>
+              <span className="text-xl font-bold text-text-main">{pct}%</span>
             </div>
           </div>
-          <h3 className="text-lg font-bold text-text-main mb-2">Uploading Products...</h3>
-          <p className="text-sm text-text-muted text-center">Please wait while we process and upload your products and images securely.</p>
+          <h3 className="text-lg font-bold text-text-main mb-1">
+            {finished ? 'Upload Complete' : 'Uploading Products…'}
+          </h3>
+          <p className="text-sm text-text-muted text-center mb-2">
+            {progress.done} of {progress.total} products processed
+          </p>
+          {progress.errors.length > 0 && (
+            <div className="w-full mt-4 max-h-32 overflow-y-auto bg-red-50 border border-red-100 rounded-xl p-3 text-xs text-red-700 space-y-1">
+              {progress.errors.map((e, i) => <p key={i}>{e}</p>)}
+            </div>
+          )}
+          {finished && (
+            <button onClick={onClose} className="mt-6 px-6 py-2.5 bg-[#D4527A] text-white rounded-xl font-semibold text-sm hover:bg-[#B94B68] transition-colors">
+              Done
+            </button>
+          )}
         </div>
       </div>
     );
   }
 
+  // Main modal
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border-main">
-          <h2 className="font-serif text-2xl font-bold text-text-main flex items-center gap-2">
-            Bulk Upload Products
-          </h2>
+          <div>
+            <h2 className="font-serif text-2xl font-bold text-text-main">Bulk Upload Products</h2>
+            {parsedData && <p className="text-sm text-text-muted mt-0.5">{parsedData.length} products ready &mdash; add images then approve</p>}
+          </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
             <X size={20} className="text-text-muted" />
           </button>
         </div>
-
         <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
           {!parsedData ? (
             <div className="max-w-2xl mx-auto space-y-6">
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-5">
-                <h3 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
-                  <Info size={16} /> Instructions
-                </h3>
+                <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2"><Info size={16} /> How it works</h3>
                 <ol className="list-decimal list-inside text-sm text-blue-800 space-y-1.5 ml-1">
-                  <li>Download the Excel template using the button below.</li>
-                  <li>Fill in your product details without changing the column headers.</li>
-                  <li>Upload the filled Excel file back here.</li>
-                  <li>Preview the products and attach images to each product line.</li>
-                  <li>Click Approve to publish all products.</li>
+                  <li>Download the Excel template &mdash; it includes a sample row.</li>
+                  <li>Fill in product details. Use <strong>image1URL&ndash;image4URL</strong> columns for existing image links.</li>
+                  <li>Upload the completed file and preview the parsed products.</li>
+                  <li>Optionally add images via the picker (max 4 total per product).</li>
+                  <li>Click <strong>Approve &amp; Upload</strong> &mdash; products are saved to the database.</li>
                 </ol>
                 <button onClick={handleDownloadTemplate} className="mt-4 flex items-center gap-2 px-4 py-2 bg-white border border-blue-200 rounded-lg text-blue-700 text-sm font-semibold hover:bg-blue-50 transition-colors shadow-sm">
-                  <Download size={16} /> Download Template
+                  <Download size={16} /> Download Template (.xlsx)
                 </button>
               </div>
-
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-10 bg-white text-center hover:border-[#D4527A] transition-colors relative">
-                <input type="file" accept=".xlsx, .xls, .csv" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900">Click or drag Excel file to upload</h3>
-                <p className="mt-1 text-sm text-gray-500">Supports .xlsx, .xls, .csv</p>
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 bg-white text-center hover:border-[#D4527A] transition-colors relative">
+                <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <Upload className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                <h3 className="text-base font-semibold text-gray-700">Click or drag your Excel file here</h3>
+                <p className="mt-1 text-sm text-gray-400">Supports .xlsx, .xls, .csv</p>
               </div>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-bold text-text-main">Preview Products ({parsedData.length})</h3>
-                <button onClick={() => { setParsedData(null); setFile(null); }} className="text-sm text-red-500 hover:text-red-700 font-medium">Cancel & Re-upload</button>
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-text-main">Preview &mdash; {parsedData.length} products</h3>
+                <button onClick={() => setParsedData(null)} className="text-sm text-red-500 hover:text-red-700 font-medium">Re-upload</button>
               </div>
-              
               <div className="bg-white border border-border-main rounded-xl overflow-hidden shadow-sm">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-50 border-b border-border-main">
+                  <thead className="bg-gray-50 border-b border-border-main text-gray-500">
                     <tr>
-                      <th className="px-4 py-3 font-semibold text-gray-600">Product Info</th>
-                      <th className="px-4 py-3 font-semibold text-gray-600">Pricing</th>
-                      <th className="px-4 py-3 font-semibold text-gray-600">Images</th>
+                      <th className="px-4 py-3 font-semibold w-8">#</th>
+                      <th className="px-4 py-3 font-semibold">Product</th>
+                      <th className="px-4 py-3 font-semibold">Pricing</th>
+                      <th className="px-4 py-3 font-semibold">Details</th>
+                      <th className="px-4 py-3 font-semibold">Images <span className="text-gray-400 font-normal">(max 4)</span></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {parsedData.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50/50">
-                        <td className="px-4 py-3 align-top">
-                          <p className="font-semibold text-text-main">{row.name || 'Unnamed Product'}</p>
-                          <p className="text-xs text-text-muted mt-0.5">Category: {row.category}</p>
-                          <p className="text-xs text-text-muted mt-0.5">Stock: {row.stockQty}</p>
-                        </td>
-                        <td className="px-4 py-3 align-top">
-                          <p className="font-medium text-text-main">₹{row.price}</p>
-                          {row.originalPrice && <p className="text-xs text-text-muted line-through">₹{row.originalPrice}</p>}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-2 items-center">
-                            {row.images?.map((imgUrl, imgIdx) => (
-                              <div key={imgIdx} className="relative w-12 h-12 rounded-md overflow-hidden border border-gray-200 group">
-                                <img src={imgUrl} className="w-full h-full object-cover" alt="" />
-                                <button onClick={() => removeImage(idx, imgIdx)} className="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <X size={14} />
-                                </button>
-                              </div>
-                            ))}
-                            <label className="w-12 h-12 rounded-md border border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:text-[#D4527A] hover:border-[#D4527A] transition-colors cursor-pointer bg-gray-50 shrink-0">
-                              <Plus size={20} />
-                              <input type="file" multiple accept="image/*" className="hidden" onChange={(e) => handleImageUpload(idx, e)} />
-                            </label>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {parsedData.map((row, idx) => {
+                      const totalImgs = row._imgUrls.length + row._imgFiles.length;
+                      const canAddMore = totalImgs < 4;
+                      return (
+                        <tr key={idx} className="hover:bg-gray-50/50 align-top">
+                          <td className="px-4 py-3 text-gray-400 font-mono text-xs pt-4">{idx + 1}</td>
+                          <td className="px-4 py-3">
+                            <p className="font-semibold text-text-main">{row.name || <span className="text-red-400 italic">Unnamed</span>}</p>
+                            <p className="text-xs text-text-muted mt-0.5 capitalize">{row.category}</p>
+                            <p className="text-xs text-text-muted">Stock: {row.stockQty}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="font-medium text-text-main">Rs.{row.price.toLocaleString("en-IN")}</p>
+                            {row.originalPrice > 0 && <p className="text-xs text-text-muted line-through">Rs.{row.originalPrice.toLocaleString("en-IN")}</p>}
+                            <span className="text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded mt-1 inline-block">{row.pricingType}</span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-text-muted space-y-0.5">
+                            <p>{row.metal}</p>
+                            <p className="capitalize">{row.occasion} / {row.style}</p>
+                            {row.stoneType !== "No Stone" && <p>{row.stoneType}</p>}
+                            {row.badge && <span className="inline-block bg-pink-50 text-[#D4527A] text-[10px] font-bold px-1.5 py-0.5 rounded">{row.badge}</span>}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-wrap gap-2 items-center">
+                              {row._imgUrls.map((url, ui) => (
+                                <div key={`u-${ui}`} className="relative w-12 h-12 rounded-lg overflow-hidden border border-gray-200 group flex-shrink-0">
+                                  <img src={url} className="w-full h-full object-cover" alt="" />
+                                  <div className="absolute top-0 left-0 right-0 bg-blue-500/70 text-white text-[8px] text-center font-bold py-0.5">URL</div>
+                                  <button onClick={() => removeUrlImg(idx, ui)} className="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
+                                </div>
+                              ))}
+                              {row._imgFiles.map((file, fi) => (
+                                <div key={`f-${fi}`} className="relative w-12 h-12 rounded-lg overflow-hidden border border-gray-200 group flex-shrink-0">
+                                  <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" alt="" />
+                                  <div className="absolute top-0 left-0 right-0 bg-green-500/70 text-white text-[8px] text-center font-bold py-0.5">FILE</div>
+                                  <button onClick={() => removeFileImg(idx, fi)} className="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
+                                </div>
+                              ))}
+                              {canAddMore ? (
+                                <label className="w-12 h-12 rounded-lg border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:text-[#D4527A] hover:border-[#D4527A] transition-colors cursor-pointer bg-gray-50 flex-shrink-0">
+                                  <Plus size={16} />
+                                  <span className="text-[8px] font-bold mt-0.5">{4 - totalImgs} left</span>
+                                  <input type="file" multiple accept="image/*" className="hidden" onChange={e => handleImagePick(idx, e)} />
+                                </label>
+                              ) : (
+                                <span className="text-[10px] text-gray-400 font-medium">Max 4</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             </div>
           )}
         </div>
-
-        <div className="p-6 border-t border-border-main bg-white flex justify-end gap-3">
-          <button onClick={onClose} className="px-6 py-2.5 rounded-lg border border-border-main text-text-main font-semibold hover:bg-gray-50 transition-colors">
-            Close
-          </button>
-          {parsedData && parsedData.length > 0 && (
-            <button onClick={handleApprove} className="px-6 py-2.5 rounded-lg bg-[#D4527A] text-white font-semibold flex items-center gap-2 hover:bg-[#B94B68] transition-colors shadow-sm">
-              <CheckCircle size={18} /> Approve & Upload
-            </button>
-          )}
+        <div className="p-5 border-t border-border-main bg-white flex items-center justify-between gap-3">
+          <p className="text-xs text-text-muted">
+            {parsedData
+              ? `${parsedData.filter(r => r._imgUrls.length + r._imgFiles.length > 0).length} of ${parsedData.length} products have images`
+              : 'Download the template, fill it in, then upload.'}
+          </p>
+          <div className="flex gap-3">
+            <button onClick={onClose} className="px-5 py-2.5 rounded-lg border border-border-main text-text-main font-semibold hover:bg-gray-50 transition-colors text-sm">Cancel</button>
+            {parsedData?.length > 0 && (
+              <button onClick={handleApprove} className="px-6 py-2.5 rounded-lg bg-[#D4527A] text-white font-semibold flex items-center gap-2 hover:bg-[#B94B68] transition-colors shadow-sm text-sm">
+                <CheckCircle size={16} /> Approve &amp; Upload ({parsedData.length})
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
