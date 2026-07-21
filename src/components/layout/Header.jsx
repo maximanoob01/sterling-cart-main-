@@ -199,10 +199,10 @@ export default function Header() {
           isHeroPage
             ? `fixed top-0 left-0 right-0 ${
                 isScrolled
-                  ? 'bg-[#1E0912]/92 backdrop-blur-2xl shadow-[0_4px_40px_rgba(212,82,122,0.22)] border-b border-[#D4527A]/25'
+                  ? 'bg-[#1E0912]/92 backdrop-blur-2xl shadow-[0_4px_40px_rgba(212,82,122,0.22)]'
                   : 'bg-transparent lg:bg-gradient-to-b lg:from-black/55 lg:to-black/20 lg:backdrop-blur-sm border-b border-transparent lg:border-white/10'
               }`
-            : 'sticky top-0 bg-[#1E0912]/96 backdrop-blur-2xl shadow-[0_4px_40px_rgba(212,82,122,0.18)] border-b border-[#D4527A]/20'
+            : 'sticky top-0 bg-[#1E0912]/96 backdrop-blur-2xl shadow-[0_4px_40px_rgba(212,82,122,0.18)]'
         }`}
         style={isHeroPage && showAnnouncement ? { top: '36px' } : {}}
       >
@@ -354,14 +354,18 @@ export default function Header() {
 
         {/* Bottom Nav Bar */}
         <nav
-        className={`hidden lg:block transition-colors duration-700 ${
+          className={`hidden lg:block transition-colors duration-700 relative ${
             isHeroPage && !isScrolled
               ? 'bg-transparent'
-              : 'border-t border-[#D4527A]/20 bg-[#1E0912]/92 backdrop-blur-xl'
+              : 'bg-[#1E0912]/92 backdrop-blur-xl'
           }`}
           onMouseLeave={() => setActiveDropdown(null)}
           style={isHeroPage && !isScrolled ? { background: 'transparent' } : {}}
         >
+          {/* Subtle pink gradient blending line instead of hard border */}
+          {(!isHeroPage || isScrolled) && (
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4527A]/30 to-transparent" />
+          )}
           <div className="mx-auto flex min-h-[48px] max-w-[1420px] items-center justify-between gap-5 px-8">
             <div className="flex items-center gap-1 xl:gap-3">
               {navLinks.map((link) => (
