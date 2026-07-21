@@ -4,8 +4,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   Award, Check, ChevronRight, Heart, Home, MapPin, PackageCheck,
   Ruler, Share2, Shield, Globe, Star, X, ZoomIn,
-  Sparkles, ShoppingBag, Scale, Wrench, IndianRupee, Coins, PenTool
+  Sparkles, ShoppingBag, Scale, Wrench, IndianRupee, Coins, PenTool, Phone, MessageCircle
 } from 'lucide-react';
+import CallRequestModal from '../components/CallRequestModal';
 import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -307,6 +308,7 @@ export default function ProductDetailPage() {
   const [engravingText, setEngravingText] = useState('');
   const [engravingType, setEngravingType] = useState('text');
   const [isLoyaltyPointsGuideOpen, setisLoyaltyPointsGuideOpen] = useState(false);
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
 
 
 
@@ -388,6 +390,7 @@ export default function ProductDetailPage() {
         <section className="grid items-start gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
 
           {/* ── Image Gallery ── */}
+          <div className="flex flex-col gap-5">
           <div className="min-w-0 overflow-hidden flex flex-col-reverse gap-3 md:flex-row md:gap-4">
             {/* Thumbnails */}
             <div className="flex max-w-full gap-2 overflow-x-auto pb-1 md:flex-col md:overflow-visible md:gap-3 md:pb-0 shrink-0">
@@ -439,6 +442,61 @@ export default function ProductDetailPage() {
               </AnimatePresence>
             </div>
           </div>
+
+          {/* ── See it live / Expert CTA ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="hidden lg:flex flex-col gap-5 rounded-2xl border border-[#F4A0B0]/25 bg-gradient-to-br from-[#FFF5F8] via-white to-[#FDF9FA] px-6 py-7"
+          >
+            {/* Pulsing icon */}
+            <div className="flex items-center gap-3">
+              <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#D4527A] to-[#B94B68] shadow-[0_4px_16px_rgba(212,82,122,0.4)]">
+                <motion.span
+                  animate={{ scale: [1, 1.35, 1], opacity: [0.5, 0, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
+                  className="absolute inset-0 rounded-full bg-[#D4527A]"
+                />
+                <Phone size={18} className="relative z-10 text-white" strokeWidth={2} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[2px] text-[#D4527A]">Talk to an Expert</p>
+                <p className="text-[13px] font-semibold text-text-main leading-snug">Not sure how this piece looks on you?</p>
+              </div>
+            </div>
+
+            <p className="text-[13px] leading-relaxed text-text-muted">
+              Schedule a quick video call with our jewellery expert and see exactly how this piece looks — up close, on real skin. Got questions? Ask us anything.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => setIsCallModalOpen(true)}
+                className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#D4527A] to-[#B94B68] px-5 py-3 text-[13px] font-bold text-white shadow-[0_4px_18px_rgba(212,82,122,0.3)] transition-all hover:shadow-[0_6px_24px_rgba(212,82,122,0.45)] hover:brightness-105 active:scale-[0.98]"
+              >
+                <Phone size={15} strokeWidth={2} />
+                Schedule a Call
+              </button>
+              <a
+                href={`https://wa.me/918445205669?text=${encodeURIComponent(`Hi! I have a question about this product: ${product.name} — ${window.location.href}`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center gap-2 rounded-xl border border-[#25D366]/40 bg-[#25D366]/8 px-5 py-3 text-[13px] font-bold text-[#1a9e4a] transition-all hover:bg-[#25D366]/15 hover:border-[#25D366]/60 active:scale-[0.98]"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
+                </svg>
+                Chat on WhatsApp
+              </a>
+            </div>
+
+            <p className="text-center text-[10px] text-text-muted">Typically responds within minutes · Mon–Sat, 11am–8pm</p>
+          </motion.div>
+          </div>
+
+
 
           {/* ── Product Info ── */}
           <div className="min-w-0 flex flex-col gap-0">
@@ -937,6 +995,7 @@ export default function ProductDetailPage() {
         {isZoomOpen && <ImageZoom image={mainImage} name={product.name} onClose={() => setIsZoomOpen(false)} />}
         {isLoyaltyPointsGuideOpen && <LoyaltyPointsGuide onClose={() => setisLoyaltyPointsGuideOpen(false)} />}
       </AnimatePresence>
+      <CallRequestModal isOpen={isCallModalOpen} onClose={() => setIsCallModalOpen(false)} />
     </div>
   );
 }
