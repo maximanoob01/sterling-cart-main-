@@ -4,16 +4,9 @@ import api from '../../../services/api';
 /**
  * useOrderTracking
  * ─────────────────────────────────────────────────────────────
- * Encapsulates everything that turns "user typed an Order ID"
- * into "we have an order object" or "we have an error message".
- *
- *  • Validates input
- *  • Calls the real API
- *  • Falls back to local mock data so the demo still feels alive
- *  • Exposes loading + result state
- *
- * Keeping this in a hook means the page component stays purely
- * declarative, and the side-effects are trivially testable.
+ * Looks up an order by Order ID (no email/phone required).
+ * If the order was pushed to ShipRocket, awbCode and trackingUrl
+ * are surfaced so the customer can follow the live courier tracker.
  */
 export function useOrderTracking() {
   const [order, setOrder]    = useState(null);
@@ -25,16 +18,14 @@ export function useOrderTracking() {
     setError('');
   }, []);
 
-  const track = useCallback(async (rawOrderId, contactInfo) => {
+  const track = useCallback(async (rawOrderId) => {
     const cleanOrderId = String(rawOrderId || '').trim().replace(/^#/, '');
-    const cleanContact = String(contactInfo  || '').trim();
 
     if (!cleanOrderId) {
       setError('Please enter a valid Order ID.');
       setOrder(null);
       return;
     }
-
 
     setLoad(true);
     setError('');
@@ -67,7 +58,7 @@ export function useOrderTracking() {
       }
       setOrder(null);
       setError(
-        "We couldn't find that order. Please double-check your Order ID and contact details."
+        "We couldn't find that order. Please double-check your Order ID."
       );
     } finally {
       setLoad(false);
@@ -76,3 +67,4 @@ export function useOrderTracking() {
 
   return { order, error, isLoading, track, reset };
 }
+

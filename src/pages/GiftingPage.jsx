@@ -222,7 +222,7 @@ export default function GiftingPage() {
     try {
       // 1. Create Razorpay order
       const orderData = await api.post('/transaction/create-order', {
-        amount: giftCardAmount,
+        amount: Math.round(giftCardAmount * 100), // paise: ₹500 → 50000
         receipt: `gc_${Date.now()}`
       });
 

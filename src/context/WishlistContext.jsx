@@ -37,16 +37,23 @@ export const WishlistProvider = ({ children }) => {
 
     const targetId = product.id || product._id;
 
+    // Read current state, decide, show toast once, then update — never inside the updater
     setItems(prev => {
       const exists = prev.find(item => (item.id || item._id) === targetId);
       if (exists) {
-        toast.success(`${product.name} removed from wishlist`, toastStyle);
         return prev.filter(item => (item.id || item._id) !== targetId);
-      } else {
-        toast.success(`${product.name} added to wishlist ♡`, toastStyle);
-        return [...prev, product];
       }
+      return [...prev, product];
     });
+
+    // Check snapshot for toast (items state at call time)
+    // ponytail: using a ref would be cleaner but this keeps the diff minimal
+    const existsNow = items.some(item => (item.id || item._id) === targetId);
+    if (existsNow) {
+      toast.success(`${product.name} removed from wishlist`, toastStyle);
+    } else {
+      toast.success(`${product.name} added to wishlist ♡`, toastStyle);
+    }
 
     // Sync with API (non-blocking)
     try {
@@ -54,7 +61,7 @@ export const WishlistProvider = ({ children }) => {
     } catch (err) {
       // Silently fail — local state is already updated
     }
-  }, []);
+  }, [items]);
 
   const isWishlisted = useCallback((productId) => {
     return items.some(item => (item.id || item._id) === productId);

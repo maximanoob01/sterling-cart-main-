@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Award, Check, ChevronRight, Heart, Home, MapPin, PackageCheck,
+  Award, Check, ChevronLeft, ChevronRight, Heart, Home, MapPin, PackageCheck,
   Ruler, Share2, Shield, Globe, Star, X, ZoomIn,
   Sparkles, ShoppingBag, Scale, Wrench, IndianRupee, Coins, PenTool, Phone, MessageCircle
 } from 'lucide-react';
@@ -309,6 +309,7 @@ export default function ProductDetailPage() {
   const [engravingType, setEngravingType] = useState('text');
   const [isLoyaltyPointsGuideOpen, setisLoyaltyPointsGuideOpen] = useState(false);
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+  const [openFaqIdx, setOpenFaqIdx] = useState(null);
 
 
 
@@ -411,35 +412,78 @@ export default function ProductDetailPage() {
 
             {/* Main image */}
             <div className="relative flex-1 min-w-0">
-              <AnimatePresence mode="wait">
-                <motion.button
-                  key={mainImage}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  onClick={() => setIsZoomOpen(true)}
-                  className="group relative block w-full overflow-hidden rounded-2xl bg-[#FAF8F7] aspect-[4/5] sm:rounded-3xl"
-                  aria-label="Zoom image"
-                >
-                  <img
-                    src={mainImage} alt={product.name}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  />
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  {/* Zoom icon */}
-                  <span className="absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/80 text-text-muted shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <ZoomIn size={16} />
-                  </span>
-                  {/* Badges */}
-                  {product.badge && (
-                    <span className="absolute top-4 left-4 rounded-full bg-[#1C1C2E]/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-[0.8px] text-white">
-                      {product.badge}
-                    </span>
-                  )}
-                </motion.button>
-              </AnimatePresence>
+              {(() => {
+                const imgs = product.images;
+                const imgIdx = imgs.indexOf(mainImage);
+                const prev = () => setMainImage(imgs[(imgIdx - 1 + imgs.length) % imgs.length]);
+                const next = () => setMainImage(imgs[(imgIdx + 1) % imgs.length]);
+                return (
+                  <>
+                    <AnimatePresence mode="wait">
+                      <motion.button
+                        key={mainImage}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.22 }}
+                        onClick={() => setIsZoomOpen(true)}
+                        className="group relative block w-full overflow-hidden rounded-2xl bg-[#FAF8F7] aspect-[4/5] sm:rounded-3xl"
+                        aria-label="Zoom image"
+                      >
+                        <img
+                          src={mainImage} alt={product.name}
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <span className="absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/80 text-text-muted shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
+                          <ZoomIn size={16} />
+                        </span>
+                        {product.badge && (
+                          <span className="absolute top-4 left-4 rounded-full bg-[#1C1C2E]/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-[0.8px] text-white">
+                            {product.badge}
+                          </span>
+                        )}
+                      </motion.button>
+                    </AnimatePresence>
+
+                    {/* Prev / Next arrows — only shown when >1 image */}
+                    {imgs.length > 1 && (
+                      <>
+                        <button
+                          onClick={prev}
+                          aria-label="Previous image"
+                          className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 shadow-md backdrop-blur-sm border border-white/60 text-text-main hover:bg-white hover:shadow-lg transition-all active:scale-95"
+                        >
+                          <ChevronLeft size={18} strokeWidth={2.5} />
+                        </button>
+                        <button
+                          onClick={next}
+                          aria-label="Next image"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 shadow-md backdrop-blur-sm border border-white/60 text-text-main hover:bg-white hover:shadow-lg transition-all active:scale-95"
+                        >
+                          <ChevronRight size={18} strokeWidth={2.5} />
+                        </button>
+
+                        {/* Dot indicators */}
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
+                          {imgs.map((img, i) => (
+                            <button
+                              key={i}
+                              onClick={() => setMainImage(img)}
+                              aria-label={`View image ${i + 1}`}
+                              className={`h-1.5 rounded-full transition-all duration-200 ${
+                                img === mainImage
+                                  ? 'w-5 bg-white shadow-sm'
+                                  : 'w-1.5 bg-white/50 hover:bg-white/80'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
 
@@ -448,44 +492,44 @@ export default function ProductDetailPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="hidden lg:flex flex-col gap-5 rounded-2xl border border-[#F4A0B0]/25 bg-gradient-to-br from-[#FFF5F8] via-white to-[#FDF9FA] px-6 py-7"
+            className="hidden lg:flex w-full min-w-0 flex-col gap-4 rounded-2xl border border-[#F4A0B0]/25 bg-gradient-to-br from-[#FFF5F8] via-white to-[#FDF9FA] px-5 py-5"
           >
-            {/* Pulsing icon */}
+            {/* Header row */}
             <div className="flex items-center gap-3">
-              <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#D4527A] to-[#B94B68] shadow-[0_4px_16px_rgba(212,82,122,0.4)]">
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#D4527A] to-[#B94B68] shadow-[0_4px_16px_rgba(212,82,122,0.4)]">
                 <motion.span
                   animate={{ scale: [1, 1.35, 1], opacity: [0.5, 0, 0.5] }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
                   className="absolute inset-0 rounded-full bg-[#D4527A]"
                 />
-                <Phone size={18} className="relative z-10 text-white" strokeWidth={2} />
+                <Phone size={16} className="relative z-10 text-white" strokeWidth={2} />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[2px] text-[#D4527A]">Talk to an Expert</p>
                 <p className="text-[13px] font-semibold text-text-main leading-snug">Not sure how this piece looks on you?</p>
               </div>
             </div>
 
-            <p className="text-[13px] leading-relaxed text-text-muted">
-              Schedule a quick video call with our jewellery expert and see exactly how this piece looks — up close, on real skin. Got questions? Ask us anything.
+            <p className="text-[12px] leading-relaxed text-text-muted">
+              Schedule a quick video call with our jewellery expert and see exactly how this piece looks — up close, on real skin.
             </p>
 
-            {/* CTAs */}
-            <div className="flex flex-col gap-3">
+            {/* CTAs — side by side */}
+            <div className="flex gap-2.5">
               <button
                 onClick={() => setIsCallModalOpen(true)}
-                className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#D4527A] to-[#B94B68] px-5 py-3 text-[13px] font-bold text-white shadow-[0_4px_18px_rgba(212,82,122,0.3)] transition-all hover:shadow-[0_6px_24px_rgba(212,82,122,0.45)] hover:brightness-105 active:scale-[0.98]"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#D4527A] to-[#B94B68] px-3 py-2.5 text-[12px] font-bold text-white shadow-[0_4px_18px_rgba(212,82,122,0.3)] transition-all hover:shadow-[0_6px_24px_rgba(212,82,122,0.45)] hover:brightness-105 active:scale-[0.98] whitespace-nowrap"
               >
-                <Phone size={15} strokeWidth={2} />
+                <Phone size={13} strokeWidth={2} />
                 Schedule a Call
               </button>
               <a
                 href={`https://wa.me/918445205669?text=${encodeURIComponent(`Hi! I have a question about this product: ${product.name} — ${window.location.href}`)}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-center gap-2 rounded-xl border border-[#25D366]/40 bg-[#25D366]/8 px-5 py-3 text-[13px] font-bold text-[#1a9e4a] transition-all hover:bg-[#25D366]/15 hover:border-[#25D366]/60 active:scale-[0.98]"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#25D366]/40 bg-[#25D366]/8 px-3 py-2.5 text-[12px] font-bold text-[#1a9e4a] transition-all hover:bg-[#25D366]/15 hover:border-[#25D366]/60 active:scale-[0.98] whitespace-nowrap"
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
                 </svg>
                 Chat on WhatsApp
@@ -888,6 +932,48 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
+          {/* ── Expert CTA — mobile only (desktop version is in the image column) ── */}
+          <div className="lg:hidden flex flex-col gap-4 rounded-2xl border border-[#F4A0B0]/25 bg-gradient-to-br from-[#FFF5F8] via-white to-[#FDF9FA] px-5 py-5">
+            <div className="flex items-center gap-3">
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#D4527A] to-[#B94B68] shadow-[0_4px_16px_rgba(212,82,122,0.4)]">
+                <motion.span
+                  animate={{ scale: [1, 1.35, 1], opacity: [0.5, 0, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
+                  className="absolute inset-0 rounded-full bg-[#D4527A]"
+                />
+                <Phone size={16} className="relative z-10 text-white" strokeWidth={2} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[2px] text-[#D4527A]">Talk to an Expert</p>
+                <p className="text-[13px] font-semibold text-text-main leading-snug">Not sure how this piece looks on you?</p>
+              </div>
+            </div>
+            <p className="text-[12px] leading-relaxed text-text-muted">
+              Schedule a quick video call with our jewellery expert and see exactly how this piece looks — up close, on real skin.
+            </p>
+            <div className="flex gap-2.5">
+              <button
+                onClick={() => setIsCallModalOpen(true)}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#D4527A] to-[#B94B68] px-3 py-2.5 text-[12px] font-bold text-white shadow-[0_4px_18px_rgba(212,82,122,0.3)] transition-all hover:shadow-[0_6px_24px_rgba(212,82,122,0.45)] hover:brightness-105 active:scale-[0.98] whitespace-nowrap"
+              >
+                <Phone size={13} strokeWidth={2} />
+                Schedule a Call
+              </button>
+              <a
+                href={`https://wa.me/918445205669?text=${encodeURIComponent(`Hi! I have a question about this product: ${product.name} — ${window.location.href}`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#25D366]/40 bg-[#25D366]/8 px-3 py-2.5 text-[12px] font-bold text-[#1a9e4a] transition-all hover:bg-[#25D366]/15 hover:border-[#25D366]/60 active:scale-[0.98] whitespace-nowrap"
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
+                </svg>
+                Chat on WhatsApp
+              </a>
+            </div>
+            <p className="text-center text-[10px] text-text-muted">Typically responds within minutes · Mon–Sat, 11am–8pm</p>
+          </div>
+
           {/* Product details */}
           <div className="rounded-2xl border border-[#F0E8EA] bg-bg-surface p-4 md:rounded-3xl md:p-7">
             <button
@@ -965,13 +1051,59 @@ export default function ProductDetailPage() {
         <section className="mt-10 md:mt-14 rounded-2xl border border-[#F0E8EA] bg-bg-surface p-4 md:rounded-3xl md:p-7">
           <SectionLabel>Expert Answers</SectionLabel>
           <h2 className="font-serif text-[20px] md:text-[26px] text-text-main mb-4 md:mb-6">Frequently Asked Questions</h2>
-          <div className="grid gap-3 md:gap-4 md:grid-cols-2 lg:gap-6">
+
+          {/* Mobile: accordion */}
+          <div className="flex flex-col md:hidden">
+            {productFaqs.map((faq, idx) => {
+              const isOpen = openFaqIdx === idx;
+              return (
+                <div key={idx} className="border-b border-[#F0E8EA] last:border-0">
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaqIdx(isOpen ? null : idx)}
+                    className="flex w-full items-center justify-between gap-3 py-3.5 text-left"
+                    aria-expanded={isOpen}
+                  >
+                    <span className="flex items-start gap-2 text-[12px] font-bold text-text-main">
+                      <Sparkles size={12} className="text-[#D4527A] mt-0.5 shrink-0" />
+                      {faq.question}
+                    </span>
+                    <ChevronRight
+                      size={15}
+                      className={`shrink-0 text-[#D4527A] transition-transform duration-300 ${
+                        isOpen ? 'rotate-90' : ''
+                      }`}
+                    />
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        key="answer"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                        className="overflow-hidden"
+                      >
+                        <p className="pb-4 text-[11.5px] leading-relaxed text-text-muted">
+                          {faq.answer}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop: 2-col grid (unchanged) */}
+          <div className="hidden md:grid gap-4 md:grid-cols-2 lg:gap-6">
             {productFaqs.map((faq, idx) => (
-              <div key={idx} className="border-b border-[#F0E8EA] pb-3 last:border-0 md:border-0 md:pb-0">
-                <h3 className="text-[12px] md:text-[13px] font-bold text-text-main mb-1.5 flex items-start gap-2">
-                  <Sparkles size={13} className="text-[#D4527A] mt-0.5 shrink-0 md:w-3.5 md:h-3.5 w-3 h-3" /> {faq.question}
+              <div key={idx}>
+                <h3 className="text-[13px] font-bold text-text-main mb-1.5 flex items-start gap-2">
+                  <Sparkles size={13} className="text-[#D4527A] mt-0.5 shrink-0" /> {faq.question}
                 </h3>
-                <p className="text-[11px] md:text-[12px] leading-relaxed text-text-muted">{faq.answer}</p>
+                <p className="text-[12px] leading-relaxed text-text-muted">{faq.answer}</p>
               </div>
             ))}
           </div>

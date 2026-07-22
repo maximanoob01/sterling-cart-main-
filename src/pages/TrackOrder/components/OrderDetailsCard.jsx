@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Copy, Check } from 'lucide-react';
+import { Download, Copy, Check, ExternalLink } from 'lucide-react';
 
 import { fadeInUp } from '../motion';
 import { formatDate } from '../format';
@@ -9,13 +9,15 @@ import { generateInvoice } from '../../../utils/generateInvoice';
 
 /**
  * Top-of-results card: invoice download + a clean 5-up meta grid.
- * The grid is responsive — 2 columns on mobile, 5 on desktop —
- * and uses semantic <dl>/<dt>/<dd> for screen readers.
+ * If the order has been pushed to ShipRocket (awbCode present),
+ * a "Live Tracking" button links to the courier tracker.
  */
 export default function OrderDetailsCard({ order, currentStatus }) {
   const handleDownloadInvoice = () => {
     generateInvoice(order, null);
   };
+
+  const trackingHref = order.trackingUrl || (order.awbCode ? `https://shiprocket.co/tracking/${order.awbCode}` : null);
 
   return (
     <motion.section
@@ -31,27 +33,50 @@ export default function OrderDetailsCard({ order, currentStatus }) {
         <h3 className="font-serif text-xl font-bold text-charcoal">
           Order Details
         </h3>
-        <button
-          type="button"
-          onClick={handleDownloadInvoice}
-          disabled={order.orderStatus !== 'Delivered' && order.status !== 'Delivered'}
-          title={order.orderStatus !== 'Delivered' && order.status !== 'Delivered' ? 'Invoice will be available after delivery' : ''}
-          className={`group flex items-center gap-2 bg-gradient-to-r
-                     from-pink-50 to-white border border-pink-100
-                     text-[#D4527A] text-sm font-bold px-6 py-2.5 rounded-xl
-                     hover:shadow-[0_4px_15px_rgb(212,82,122,0.15)]
-                     hover:border-pink-200 transition-all whitespace-nowrap
-                     focus-visible:outline-none focus-visible:ring-4
-                     focus-visible:ring-pink-200
-                     ${order.orderStatus !== 'Delivered' && order.status !== 'Delivered' ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
-        >
-          <Download
-            size={16}
-            aria-hidden
-            className="group-hover:-translate-y-0.5 transition-transform"
-          />
-          Download Invoice
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          {trackingHref && (
+            <a
+              href={trackingHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-2 bg-gradient-to-r
+                         from-emerald-50 to-white border border-emerald-200
+                         text-emerald-700 text-sm font-bold px-6 py-2.5 rounded-xl
+                         hover:shadow-[0_4px_15px_rgb(16,185,129,0.2)]
+                         hover:border-emerald-300 transition-all whitespace-nowrap
+                         focus-visible:outline-none focus-visible:ring-4
+                         focus-visible:ring-emerald-200"
+            >
+              <ExternalLink
+                size={16}
+                aria-hidden
+                className="group-hover:translate-x-0.5 transition-transform"
+              />
+              Live Tracking
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={handleDownloadInvoice}
+            disabled={order.orderStatus !== 'Delivered' && order.status !== 'Delivered'}
+            title={order.orderStatus !== 'Delivered' && order.status !== 'Delivered' ? 'Invoice will be available after delivery' : ''}
+            className={`group flex items-center gap-2 bg-gradient-to-r
+                       from-pink-50 to-white border border-pink-100
+                       text-[#D4527A] text-sm font-bold px-6 py-2.5 rounded-xl
+                       hover:shadow-[0_4px_15px_rgb(212,82,122,0.15)]
+                       hover:border-pink-200 transition-all whitespace-nowrap
+                       focus-visible:outline-none focus-visible:ring-4
+                       focus-visible:ring-pink-200
+                       ${order.orderStatus !== 'Delivered' && order.status !== 'Delivered' ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+          >
+            <Download
+              size={16}
+              aria-hidden
+              className="group-hover:-translate-y-0.5 transition-transform"
+            />
+            Download Invoice
+          </button>
+        </div>
       </header>
 
       <dl className="grid grid-cols-2 md:grid-cols-5 gap-6 gap-y-8">

@@ -40,9 +40,9 @@ export default function TrackOrderPage() {
   const [hasSearched, setHasSearched] = useState(false);
 
   const handleTrack = useCallback(
-    ({ orderId, contactInfo }) => {
+    ({ orderId }) => {
       setHasSearched(true);
-      track(orderId, contactInfo);
+      track(orderId);
     },
     [track]
   );

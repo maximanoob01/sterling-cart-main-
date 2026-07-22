@@ -349,7 +349,7 @@ const CheckoutPage = () => {
       let rzpOrder;
       try {
         rzpOrder = await api.post('/transaction/create-order', {
-          amount: finalTotalAmount,
+          amount: Math.round(finalTotalAmount * 100), // paise: ₹3587 → 358700
           currency: currency === 'USD' ? 'USD' : 'INR',
           receipt: `rcpt_${Date.now()}`,
         });
@@ -611,78 +611,146 @@ const CheckoutPage = () => {
         {/* ── Loyalty Points Earned Dialog ── */}
         <AnimatePresence>
           {showLoyaltyEarnedDialog && isAuthenticated && (
-            <motion.div
-              initial={{ scale: 0.7, y: 50, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.85, y: 20, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-              className="relative z-10 max-w-sm w-full rounded-[28px] overflow-hidden shadow-[0_32px_80px_rgba(212,82,122,0.5)]"
-            >
-              {/* Gradient top band */}
-              <div className="h-2 w-full bg-gradient-to-r from-[#D4527A] via-[#F4A0B0] to-[#D4527A]" />
+            <>
+              {/* Backdrop blur overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm"
+                onClick={() => setShowLoyaltyEarnedDialog(false)}
+              />
 
-              <div className="bg-[#1A1A1A] border border-white/10 px-8 py-8 text-center relative">
-                <button
-                  onClick={() => setShowLoyaltyEarnedDialog(false)}
-                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 transition-all"
-                >
-                  <X size={14} />
-                </button>
+              <motion.div
+                initial={{ scale: 0.75, y: 60, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.88, y: 30, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+                className="relative z-20 max-w-[340px] w-full"
+              >
+                {/* Ambient glow behind card */}
+                <div className="absolute inset-0 rounded-[32px] bg-gradient-to-b from-[#D4527A]/30 to-transparent blur-3xl scale-110 pointer-events-none" />
 
-                {/* Coin animation */}
-                <motion.div
-                  animate={{ rotate: [0, 10, -10, 10, 0], y: [0, -6, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                  className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-[#D4527A] to-[#F4A0B0] flex items-center justify-center shadow-[0_0_40px_rgba(212,82,122,0.5)]"
-                >
-                  <Coins size={36} className="text-white" />
-                </motion.div>
+                <div className="relative rounded-[32px] overflow-hidden border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
+                  {/* Top gradient strip */}
+                  <div className="h-1 w-full bg-gradient-to-r from-[#C23B64] via-[#F4A0B0] to-[#C23B64]" />
 
-                {/* Sparkle dots */}
-                {[...Array(6)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute w-1.5 h-1.5 rounded-full bg-[#F4A0B0]"
-                    style={{
-                      top: `${20 + Math.sin(i * 60 * Math.PI / 180) * 50}%`,
-                      left: `${50 + Math.cos(i * 60 * Math.PI / 180) * 40}%`,
-                    }}
-                    animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.25 }}
-                  />
-                ))}
+                  {/* Card body */}
+                  <div className="bg-[#141414] px-7 pt-7 pb-7 text-center relative overflow-hidden">
 
-                <p className="font-sans text-[11px] uppercase tracking-[2.5px] font-bold text-[#F4A0B0] mb-2">Congratulations!</p>
-                <h2 className="font-serif text-[28px] text-white leading-tight mb-1">
-                  You earned
-                </h2>
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4527A]/20 to-[#F4A0B0]/10 border border-[#D4527A]/30 rounded-full px-5 py-2 my-3">
-                  <Coins size={18} className="text-[#F4A0B0]" />
-                  <span className="font-sans text-[26px] font-black text-white">{orderSuccessData.earnedPoints}</span>
-                  <span className="font-sans text-[13px] font-bold text-[#F4A0B0]">Loyalty Points</span>
+                    {/* Subtle radial glow in bg */}
+                    <div className="absolute inset-0 pointer-events-none"
+                      style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,82,122,0.12) 0%, transparent 70%)' }}
+                    />
+
+                    {/* Close */}
+                    <button
+                      onClick={() => setShowLoyaltyEarnedDialog(false)}
+                      className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/8 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/15 transition-all"
+                    >
+                      <X size={13} />
+                    </button>
+
+                    {/* Animated coin */}
+                    <motion.div
+                      animate={{ y: [0, -5, 0] }}
+                      transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                      className="relative w-[72px] h-[72px] mx-auto mb-5"
+                    >
+                      {/* Outer ring pulse */}
+                      <motion.div
+                        animate={{ scale: [1, 1.22, 1], opacity: [0.35, 0, 0.35] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                        className="absolute inset-0 rounded-full bg-[#D4527A]/40"
+                      />
+                      <div className="w-full h-full rounded-full bg-gradient-to-br from-[#E8607E] via-[#D4527A] to-[#A83D5D] flex items-center justify-center shadow-[0_8px_32px_rgba(212,82,122,0.55)]">
+                        <Coins size={30} className="text-white drop-shadow-sm" />
+                      </div>
+                    </motion.div>
+
+                    {/* Orbiting sparkles */}
+                    {[...Array(8)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute rounded-full pointer-events-none"
+                        style={{
+                          width: i % 2 === 0 ? '5px' : '3px',
+                          height: i % 2 === 0 ? '5px' : '3px',
+                          background: i % 3 === 0 ? '#F4A0B0' : i % 3 === 1 ? '#FFD700' : '#fff',
+                          top: `${12 + Math.sin((i / 8) * Math.PI * 2) * 28}%`,
+                          left: `${50 + Math.cos((i / 8) * Math.PI * 2) * 35}%`,
+                        }}
+                        animate={{ opacity: [0, 1, 0], scale: [0, 1.4, 0] }}
+                        transition={{ duration: 1.8, repeat: Infinity, delay: i * 0.22, ease: 'easeInOut' }}
+                      />
+                    ))}
+
+                    {/* Label */}
+                    <p className="text-[10px] uppercase tracking-[3px] font-black text-[#F4A0B0]/80 mb-1.5">
+                      Congratulations!
+                    </p>
+
+                    {/* Headline */}
+                    <h2 className="font-serif text-[22px] font-bold text-white leading-snug mb-4">
+                      You earned Loyalty Points!
+                    </h2>
+
+                    {/* Points badge */}
+                    <div className="relative mx-auto w-fit mb-4">
+                      <div className="absolute inset-0 rounded-2xl bg-[#D4527A]/20 blur-md" />
+                      <div className="relative flex items-center gap-3 bg-gradient-to-r from-[#D4527A]/20 via-[#F4A0B0]/15 to-[#D4527A]/20 border border-[#D4527A]/35 rounded-2xl px-6 py-3">
+                        <motion.div
+                          animate={{ rotate: [0, 15, -15, 0] }}
+                          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                        >
+                          <Coins size={22} className="text-[#F4C0CC]" />
+                        </motion.div>
+                        <div className="text-left">
+                          <motion.span
+                            className="block font-sans text-[36px] font-black text-white leading-none tabular-nums"
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.3, type: 'spring', stiffness: 300 }}
+                          >
+                            {orderSuccessData.earnedPoints}
+                          </motion.span>
+                          <span className="block font-sans text-[11px] font-bold text-[#F4A0B0] tracking-wider uppercase">
+                            Sterling Coins
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Subtext */}
+                    <p className="font-sans text-[12.5px] text-white/50 leading-relaxed px-2">
+                      Redeem on your next order for an instant cash discount.
+                    </p>
+
+                    {/* Divider */}
+                    <div className="my-5 h-px bg-white/8" />
+
+                    {/* CTAs */}
+                    <div className="flex flex-col gap-2.5">
+                      <motion.button
+                        whileHover={{ scale: 1.025 }}
+                        whileTap={{ scale: 0.975 }}
+                        onClick={() => navigate('/dashboard')}
+                        className="w-full h-[46px] bg-gradient-to-r from-[#D4527A] to-[#B84068] text-white rounded-full font-bold text-[12px] tracking-[1.5px] uppercase flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(212,82,122,0.45)] hover:shadow-[0_6px_32px_rgba(212,82,122,0.6)] transition-all"
+                      >
+                        <Star size={13} className="fill-white stroke-none" />
+                        View in My Profile
+                      </motion.button>
+                      <button
+                        onClick={() => { setShowLoyaltyEarnedDialog(false); navigate('/shop'); }}
+                        className="w-full h-[42px] rounded-full border border-white/12 text-white/45 font-semibold text-[12px] hover:text-white/80 hover:border-white/25 transition-all"
+                      >
+                        Continue Shopping
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <p className="font-sans text-[13px] text-white/60 leading-relaxed mt-2">
-                  Redeem them on your next order for an instant discount!
-                </p>
-
-                <div className="mt-6 flex flex-col gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => navigate('/dashboard')}
-                    className="w-full h-11 bg-gradient-to-r from-[#D4527A] to-[#B94B68] text-white rounded-full font-bold text-[12px] tracking-[1.2px] uppercase flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(212,82,122,0.4)] hover:shadow-[0_6px_28px_rgba(212,82,122,0.5)] transition-all"
-                  >
-                    <Star size={14} className="fill-white" /> View in My Profile
-                  </motion.button>
-                  <button
-                    onClick={() => { setShowLoyaltyEarnedDialog(false); navigate('/shop'); }}
-                    className="w-full h-11 border border-white/15 rounded-full text-white/60 font-semibold text-[12px] hover:text-white hover:border-white/30 transition-all"
-                  >
-                    Continue Shopping
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>

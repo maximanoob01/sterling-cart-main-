@@ -366,6 +366,8 @@ router.get('/track/:orderId', async (req, res, next) => {
         totalAmount: order.totalAmount,
         trackingNumber: order.trackingNumber,
         courierName: order.courierName,
+        awbCode: order.awbCode,
+        trackingUrl: order.trackingUrl,
         createdAt: order.createdAt,
         shippingAddress: order.shippingAddress,
         customerName: order.customerName,
