@@ -73,7 +73,7 @@ router.post('/verify-purchase', authenticate, async (req, res, next) => {
     // Send notifications non-blocking
     const userEmail = req.dbUser.email;
     const userName = req.dbUser.firstName || 'Customer';
-    sendGiftCardEmail(userEmail, userName, amount, plainCode, expiresAt).catch(console.error);
+    await sendGiftCardEmail(userEmail, userName, amount, plainCode, expiresAt).catch(console.error);
     console.log(`\n[WHATSAPP MOCK] To ${req.dbUser.phone}: Your Sterling Kart gift card is ready. Code: ${plainCode}. Value: ₹${amount}. Valid till ${expiresAt.toLocaleDateString()}. Shop at sterlingkart.com\n`);
 
     res.json({

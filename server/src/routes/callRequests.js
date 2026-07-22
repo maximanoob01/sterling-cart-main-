@@ -85,7 +85,7 @@ router.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
 
       // Send confirmation email if customer provided one
       if (request.email) {
-        sendCallConfirmation({
+        await sendCallConfirmation({
           name:          request.name,
           email:         request.email,
           preferredDate: request.preferredDate,

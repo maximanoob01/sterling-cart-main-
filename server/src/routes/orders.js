@@ -272,11 +272,11 @@ router.post('/', checkoutLimiter, optionalAuth, [
 
     await t.commit();
 
-    // Send confirmation email (non-blocking)
-    sendOrderConfirmation(orderId, form, orderItems, totalAmount).catch(console.error);
+    // Send confirmation email
+    await sendOrderConfirmation(orderId, form, orderItems, totalAmount).catch(console.error);
 
-    // Create Shiprocket Order and Generate AWB (non-blocking)
-    (async () => {
+    // Create Shiprocket Order and Generate AWB
+    await (async () => {
       try {
         // Create custom order in Shiprocket
         const srOrder = await shiprocketService.createCustomOrder(order, items);
@@ -526,7 +526,7 @@ router.put('/:orderId/status', authenticate, requireAdmin, [
 
       // Automatically send invoice email (without PDF since it's backend-generated)
       const { sendInvoiceEmail } = await import('../services/emailService.js');
-      sendInvoiceEmail(order, order.items || []).catch(console.error);
+      await sendInvoiceEmail(order, order.items || []).catch(console.error);
 
       // Confirm pending Loyalty Points
       if (order.userId) {

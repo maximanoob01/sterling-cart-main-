@@ -199,7 +199,7 @@ router.post('/verify-otp', authLimiter, [
       });
 
       // Send Welcome Email
-      sendWelcomeEmail(email, name).catch(console.error);
+      await sendWelcomeEmail(email, name).catch(console.error);
     } else {
       // Login: user MUST exist
       if (!user) {

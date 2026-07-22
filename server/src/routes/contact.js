@@ -26,7 +26,7 @@ router.post('/', contactLimiter, [
     const msg = await ContactMessage.create(req.body);
 
     // Send notification email (non-blocking)
-    sendContactNotification(req.body).catch(console.error);
+    await sendContactNotification(req.body).catch(console.error);
 
     res.status(201).json({ success: true, message: 'Message sent successfully' });
   } catch (error) { next(error); }
