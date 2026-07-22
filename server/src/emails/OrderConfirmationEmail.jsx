@@ -96,7 +96,7 @@ const styles = {
   header: {
     textAlign: 'center', 
     backgroundColor: '#1a1014',
-    backgroundImage: 'url("https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/c5.jpeg")',
+    backgroundImage: 'url("https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/c5.webp")',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     padding: '40px 20px',

@@ -83,28 +83,28 @@ export default function WelcomeEmail({ name = 'Customer' }) {
           <Section style={styles.bestsellers}>
             <Row>
               <Column width="25%" style={styles.productCard} className="product-card">
-                <Img src="https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/product_pendant_1.png" width="100%" style={styles.productImg} alt="Heart Pendant" />
+                <Img src="https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/product_pendant_1.webp" width="100%" style={styles.productImg} alt="Heart Pendant" />
                 <Text style={styles.productName} className="product-name">Heart Pendant</Text>
                 <Text style={styles.productPrice} className="product-price">₹1,499</Text>
                 <Button href="https://sterlingkart.in/shop" style={styles.shopBtn} className="shop-btn">SHOP NOW</Button>
               </Column>
               
               <Column width="25%" style={styles.productCard} className="product-card">
-                <Img src="https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/product_bracelet_1.png" width="100%" style={styles.productImg} alt="Infinity Bracelet" />
+                <Img src="https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/product_bracelet_1.webp" width="100%" style={styles.productImg} alt="Infinity Bracelet" />
                 <Text style={styles.productName} className="product-name">Infinity Bracelet</Text>
                 <Text style={styles.productPrice} className="product-price">₹1,299</Text>
                 <Button href="https://sterlingkart.in/shop" style={styles.shopBtn} className="shop-btn">SHOP NOW</Button>
               </Column>
               
               <Column width="25%" style={styles.productCard} className="product-card">
-                <Img src="https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/product_earring_1.png" width="100%" style={styles.productImg} alt="Floral Studs" />
+                <Img src="https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/product_earring_1.webp" width="100%" style={styles.productImg} alt="Floral Studs" />
                 <Text style={styles.productName} className="product-name">Floral Studs</Text>
                 <Text style={styles.productPrice} className="product-price">₹999</Text>
                 <Button href="https://sterlingkart.in/shop" style={styles.shopBtn} className="shop-btn">SHOP NOW</Button>
               </Column>
               
               <Column width="25%" style={styles.productCard} className="product-card">
-                <Img src="https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/product_ring_1.png" width="100%" style={styles.productImg} alt="Solitaire Ring" />
+                <Img src="https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/product_ring_1.webp" width="100%" style={styles.productImg} alt="Solitaire Ring" />
                 <Text style={styles.productName} className="product-name">Solitaire Ring</Text>
                 <Text style={styles.productPrice} className="product-price">₹1,199</Text>
                 <Button href="https://sterlingkart.in/shop" style={styles.shopBtn} className="shop-btn">SHOP NOW</Button>
@@ -190,7 +190,7 @@ const styles = {
   heroSection: { 
     textAlign: 'center', 
     backgroundColor: '#1a1014',
-    backgroundImage: 'url("https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/c4.jpeg")',
+    backgroundImage: 'url("https://raw.githubusercontent.com/maximanoob01/sterling-cart-main-/main/src/assets/images/c4.webp")',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     padding: '60px 20px',
