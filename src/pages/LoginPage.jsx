@@ -368,7 +368,6 @@ export default function LoginPage() {
                       className="w-full pl-10 pr-4 py-2.5 tracking-[0.5em] font-bold text-center bg-gray-50/50 rounded-xl border border-gray-200 focus:bg-bg-surface focus:border-[#D4527A] focus:ring-1 focus:ring-[#D4527A] outline-none text-[16px] transition-all"
                     />
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-2 text-center">For testing, use <span className="font-bold text-gray-800">1234</span></p>
                 </div>
 
                 <div className="col-span-1 pt-2">
